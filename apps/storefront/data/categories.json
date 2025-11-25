@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Điện tử",
+    "slug": "dien-tu",
+    "description": "Thiết bị điện tử tiêu dùng"
+  },
+  {
+    "id": 2,
+    "name": "Máy tính",
+    "slug": "may-tinh",
+    "description": "Laptop, PC và phụ kiện"
+  },
+  {
+    "id": 3,
+    "name": "Phụ kiện",
+    "slug": "phu-kien",
+    "description": "Phụ kiện công nghệ"
+  },
+  {
+    "id": 4,
+    "name": "Âm thanh",
+    "slug": "am-thanh",
+    "description": "Thiết bị âm thanh"
+  },
+  {
+    "id": 5,
+    "name": "Nhiếp ảnh",
+    "slug": "nhiep-anh",
+    "description": "Máy ảnh và phụ kiện"
+  }
+]

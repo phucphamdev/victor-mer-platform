@@ -1,0 +1,92 @@
+{
+  "templates": [
+    {
+      "id": "fashion-boutique",
+      "name": "Fashion Boutique",
+      "description": "Elegant and modern template perfect for fashion stores, clothing brands, and boutiques. Features a clean design with focus on product imagery.",
+      "screenshot": "/images/templates/fashion-boutique.jpg",
+      "demoUrl": "",
+      "features": [
+        "Responsive grid layout",
+        "Product quick view",
+        "Image zoom on hover",
+        "Size & color variants",
+        "Wishlist functionality",
+        "Instagram feed integration",
+        "Newsletter signup"
+      ],
+      "category": "fashion",
+      "previewImages": [
+        "/images/templates/fashion-boutique-1.jpg",
+        "/images/templates/fashion-boutique-2.jpg",
+        "/images/templates/fashion-boutique-3.jpg"
+      ]
+    },
+    {
+      "id": "electronics-store",
+      "name": "Electronics Store",
+      "description": "Professional template designed for electronics, gadgets, and tech products. Includes advanced filtering and comparison features.",
+      "screenshot": "/images/templates/electronics-store.jpg",
+      "demoUrl": "",
+      "features": [
+        "Advanced product filters",
+        "Product comparison",
+        "Technical specifications display",
+        "Customer reviews & ratings",
+        "Related products",
+        "Recently viewed items",
+        "Live chat support"
+      ],
+      "category": "electronics",
+      "previewImages": [
+        "/images/templates/electronics-store-1.jpg",
+        "/images/templates/electronics-store-2.jpg",
+        "/images/templates/electronics-store-3.jpg"
+      ]
+    },
+    {
+      "id": "food-delivery",
+      "name": "Food Delivery",
+      "description": "Appetizing template for restaurants, food delivery services, and cafes. Optimized for quick ordering and menu browsing.",
+      "screenshot": "/images/templates/food-delivery.jpg",
+      "demoUrl": "",
+      "features": [
+        "Menu categories",
+        "Quick add to cart",
+        "Delivery time selection",
+        "Location-based delivery",
+        "Special dietary filters",
+        "Order tracking",
+        "Customer reviews"
+      ],
+      "category": "food",
+      "previewImages": [
+        "/images/templates/food-delivery-1.jpg",
+        "/images/templates/food-delivery-2.jpg",
+        "/images/templates/food-delivery-3.jpg"
+      ]
+    },
+    {
+      "id": "minimal-store",
+      "name": "Minimal Store",
+      "description": "Clean and minimalist template suitable for any product type. Focus on simplicity and user experience.",
+      "screenshot": "/images/templates/minimal-store.jpg",
+      "demoUrl": "",
+      "features": [
+        "Minimalist design",
+        "Fast loading",
+        "Easy navigation",
+        "Mobile-first approach",
+        "Simple checkout",
+        "Product search",
+        "Social sharing"
+      ],
+      "category": "general",
+      "previewImages": [
+        "/images/templates/minimal-store-1.jpg",
+        "/images/templates/minimal-store-2.jpg",
+        "/images/templates/minimal-store-3.jpg"
+      ]
+    }
+  ]
+}

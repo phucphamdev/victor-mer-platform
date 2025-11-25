@@ -1,0 +1,135 @@
+{
+  "platformFeatures": [
+    {
+      "id": "multi-tenant",
+      "title": "Multi-Tenant Architecture",
+      "description": "Powerful multi-tenant system allowing multiple stores to run on a single platform with complete isolation and custom domain mapping.",
+      "icon": "building",
+      "category": "infrastructure"
+    },
+    {
+      "id": "custom-domains",
+      "title": "Custom Domain Mapping",
+      "description": "Each tenant can use their own custom domain with automatic SSL certificate provisioning and DNS configuration support.",
+      "icon": "globe",
+      "category": "infrastructure"
+    },
+    {
+      "id": "scalable",
+      "title": "Highly Scalable",
+      "description": "Built on modern cloud infrastructure that scales automatically based on traffic and resource needs.",
+      "icon": "trending-up",
+      "category": "infrastructure"
+    },
+    {
+      "id": "api-first",
+      "title": "API-First Design",
+      "description": "Complete RESTful API and GraphQL support for seamless integration with mobile apps, third-party services, and custom frontends.",
+      "icon": "code",
+      "category": "development"
+    },
+    {
+      "id": "payment-gateways",
+      "title": "Multiple Payment Gateways",
+      "description": "Integrated support for Stripe, PayPal, and other major payment processors with easy configuration.",
+      "icon": "credit-card",
+      "category": "commerce"
+    },
+    {
+      "id": "inventory",
+      "title": "Advanced Inventory Management",
+      "description": "Real-time inventory tracking, low stock alerts, and multi-warehouse support for efficient stock management.",
+      "icon": "package",
+      "category": "commerce"
+    },
+    {
+      "id": "analytics",
+      "title": "Built-in Analytics",
+      "description": "Comprehensive analytics dashboard with sales reports, customer insights, and performance metrics.",
+      "icon": "bar-chart",
+      "category": "analytics"
+    },
+    {
+      "id": "seo",
+      "title": "SEO Optimized",
+      "description": "Built-in SEO tools including meta tags, sitemaps, structured data, and URL optimization for better search rankings.",
+      "icon": "search",
+      "category": "marketing"
+    },
+    {
+      "id": "mobile-responsive",
+      "title": "Mobile Responsive",
+      "description": "All templates are fully responsive and optimized for mobile devices, tablets, and desktops.",
+      "icon": "smartphone",
+      "category": "design"
+    },
+    {
+      "id": "security",
+      "title": "Enterprise Security",
+      "description": "Bank-level security with SSL encryption, PCI compliance, regular security audits, and data backup.",
+      "icon": "shield",
+      "category": "infrastructure"
+    },
+    {
+      "id": "customization",
+      "title": "Easy Customization",
+      "description": "Flexible theming system and drag-and-drop page builder for easy customization without coding.",
+      "icon": "palette",
+      "category": "design"
+    },
+    {
+      "id": "support",
+      "title": "24/7 Support",
+      "description": "Round-the-clock customer support via email, chat, and phone with dedicated account managers for enterprise plans.",
+      "icon": "headphones",
+      "category": "support"
+    }
+  ],
+  "offerings": [
+    {
+      "id": "saas-rental",
+      "title": "SaaS Rental",
+      "description": "Subscribe to our platform and get your online store up and running in minutes. Choose a template, select a plan, and point your domain to start selling.",
+      "icon": "cloud",
+      "ctaText": "View Pricing Plans",
+      "ctaLink": "/pricing/rental",
+      "highlights": [
+        "No upfront costs",
+        "Custom domain mapping",
+        "Automatic updates",
+        "Scalable infrastructure",
+        "24/7 monitoring"
+      ]
+    },
+    {
+      "id": "license-purchase",
+      "title": "License Purchase",
+      "description": "Buy only the features you need. Get the source code for specific modules and deploy on your own infrastructure with full control.",
+      "icon": "download",
+      "ctaText": "Browse License Packages",
+      "ctaLink": "/pricing/license",
+      "highlights": [
+        "One-time payment",
+        "Source code included",
+        "Choose specific features",
+        "Self-hosted option",
+        "Full customization"
+      ]
+    },
+    {
+      "id": "ready-backend",
+      "title": "Ready Backend",
+      "description": "Complete admin panel and API infrastructure ready to use. Focus on building your frontend and design while we handle the backend complexity.",
+      "icon": "server",
+      "ctaText": "View Documentation",
+      "ctaLink": "/docs",
+      "highlights": [
+        "Complete admin panel",
+        "RESTful API",
+        "GraphQL support",
+        "Authentication system",
+        "Database management"
+      ]
+    }
+  ]
+}

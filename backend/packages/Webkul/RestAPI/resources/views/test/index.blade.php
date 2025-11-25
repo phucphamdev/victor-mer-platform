@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bagisto API Tester</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="gradient-bg text-white py-8 shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl font-bold mb-2">🚀 Bagisto REST API Tester</h1>
+            <p class="text-lg opacity-90">Test and explore all API endpoints</p>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Token Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">🔑 Authentication Token</h2>
+            <div class="flex gap-4 mb-4">
+                <input 
+                    type="text" 
+                    id="token" 
+                    placeholder="Paste your Bearer token here..."
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                >
+                <button 
+                    onclick="saveToken()"
+                    class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+                >
+                    Save Token
+                </button>
+            </div>
+            <p class="text-sm text-gray-600">💡 Get your token by calling <code class="bg-gray-100 px-2 py-1 rounded">/api/v1/auth/login</code> or <code class="bg-gray-100 px-2 py-1 rounded">/api/v1/auth/register</code></p>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- Register -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">📝 Register New User</h3>
+                <div class="space-y-3">
+                    <input type="text" id="reg_first_name" placeholder="First Name" class="w-full px-4 py-2 border rounded-lg">
+                    <input type="text" id="reg_last_name" placeholder="Last Name" class="w-full px-4 py-2 border rounded-lg">
+                    <input type="email" id="reg_email" placeholder="Email" class="w-full px-4 py-2 border rounded-lg">
+                    <input type="password" id="reg_password" placeholder="Password" class="w-full px-4 py-2 border rounded-lg">
+                    <input type="password" id="reg_password_confirmation" placeholder="Confirm Password" class="w-full px-4 py-2 border rounded-lg">
+                    <button onclick="register()" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        Register
+                    </button>
+                </div>
+            </div>
+
+            <!-- Login -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">🔐 Login</h3>
+                <div class="space-y-3">
+                    <input type="email" id="login_email" placeholder="Email" class="w-full px-4 py-2 border rounded-lg" value="test@example.com">
+                    <input type="password" id="login_password" placeholder="Password" class="w-full px-4 py-2 border rounded-lg" value="password123">
+                    <button onclick="login()" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        Login
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Endpoints -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">📡 API Endpoints</h2>
+            
+            <div class="space-y-4">
+                <!-- Products -->
+                <div class="border-l-4 border-blue-500 pl-4">
+                    <h4 class="font-bold text-lg mb-2">Products</h4>
+                    <div class="space-y-2">
+                        <button onclick="callAPI('GET', '/api/v1/products')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 mr-2">
+                            GET /products
+                        </button>
+                        <button onclick="callAPI('GET', '/api/v1/products/1')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 mr-2">
+                            GET /products/1
+                        </button>
+                        <button onclick="callAPI('GET', '/api/v1/search?q=laptop')" class="px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                            GET /search?q=laptop
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Categories -->
+                <div class="border-l-4 border-green-500 pl-4">
+                    <h4 class="font-bold text-lg mb-2">Categories</h4>
+                    <div class="space-y-2">
+                        <button onclick="callAPI('GET', '/api/v1/categories')" class="px-4 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200 mr-2">
+                            GET /categories
+                        </button>
+                        <button onclick="callAPI('GET', '/api/v1/categories/1')" class="px-4 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200">
+                            GET /categories/1
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cart (Requires Auth) -->
+                <div class="border-l-4 border-purple-500 pl-4">
+                    <h4 class="font-bold text-lg mb-2">Cart 🔒</h4>
+                    <div class="space-y-2">
+                        <button onclick="callAPI('GET', '/api/v1/cart', true)" class="px-4 py-2 bg-purple-100 text-purple-700 rounded hover:bg-purple-200 mr-2">
+                            GET /cart
+                        </button>
+                        <button onclick="addToCart()" class="px-4 py-2 bg-purple-100 text-purple-700 rounded hover:bg-purple-200">
+                            POST /cart/add
+                        </button>
+                    </div>
+                </div>
+
+                <!-- User Profile (Requires Auth) -->
+                <div class="border-l-4 border-orange-500 pl-4">
+                    <h4 class="font-bold text-lg mb-2">User Profile 🔒</h4>
+                    <div class="space-y-2">
+                        <button onclick="callAPI('GET', '/api/v1/auth/me', true)" class="px-4 py-2 bg-orange-100 text-orange-700 rounded hover:bg-orange-200 mr-2">
+                            GET /auth/me
+                        </button>
+                        <button onclick="callAPI('GET', '/api/v1/customer/profile', true)" class="px-4 py-2 bg-orange-100 text-orange-700 rounded hover:bg-orange-200 mr-2">
+                            GET /customer/profile
+                        </button>
+                        <button onclick="callAPI('GET', '/api/v1/orders', true)" class="px-4 py-2 bg-orange-100 text-orange-700 rounded hover:bg-orange-200">
+                            GET /orders
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Response Section -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">📋 Response</h2>
+            <div class="mb-4">
+                <span id="status" class="px-3 py-1 rounded text-sm font-semibold"></span>
+                <span id="time" class="ml-2 text-gray-600 text-sm"></span>
+            </div>
+            <pre id="response" class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-auto max-h-96 text-sm">
+Waiting for API call...
+            </pre>
+        </div>
+    </div>
+
+    <script>
+        const baseURL = '{{ config("app.url") }}';
+        let authToken = localStorage.getItem('api_token') || '';
+
+        if (authToken) {
+            document.getElementById('token').value = authToken;
+        }
+
+        function saveToken() {
+            authToken = document.getElementById('token').value;
+            localStorage.setItem('api_token', authToken);
+            alert('✅ Token saved!');
+        }
+
+        async function register() {
+            const data = {
+                first_name: document.getElementById('reg_first_name').value,
+                last_name: document.getElementById('reg_last_name').value,
+                email: document.getElementById('reg_email').value,
+                password: document.getElementById('reg_password').value,
+                password_confirmation: document.getElementById('reg_password_confirmation').value,
+            };
+
+            const result = await callAPI('POST', '/api/v1/auth/register', false, data);
+            if (result && result.data && result.data.token) {
+                authToken = result.data.token;
+                document.getElementById('token').value = authToken;
+                localStorage.setItem('api_token', authToken);
+                alert('✅ Registration successful! Token saved.');
+            }
+        }
+
+        async function login() {
+            const data = {
+                email: document.getElementById('login_email').value,
+                password: document.getElementById('login_password').value,
+            };
+
+            const result = await callAPI('POST', '/api/v1/auth/login', false, data);
+            if (result && result.data && result.data.token) {
+                authToken = result.data.token;
+                document.getElementById('token').value = authToken;
+                localStorage.setItem('api_token', authToken);
+                alert('✅ Login successful! Token saved.');
+            }
+        }
+
+        async function addToCart() {
+            const productId = prompt('Enter Product ID:', '1');
+            const quantity = prompt('Enter Quantity:', '1');
+            
+            if (productId && quantity) {
+                await callAPI('POST', '/api/v1/cart/add', true, {
+                    product_id: parseInt(productId),
+                    quantity: parseInt(quantity)
+                });
+            }
+        }
+
+        async function callAPI(method, endpoint, requiresAuth = false, body = null) {
+            const startTime = Date.now();
+            
+            try {
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                };
+
+                if (requiresAuth) {
+                    if (!authToken) {
+                        alert('⚠️ Please login first to get a token!');
+                        return;
+                    }
+                    headers['Authorization'] = `Bearer ${authToken}`;
+                }
+
+                const options = {
+                    method,
+                    headers,
+                };
+
+                if (body) {
+                    options.body = JSON.stringify(body);
+                }
+
+                const response = await fetch(baseURL + endpoint, options);
+                const data = await response.json();
+                const endTime = Date.now();
+
+                // Update UI
+                const statusEl = document.getElementById('status');
+                const timeEl = document.getElementById('time');
+                const responseEl = document.getElementById('response');
+
+                if (response.ok) {
+                    statusEl.className = 'px-3 py-1 rounded text-sm font-semibold bg-green-100 text-green-800';
+                    statusEl.textContent = `✅ ${response.status} ${response.statusText}`;
+                } else {
+                    statusEl.className = 'px-3 py-1 rounded text-sm font-semibold bg-red-100 text-red-800';
+                    statusEl.textContent = `❌ ${response.status} ${response.statusText}`;
+                }
+
+                timeEl.textContent = `⏱️ ${endTime - startTime}ms`;
+                responseEl.textContent = JSON.stringify(data, null, 2);
+
+                return data;
+            } catch (error) {
+                document.getElementById('status').className = 'px-3 py-1 rounded text-sm font-semibold bg-red-100 text-red-800';
+                document.getElementById('status').textContent = '❌ Error';
+                document.getElementById('response').textContent = error.message;
+            }
+        }
+    </script>
+</body>
+</html>

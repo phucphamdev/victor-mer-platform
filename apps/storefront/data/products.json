@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "name": "iPhone 15 Pro Max",
+    "description": "Smartphone cao cấp với chip A17 Pro, camera 48MP, màn hình Super Retina XDR",
+    "price": 29990000,
+    "currency": "VND",
+    "image": "📱",
+    "category": "Điện tử",
+    "stock": 50
+  },
+  {
+    "id": 2,
+    "name": "MacBook Pro M3",
+    "description": "Laptop hiệu năng cao với chip M3, 16GB RAM, SSD 512GB, màn hình Liquid Retina XDR",
+    "price": 45990000,
+    "currency": "VND",
+    "image": "💻",
+    "category": "Máy tính",
+    "stock": 30
+  },
+  {
+    "id": 3,
+    "name": "Apple Watch Series 9",
+    "description": "Smartwatch theo dõi sức khỏe, GPS, Always-On Retina display",
+    "price": 10990000,
+    "currency": "VND",
+    "image": "⌚",
+    "category": "Phụ kiện",
+    "stock": 100
+  },
+  {
+    "id": 4,
+    "name": "AirPods Pro Gen 2",
+    "description": "Tai nghe không dây chống ồn chủ động, âm thanh không gian",
+    "price": 6490000,
+    "currency": "VND",
+    "image": "🎧",
+    "category": "Âm thanh",
+    "stock": 75
+  },
+  {
+    "id": 5,
+    "name": "Sony A7 IV",
+    "description": "Máy ảnh mirrorless full-frame 33MP, quay video 4K 60fps",
+    "price": 58990000,
+    "currency": "VND",
+    "image": "📷",
+    "category": "Nhiếp ảnh",
+    "stock": 20
+  },
+  {
+    "id": 6,
+    "name": "iPad Pro 12.9 inch",
+    "description": "Máy tính bảng với chip M2, màn hình Liquid Retina XDR, hỗ trợ Apple Pencil",
+    "price": 32990000,
+    "currency": "VND",
+    "image": "📱",
+    "category": "Điện tử",
+    "stock": 40
+  },
+  {
+    "id": 7,
+    "name": "Samsung Galaxy S24 Ultra",
+    "description": "Flagship Android với S Pen, camera 200MP, màn hình Dynamic AMOLED 2X",
+    "price": 31990000,
+    "currency": "VND",
+    "image": "📱",
+    "category": "Điện tử",
+    "stock": 45
+  },
+  {
+    "id": 8,
+    "name": "Dell XPS 15",
+    "description": "Laptop cao cấp Intel Core i7, RTX 4060, màn hình OLED 3.5K",
+    "price": 42990000,
+    "currency": "VND",
+    "image": "💻",
+    "category": "Máy tính",
+    "stock": 25
+  },
+  {
+    "id": 9,
+    "name": "Sony WH-1000XM5",
+    "description": "Tai nghe over-ear chống ồn hàng đầu, pin 30 giờ",
+    "price": 8990000,
+    "currency": "VND",
+    "image": "🎧",
+    "category": "Âm thanh",
+    "stock": 60
+  },
+  {
+    "id": 10,
+    "name": "Canon EOS R6 Mark II",
+    "description": "Máy ảnh mirrorless 24MP, quay video 4K 60fps, chống rung IBIS",
+    "price": 62990000,
+    "currency": "VND",
+    "image": "📷",
+    "category": "Nhiếp ảnh",
+    "stock": 15
+  },
+  {
+    "id": 11,
+    "name": "Samsung Galaxy Tab S9",
+    "description": "Tablet Android cao cấp với S Pen, màn hình AMOLED 120Hz",
+    "price": 21990000,
+    "currency": "VND",
+    "image": "📱",
+    "category": "Điện tử",
+    "stock": 35
+  },
+  {
+    "id": 12,
+    "name": "ASUS ROG Zephyrus G14",
+    "description": "Laptop gaming mỏng nhẹ AMD Ryzen 9, RTX 4070, màn hình 165Hz",
+    "price": 48990000,
+    "currency": "VND",
+    "image": "💻",
+    "category": "Máy tính",
+    "stock": 20
+  }
+]
