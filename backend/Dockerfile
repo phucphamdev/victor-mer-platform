@@ -1,7 +1,7 @@
 # Multi-stage build for Laravel backend
 
 # Stage 1: Development
-FROM php:8.2-apache AS development
+FROM php:8.3-apache AS development
 
 # Cài đặt thư viện cần thiết cho Bagisto
 RUN apt-get update && apt-get install -y \

@@ -37,6 +37,7 @@ return [
     Webkul\Sales\Providers\SalesServiceProvider::class,
     Webkul\Shipping\Providers\ShippingServiceProvider::class,
     Webkul\Shop\Providers\ShopServiceProvider::class,
+    Webkul\VictorMer\Providers\VictorMerServiceProvider::class,
     Webkul\Sitemap\Providers\SitemapServiceProvider::class,
     Webkul\SocialLogin\Providers\SocialLoginServiceProvider::class,
     Webkul\SocialShare\Providers\SocialShareServiceProvider::class,
@@ -46,14 +47,14 @@ return [
     Webkul\RestAPI\Providers\RestAPIServiceProvider::class,
     
     /**
-     * Extension Packages
+     * Extension Packages - Temporarily disabled for troubleshooting
      */
-    Webkul\ImageGallery\Providers\ImageGalleryServiceProvider::class,
-    Webkul\PreOrder\Providers\PreOrderServiceProvider::class,
-    Webkul\ProductLabelSystem\Providers\ProductLabelSystemServiceProvider::class,
-    Webkul\Rewards\Providers\RewardsServiceProvider::class,
-    Webkul\suggestion\Providers\suggestionServiceProvider::class,
-    Mziel\Blog\Providers\BlogServiceProvider::class,
-    Tahiryasin\Reports\Providers\ReportsServiceProvider::class,
-    Bagisto\StockNotify\Providers\StockNotifyServiceProvider::class,
+    // Webkul\ImageGallery\Providers\ImageGalleryServiceProvider::class,
+    // Webkul\PreOrder\Providers\PreOrderServiceProvider::class,
+    // Webkul\ProductLabelSystem\Providers\ProductLabelSystemServiceProvider::class,
+    // Webkul\Rewards\Providers\RewardsServiceProvider::class,
+    // Webkul\suggestion\Providers\suggestionServiceProvider::class,
+    // Mziel\Blog\Providers\BlogServiceProvider::class,
+    // Tahiryasin\Reports\Providers\ReportsServiceProvider::class,
+    // Bagisto\StockNotify\Providers\StockNotifyServiceProvider::class,
 ];

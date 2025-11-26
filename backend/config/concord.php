@@ -37,6 +37,7 @@ return [
         \Webkul\Sales\Providers\ModuleServiceProvider::class,
         \Webkul\Shipping\Providers\ModuleServiceProvider::class,
         \Webkul\Shop\Providers\ModuleServiceProvider::class,
+        \Webkul\VictorMer\Providers\ModuleServiceProvider::class,
         \Webkul\Sitemap\Providers\ModuleServiceProvider::class,
         \Webkul\SocialLogin\Providers\ModuleServiceProvider::class,
         \Webkul\Tax\Providers\ModuleServiceProvider::class,

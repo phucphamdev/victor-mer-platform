@@ -1,0 +1,28 @@
+{
+    "name": "webkul/victor-mer",
+    "license": "MIT",
+    "description": "Victor Mer Settings package for managing frontend configurations, SEO, and general settings",
+    "authors": [
+        {
+            "name": "Victor Mer",
+            "email": "support@victormer.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Webkul\\VictorMer\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Webkul\\VictorMer\\Providers\\VictorMerServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "minimum-stability": "dev"
+}
