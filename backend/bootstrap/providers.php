@@ -44,4 +44,16 @@ return [
     Webkul\Theme\Providers\ThemeServiceProvider::class,
     Webkul\User\Providers\UserServiceProvider::class,
     Webkul\RestAPI\Providers\RestAPIServiceProvider::class,
+    
+    /**
+     * Extension Packages
+     */
+    Webkul\ImageGallery\Providers\ImageGalleryServiceProvider::class,
+    Webkul\PreOrder\Providers\PreOrderServiceProvider::class,
+    Webkul\ProductLabelSystem\Providers\ProductLabelSystemServiceProvider::class,
+    Webkul\Rewards\Providers\RewardsServiceProvider::class,
+    Webkul\suggestion\Providers\suggestionServiceProvider::class,
+    Mziel\Blog\Providers\BlogServiceProvider::class,
+    Tahiryasin\Reports\Providers\ReportsServiceProvider::class,
+    Bagisto\StockNotify\Providers\StockNotifyServiceProvider::class,
 ];

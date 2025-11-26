@@ -1,55 +1,89 @@
 #!/bin/bash
 
 # ============================================
-# DEV SCRIPT - Khởi động development environment
+# Development Environment Startup Script
+# Khởi động môi trường development
 # ============================================
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-cd "$PROJECT_ROOT"
-
-echo "🚀 Khởi động Victor Mer E-Commerce Platform..."
+echo -e "${BLUE}============================================${NC}"
+echo -e "${BLUE}Development Environment Startup${NC}"
+echo -e "${BLUE}============================================${NC}"
 echo ""
 
-# Load config
-if [ -f "config.env" ]; then
-    set -a
-    source config.env
-    set +a
-else
-    echo "⚠️  Không tìm thấy config.env, sử dụng giá trị mặc định"
-fi
-
-# Kiểm tra Docker
-if ! command -v docker &> /dev/null; then
-    echo "❌ Docker chưa được cài đặt"
-    exit 1
-fi
-
-# Tạo file cấu hình nếu chưa có
-if [ ! -f ".env" ] || [ ! -f "backend/.env" ]; then
-    echo "📝 Tạo file cấu hình..."
-    bash scripts/generate-config.sh
+# Check if cleanup is needed
+read -p "Bạn có muốn cleanup Docker trước khi start? (yes/no, default: no): " cleanup
+if [ "$cleanup" = "yes" ]; then
+    echo ""
+    bash scripts/docker-cleanup.sh
     echo ""
 fi
 
-# Khởi động Docker services
-echo "📦 Khởi động Docker services..."
-docker-compose up -d
+# Generate config
+echo -e "${YELLOW}📋 Generating configuration...${NC}"
+bash scripts/generate-config.sh
+echo ""
+
+# Check if .env files exist
+if [ ! -f ".env" ]; then
+    echo -e "${RED}❌ File .env không tồn tại!${NC}"
+    echo -e "${YELLOW}Chạy: bash scripts/generate-config.sh${NC}"
+    exit 1
+fi
+
+# Start services
+echo -e "${BLUE}🚀 Starting development services...${NC}"
+echo ""
+
+docker-compose -f docker-compose.dev.yml up -d --build
 
 echo ""
-echo "✅ Hoàn tất!"
+echo -e "${GREEN}============================================${NC}"
+echo -e "${GREEN}✅ Development environment started!${NC}"
+echo -e "${GREEN}============================================${NC}"
 echo ""
-echo "📍 Truy cập:"
-echo "  Landing:    ${LANDING_URL:-http://localhost:3000}"
-echo "  Storefront: ${STOREFRONT_URL:-http://localhost:3001}"
-echo "  Backend:    ${BACKEND_URL:-http://localhost:8000}"
-echo "  Admin:      ${BACKEND_URL:-http://localhost:8000}/admin"
-echo "  Kibana:     http://localhost:${KIBANA_PORT:-5601}"
-echo "  MailHog:    http://localhost:${MAILHOG_WEB_PORT:-8025}"
+
+# Wait for services to be ready
+echo -e "${YELLOW}⏳ Đợi services khởi động...${NC}"
+sleep 10
+
+# Show status
+echo -e "${BLUE}📦 Container status:${NC}"
+docker-compose -f docker-compose.dev.yml ps
 echo ""
-echo "💡 Để thay đổi cấu hình, chỉnh sửa file config.env và chạy:"
-echo "   bash scripts/generate-config.sh"
+
+# Load environment variables
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+fi
+
+# Show access URLs
+echo -e "${BLUE}🌐 Access URLs:${NC}"
+echo -e "   Landing Page:  ${GREEN}http://localhost:${LANDING_PORT:-3000}${NC}"
+echo -e "   Storefront:    ${GREEN}http://localhost:${STOREFRONT_PORT:-3001}${NC}"
+echo -e "   Backend API:   ${GREEN}http://localhost:${BACKEND_PORT:-8000}${NC}"
+echo -e "   MailHog:       ${GREEN}http://localhost:${MAILHOG_WEB_PORT:-8025}${NC}"
+echo ""
+
+# Show useful commands
+echo -e "${BLUE}💡 Useful commands:${NC}"
+echo -e "   View logs:     ${YELLOW}docker-compose -f docker-compose.dev.yml logs -f${NC}"
+echo -e "   Stop:          ${YELLOW}docker-compose -f docker-compose.dev.yml down${NC}"
+echo -e "   Restart:       ${YELLOW}docker-compose -f docker-compose.dev.yml restart${NC}"
+echo -e "   Cleanup:       ${YELLOW}bash scripts/docker-cleanup.sh${NC}"
+echo -e "   Reset & Rebuild: ${YELLOW}bash scripts/docker-reset.sh dev${NC}"
+echo ""
+
+# Ask to view logs
+read -p "Bạn có muốn xem logs? (yes/no): " view_logs
+if [ "$view_logs" = "yes" ]; then
+    docker-compose -f docker-compose.dev.yml logs -f
+fi

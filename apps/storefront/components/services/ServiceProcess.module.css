@@ -1,0 +1,137 @@
+.process {
+  padding: 80px 20px;
+  background: white;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sectionTitle {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 60px;
+  color: #1a202c;
+  font-weight: 700;
+}
+
+.processSteps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 40px;
+  position: relative;
+}
+
+.processStep {
+  text-align: center;
+  position: relative;
+  padding: 20px;
+}
+
+.stepNumber {
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 auto 25px;
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+.processStep:hover .stepNumber {
+  transform: scale(1.1);
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+}
+
+.stepTitle {
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+  color: #2d3748;
+  font-weight: 600;
+}
+
+.stepDescription {
+  color: #718096;
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+.connector {
+  display: none;
+}
+
+@media (min-width: 769px) {
+  .processSteps {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .processStep {
+    position: relative;
+  }
+
+  .connector {
+    display: block;
+    position: absolute;
+    top: 35px;
+    right: -40px;
+    width: 40px;
+    height: 2px;
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .connector::after {
+    content: '→';
+    position: absolute;
+    right: -10px;
+    top: -10px;
+    color: #667eea;
+    font-size: 1.2rem;
+  }
+
+  .processStep:last-child .connector {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .process {
+    padding: 60px 20px;
+  }
+
+  .sectionTitle {
+    font-size: 2rem;
+    margin-bottom: 40px;
+  }
+
+  .processSteps {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+
+  .stepNumber {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+
+  .stepTitle {
+    font-size: 1.1rem;
+  }
+
+  .stepDescription {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .processSteps {
+    grid-template-columns: 1fr;
+  }
+}

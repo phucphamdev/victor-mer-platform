@@ -1,317 +1,213 @@
 #!/bin/bash
 
 # ============================================
-# PRODUCTION MANAGEMENT SCRIPT
-# Script quản lý production environment
+# Production Environment Management Script
+# Quản lý môi trường production
 # ============================================
 
 set -e
 
-# Colors
+# Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m'
+NC='\033[0m' # No Color
 
-# Load environment
-if [ -f "config.env.prod" ]; then
-    export $(cat config.env.prod | grep -v '^#' | xargs)
-fi
-
-# Functions
-print_header() {
-    echo -e "\n${BLUE}========================================${NC}"
-    echo -e "${BLUE}$1${NC}"
-    echo -e "${BLUE}========================================${NC}\n"
-}
-
-print_success() {
-    echo -e "${GREEN}✓ $1${NC}"
-}
-
-print_error() {
-    echo -e "${RED}✗ $1${NC}"
-}
-
-print_info() {
-    echo -e "${BLUE}ℹ $1${NC}"
-}
-
-# Show menu
+# Function to show menu
 show_menu() {
-    print_header "PRODUCTION MANAGEMENT"
-    echo "1.  Xem trạng thái services"
-    echo "2.  Xem logs"
-    echo "3.  Restart services"
-    echo "4.  Stop services"
-    echo "5.  Start services"
-    echo "6.  Backup database"
-    echo "7.  Restore database"
-    echo "8.  Clear cache"
-    echo "9.  Run migrations"
-    echo "10. Update code và rebuild"
-    echo "11. Xem resource usage"
-    echo "12. Health check"
-    echo "0.  Thoát"
+    echo -e "${BLUE}============================================${NC}"
+    echo -e "${BLUE}Production Environment Management${NC}"
+    echo -e "${BLUE}============================================${NC}"
+    echo ""
+    echo "1. Start Production"
+    echo "2. Stop Production"
+    echo "3. Restart Production"
+    echo "4. View Logs"
+    echo "5. View Status"
+    echo "6. Cleanup & Rebuild"
+    echo "7. Backup Database"
+    echo "8. Restore Database"
+    echo "9. Update & Rebuild"
+    echo "0. Exit"
     echo ""
 }
 
-# Status
-show_status() {
-    print_header "TRẠNG THÁI SERVICES"
+# Function to start production
+start_production() {
+    echo -e "${BLUE}🚀 Starting production environment...${NC}"
+    echo ""
+    
+    # Check if cleanup is needed
+    read -p "Bạn có muốn cleanup Docker trước khi start? (yes/no, default: no): " cleanup
+    if [ "$cleanup" = "yes" ]; then
+        echo ""
+        bash scripts/docker-cleanup.sh
+        echo ""
+    fi
+    
+    # Generate config
+    echo -e "${YELLOW}📋 Generating configuration...${NC}"
+    bash scripts/generate-config.sh
+    echo ""
+    
+    docker-compose -f docker-compose.prod.yml up -d --build
+    
+    echo ""
+    echo -e "${GREEN}✅ Production started!${NC}"
+    echo ""
+    
+    # Wait for services
+    echo -e "${YELLOW}⏳ Đợi services khởi động...${NC}"
+    sleep 20
+    
+    # Show status
     docker-compose -f docker-compose.prod.yml ps
 }
 
-# Logs
-show_logs() {
-    echo "Chọn service để xem logs:"
-    echo "1. All services"
-    echo "2. Backend"
-    echo "3. Frontend"
-    echo "4. Landing"
-    echo "5. MySQL"
-    echo "6. Redis"
-    echo "7. Elasticsearch"
-    echo "8. Nginx"
-    read -p "Lựa chọn: " choice
+# Function to stop production
+stop_production() {
+    echo -e "${YELLOW}🛑 Stopping production environment...${NC}"
+    docker-compose -f docker-compose.prod.yml down
+    echo -e "${GREEN}✅ Production stopped!${NC}"
+}
+
+# Function to restart production
+restart_production() {
+    echo -e "${YELLOW}🔄 Restarting production environment...${NC}"
+    docker-compose -f docker-compose.prod.yml restart
+    echo -e "${GREEN}✅ Production restarted!${NC}"
+}
+
+# Function to view logs
+view_logs() {
+    echo -e "${BLUE}📋 Viewing logs (Ctrl+C to exit)...${NC}"
+    echo ""
+    docker-compose -f docker-compose.prod.yml logs -f
+}
+
+# Function to view status
+view_status() {
+    echo -e "${BLUE}📊 Container Status:${NC}"
+    docker-compose -f docker-compose.prod.yml ps
+    echo ""
     
-    case $choice in
-        1) docker-compose -f docker-compose.prod.yml logs -f ;;
-        2) docker-compose -f docker-compose.prod.yml logs -f backend ;;
-        3) docker-compose -f docker-compose.prod.yml logs -f frontend ;;
-        4) docker-compose -f docker-compose.prod.yml logs -f landing ;;
-        5) docker-compose -f docker-compose.prod.yml logs -f mysql ;;
-        6) docker-compose -f docker-compose.prod.yml logs -f redis ;;
-        7) docker-compose -f docker-compose.prod.yml logs -f elasticsearch ;;
-        8) docker-compose -f docker-compose.prod.yml logs -f nginx-proxy ;;
-        *) print_error "Lựa chọn không hợp lệ" ;;
-    esac
-}
-
-# Restart
-restart_services() {
-    echo "Chọn service để restart:"
-    echo "1. All services"
-    echo "2. Backend"
-    echo "3. Frontend"
-    echo "4. Landing"
-    echo "5. Nginx"
-    read -p "Lựa chọn: " choice
+    echo -e "${BLUE}💾 Disk Usage:${NC}"
+    docker system df
+    echo ""
     
-    case $choice in
-        1) docker-compose -f docker-compose.prod.yml restart ;;
-        2) docker-compose -f docker-compose.prod.yml restart backend ;;
-        3) docker-compose -f docker-compose.prod.yml restart frontend ;;
-        4) docker-compose -f docker-compose.prod.yml restart landing ;;
-        5) docker-compose -f docker-compose.prod.yml restart nginx-proxy ;;
-        *) print_error "Lựa chọn không hợp lệ" ;;
-    esac
+    echo -e "${BLUE}🌐 Networks:${NC}"
+    docker network ls | grep prod
+    echo ""
     
-    print_success "Đã restart services"
+    echo -e "${BLUE}📦 Volumes:${NC}"
+    docker volume ls | grep prod
 }
 
-# Stop
-stop_services() {
-    read -p "Bạn có chắc muốn stop tất cả services? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker-compose -f docker-compose.prod.yml down
-        print_success "Đã stop tất cả services"
-    fi
+# Function to cleanup and rebuild
+cleanup_rebuild() {
+    echo -e "${YELLOW}🧹 Cleanup & Rebuild...${NC}"
+    bash scripts/docker-reset.sh prod
 }
 
-# Start
-start_services() {
-    docker-compose -f docker-compose.prod.yml up -d
-    print_success "Đã start tất cả services"
-}
-
-# Backup database
+# Function to backup database
 backup_database() {
-    print_info "Đang backup database..."
+    echo -e "${BLUE}💾 Backing up database...${NC}"
     
-    BACKUP_DIR="backups"
-    mkdir -p "$BACKUP_DIR"
+    # Load environment variables
+    if [ -f .env ]; then
+        export $(cat .env | grep -v '^#' | xargs)
+    fi
+    
+    BACKUP_DIR="./backups"
+    mkdir -p $BACKUP_DIR
     
     BACKUP_FILE="$BACKUP_DIR/db_backup_$(date +%Y%m%d_%H%M%S).sql"
     
     docker exec ${PROJECT_NAME}-mysql-prod mysqldump \
-        -u root -p${DB_ROOT_PASSWORD} ${DB_DATABASE} \
-        > "$BACKUP_FILE"
+        -u${DB_USERNAME} \
+        -p${DB_PASSWORD} \
+        ${DB_DATABASE} > $BACKUP_FILE
     
-    print_success "Đã backup database tại: $BACKUP_FILE"
-    
-    # Compress backup
-    gzip "$BACKUP_FILE"
-    print_success "Đã nén backup: ${BACKUP_FILE}.gz"
+    echo -e "${GREEN}✅ Database backed up to: $BACKUP_FILE${NC}"
 }
 
-# Restore database
+# Function to restore database
 restore_database() {
-    print_info "Danh sách backup có sẵn:"
-    ls -lh backups/*.sql* 2>/dev/null || echo "Không có backup nào"
+    echo -e "${BLUE}📥 Restoring database...${NC}"
     
-    read -p "Nhập tên file backup (ví dụ: backups/db_backup_20240101_120000.sql.gz): " backup_file
+    BACKUP_DIR="./backups"
     
-    if [ ! -f "$backup_file" ]; then
-        print_error "File không tồn tại!"
+    if [ ! -d "$BACKUP_DIR" ]; then
+        echo -e "${RED}❌ Backup directory not found!${NC}"
         return
     fi
     
-    read -p "CẢNH BÁO: Thao tác này sẽ ghi đè database hiện tại. Tiếp tục? (yes/no) " -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy][Ee][Ss]$ ]]; then
-        print_info "Đã hủy restore"
+    echo -e "${YELLOW}Available backups:${NC}"
+    ls -lh $BACKUP_DIR/*.sql 2>/dev/null || echo "No backups found"
+    echo ""
+    
+    read -p "Enter backup filename: " backup_file
+    
+    if [ ! -f "$BACKUP_DIR/$backup_file" ]; then
+        echo -e "${RED}❌ Backup file not found!${NC}"
         return
     fi
     
-    # Decompress if needed
-    if [[ $backup_file == *.gz ]]; then
-        gunzip -c "$backup_file" | docker exec -i ${PROJECT_NAME}-mysql-prod mysql \
-            -u root -p${DB_ROOT_PASSWORD} ${DB_DATABASE}
-    else
-        docker exec -i ${PROJECT_NAME}-mysql-prod mysql \
-            -u root -p${DB_ROOT_PASSWORD} ${DB_DATABASE} \
-            < "$backup_file"
+    # Load environment variables
+    if [ -f .env ]; then
+        export $(cat .env | grep -v '^#' | xargs)
     fi
     
-    print_success "Đã restore database"
-}
-
-# Clear cache
-clear_cache() {
-    print_info "Đang clear cache..."
-    docker exec ${PROJECT_NAME}-backend-prod php artisan cache:clear
-    docker exec ${PROJECT_NAME}-backend-prod php artisan config:clear
-    docker exec ${PROJECT_NAME}-backend-prod php artisan route:clear
-    docker exec ${PROJECT_NAME}-backend-prod php artisan view:clear
-    print_success "Đã clear cache"
+    docker exec -i ${PROJECT_NAME}-mysql-prod mysql \
+        -u${DB_USERNAME} \
+        -p${DB_PASSWORD} \
+        ${DB_DATABASE} < "$BACKUP_DIR/$backup_file"
     
-    print_info "Đang optimize lại..."
-    docker exec ${PROJECT_NAME}-backend-prod php artisan config:cache
-    docker exec ${PROJECT_NAME}-backend-prod php artisan route:cache
-    docker exec ${PROJECT_NAME}-backend-prod php artisan view:cache
-    print_success "Đã optimize"
+    echo -e "${GREEN}✅ Database restored from: $backup_file${NC}"
 }
 
-# Run migrations
-run_migrations() {
-    read -p "Bạn có chắc muốn chạy migrations? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        docker exec ${PROJECT_NAME}-backend-prod php artisan migrate --force
-        print_success "Đã chạy migrations"
-    fi
-}
-
-# Update and rebuild
+# Function to update and rebuild
 update_rebuild() {
-    print_info "Đang pull code mới..."
-    git pull origin main || git pull origin master
+    echo -e "${BLUE}🔄 Updating and rebuilding...${NC}"
     
-    print_info "Đang rebuild images..."
-    docker-compose -f docker-compose.prod.yml build
+    # Pull latest code
+    echo -e "${YELLOW}📥 Pulling latest code...${NC}"
+    git pull
     
-    print_info "Đang restart services..."
-    docker-compose -f docker-compose.prod.yml up -d
+    # Rebuild
+    echo -e "${YELLOW}🔨 Rebuilding containers...${NC}"
+    docker-compose -f docker-compose.prod.yml up -d --build
     
-    print_info "Đang chạy migrations..."
-    docker exec ${PROJECT_NAME}-backend-prod php artisan migrate --force
-    
-    print_info "Đang clear cache..."
-    docker exec ${PROJECT_NAME}-backend-prod php artisan optimize:clear
-    docker exec ${PROJECT_NAME}-backend-prod php artisan optimize
-    
-    print_success "Đã update và rebuild"
-}
-
-# Resource usage
-show_resources() {
-    print_header "RESOURCE USAGE"
-    docker stats --no-stream
-}
-
-# Health check
-health_check() {
-    print_header "HEALTH CHECK"
-    
-    # Check MySQL
-    print_info "Checking MySQL..."
-    if docker exec ${PROJECT_NAME}-mysql-prod mysqladmin ping -h localhost -u root -p${DB_ROOT_PASSWORD} &> /dev/null; then
-        print_success "MySQL: OK"
-    else
-        print_error "MySQL: FAILED"
-    fi
-    
-    # Check Redis
-    print_info "Checking Redis..."
-    if docker exec ${PROJECT_NAME}-redis-prod redis-cli -a ${REDIS_PASSWORD} ping &> /dev/null; then
-        print_success "Redis: OK"
-    else
-        print_error "Redis: FAILED"
-    fi
-    
-    # Check Elasticsearch
-    print_info "Checking Elasticsearch..."
-    if docker exec ${PROJECT_NAME}-elasticsearch-prod curl -s http://localhost:9200/_cluster/health &> /dev/null; then
-        print_success "Elasticsearch: OK"
-    else
-        print_error "Elasticsearch: FAILED"
-    fi
-    
-    # Check Backend
-    print_info "Checking Backend..."
-    if curl -s -o /dev/null -w "%{http_code}" ${BACKEND_URL} | grep -q "200\|302"; then
-        print_success "Backend: OK"
-    else
-        print_error "Backend: FAILED"
-    fi
-    
-    # Check Frontend
-    print_info "Checking Frontend..."
-    if curl -s -o /dev/null -w "%{http_code}" ${STOREFRONT_URL} | grep -q "200\|302"; then
-        print_success "Frontend: OK"
-    else
-        print_error "Frontend: FAILED"
-    fi
-    
-    # Check Landing
-    print_info "Checking Landing..."
-    if curl -s -o /dev/null -w "%{http_code}" ${LANDING_URL} | grep -q "200\|302"; then
-        print_success "Landing: OK"
-    else
-        print_error "Landing: FAILED"
-    fi
+    echo -e "${GREEN}✅ Update complete!${NC}"
 }
 
 # Main loop
-main() {
-    while true; do
-        show_menu
-        read -p "Lựa chọn của bạn: " choice
-        
-        case $choice in
-            1) show_status ;;
-            2) show_logs ;;
-            3) restart_services ;;
-            4) stop_services ;;
-            5) start_services ;;
-            6) backup_database ;;
-            7) restore_database ;;
-            8) clear_cache ;;
-            9) run_migrations ;;
-            10) update_rebuild ;;
-            11) show_resources ;;
-            12) health_check ;;
-            0) print_info "Tạm biệt!"; exit 0 ;;
-            *) print_error "Lựa chọn không hợp lệ" ;;
-        esac
-        
-        echo ""
-        read -p "Nhấn Enter để tiếp tục..."
-    done
-}
-
-# Run
-main
+while true; do
+    show_menu
+    read -p "Chọn option (0-9): " choice
+    echo ""
+    
+    case $choice in
+        1) start_production ;;
+        2) stop_production ;;
+        3) restart_production ;;
+        4) view_logs ;;
+        5) view_status ;;
+        6) cleanup_rebuild ;;
+        7) backup_database ;;
+        8) restore_database ;;
+        9) update_rebuild ;;
+        0) 
+            echo -e "${GREEN}👋 Goodbye!${NC}"
+            exit 0
+            ;;
+        *)
+            echo -e "${RED}❌ Invalid option!${NC}"
+            ;;
+    esac
+    
+    echo ""
+    read -p "Press Enter to continue..."
+    clear
+done

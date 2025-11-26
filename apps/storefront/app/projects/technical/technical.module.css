@@ -1,0 +1,262 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1;
+}
+
+.hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.hero h1 {
+  font-size: 2.8rem;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  opacity: 0.95;
+}
+
+.tech {
+  padding: 80px 20px;
+  background: #f9fafb;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.techSection {
+  margin-bottom: 60px;
+}
+
+.techSection:last-child {
+  margin-bottom: 0;
+}
+
+.techSection h2 {
+  font-size: 2rem;
+  margin-bottom: 30px;
+  color: #2d3748;
+  text-align: center;
+}
+
+.techGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 25px;
+}
+
+.techCard {
+  background: white;
+  padding: 30px 20px;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.techCard:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.15);
+  border-color: #667eea;
+}
+
+.techIcon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+}
+
+.techCard h3 {
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+  color: #2d3748;
+}
+
+.techCard p {
+  font-size: 0.9rem;
+  color: #718096;
+  line-height: 1.5;
+}
+
+.approach {
+  padding: 80px 20px;
+  background: white;
+}
+
+.approach h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 50px;
+  color: #2d3748;
+}
+
+.approachGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.approachCard {
+  text-align: center;
+  padding: 40px 30px;
+  background: #f9fafb;
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.approachCard:hover {
+  background: white;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+  transform: translateY(-5px);
+}
+
+.approachIcon {
+  font-size: 3.5rem;
+  margin-bottom: 20px;
+}
+
+.approachCard h3 {
+  font-size: 1.4rem;
+  margin-bottom: 12px;
+  color: #2d3748;
+}
+
+.approachCard p {
+  color: #718096;
+  line-height: 1.6;
+}
+
+.cta {
+  padding: 100px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  text-align: center;
+}
+
+.cta h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.cta p {
+  font-size: 1.2rem;
+  margin-bottom: 35px;
+  opacity: 0.95;
+}
+
+.ctaButton {
+  background: white;
+  color: #667eea;
+  padding: 16px 45px;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.ctaButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 60px 20px;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero p {
+    font-size: 1.1rem;
+  }
+
+  .tech {
+    padding: 50px 20px;
+  }
+
+  .techSection {
+    margin-bottom: 50px;
+  }
+
+  .techSection h2 {
+    font-size: 1.7rem;
+  }
+
+  .techGrid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+
+  .techCard {
+    padding: 20px 15px;
+  }
+
+  .techIcon {
+    font-size: 2.5rem;
+  }
+
+  .techCard h3 {
+    font-size: 1rem;
+  }
+
+  .techCard p {
+    font-size: 0.85rem;
+  }
+
+  .approach {
+    padding: 60px 20px;
+  }
+
+  .approach h2 {
+    font-size: 2rem;
+  }
+
+  .approachGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .approachCard {
+    padding: 30px 20px;
+  }
+
+  .cta {
+    padding: 70px 20px;
+  }
+
+  .cta h2 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .techGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .approachGrid {
+    grid-template-columns: 1fr;
+  }
+}

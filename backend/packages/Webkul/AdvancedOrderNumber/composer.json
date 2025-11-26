@@ -1,0 +1,24 @@
+{
+    "name": "webbytroopstechnologies/advanced-order-number",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "WebbyTroops",
+            "email": "ramkishan@webbytroops.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "WebbyTroops\\AdvancedOrderNumber\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "WebbyTroops\\AdvancedOrderNumber\\Providers\\AdvancedOrderNumberServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "minimum-stability": "dev"
+}
