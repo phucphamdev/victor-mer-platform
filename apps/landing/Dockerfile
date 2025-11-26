@@ -6,8 +6,8 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 COPY . .
-EXPOSE 3000
-CMD ["npm", "run", "dev"]
+EXPOSE 3008
+CMD ["npm", "run", "dev", "--", "-p", "3008"]
 
 # Stage 1: Dependencies
 FROM node:18-alpine AS deps

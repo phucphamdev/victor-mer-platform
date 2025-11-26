@@ -6,8 +6,8 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-EXPOSE 3000
-CMD ["npm", "run", "dev"]
+EXPOSE 3009
+CMD ["npm", "run", "dev", "--", "-p", "3009"]
 
 # Stage 2: Production
 FROM node:18-alpine AS production

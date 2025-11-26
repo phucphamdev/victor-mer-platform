@@ -16,7 +16,7 @@ services:
       target: development
     container_name: ${PROJECT_NAME}-landing-dev
     ports:
-      - "${LANDING_PORT}:3000"
+      - "${LANDING_PORT}:3008"
     volumes:
       - ./apps/landing:/app
       - /app/node_modules
@@ -40,13 +40,14 @@ services:
       target: development
     container_name: ${PROJECT_NAME}-storefront-dev
     ports:
-      - "${STOREFRONT_PORT}:3000"
+      - "${STOREFRONT_PORT}:3009"
     volumes:
       - ./apps/storefront:/app
       - /app/node_modules
       - /app/.next
     environment:
       - NODE_ENV=development
+      - STOREFRONT_PORT=3009
       - BACKEND_API_URL=http://backend:80
       - NEXT_PUBLIC_API_URL=${BACKEND_URL}/api
       - NEXT_PUBLIC_APP_URL=${STOREFRONT_URL}
