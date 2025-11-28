@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 // internal
 const brandController = require('../controller/brand.controller');
+const brandValidators = require('../validators/brand.validator');
+const { validateRequest } = require('../middleware/validation');
 
 /**
  * @swagger
@@ -37,7 +39,7 @@ const brandController = require('../controller/brand.controller');
  *       201:
  *         description: Brand created successfully
  */
-router.post('/add',brandController.addBrand);
+router.post('/add', brandValidators.create, validateRequest, brandController.addBrand);
 
 /**
  * @swagger
@@ -71,7 +73,7 @@ router.post('/add-all',brandController.addAllBrand);
  *       200:
  *         description: List of active brands
  */
-router.get('/active',brandController.getActiveBrands);
+router.get('/active', brandValidators.list, validateRequest, brandController.getActiveBrands);
 
 /**
  * @swagger
@@ -83,7 +85,7 @@ router.get('/active',brandController.getActiveBrands);
  *       200:
  *         description: List of all brands
  */
-router.get('/all',brandController.getAllBrands);
+router.get('/all', brandValidators.list, validateRequest, brandController.getAllBrands);
 
 /**
  * @swagger
@@ -103,7 +105,7 @@ router.get('/all',brandController.getAllBrands);
  *       200:
  *         description: Brand deleted successfully
  */
-router.delete('/delete/:id',brandController.deleteBrand);
+router.delete('/delete/:id', brandValidators.delete, validateRequest, brandController.deleteBrand);
 
 /**
  * @swagger
@@ -123,7 +125,7 @@ router.delete('/delete/:id',brandController.deleteBrand);
  *       404:
  *         description: Brand not found
  */
-router.get('/get/:id', brandController.getSingleBrand);
+router.get('/get/:id', brandValidators.getById, validateRequest, brandController.getSingleBrand);
 
 /**
  * @swagger
@@ -149,6 +151,6 @@ router.get('/get/:id', brandController.getSingleBrand);
  *       200:
  *         description: Brand updated successfully
  */
-router.patch('/edit/:id', brandController.updateBrand);
+router.patch('/edit/:id', brandValidators.update, validateRequest, brandController.updateBrand);
 
 module.exports = router;

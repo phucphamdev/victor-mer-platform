@@ -1,48 +1,62 @@
-const ApiError = require('../errors/api-error');
+const BaseService = require('./base.service');
 const Brand = require('../model/Brand');
 
-// addBrandService
-module.exports.addBrandService = async (data) => {
-  const brand = await Brand.create(data);
-  return brand
-}
-
-// create all Brands service
-exports.addAllBrandService = async (data) => {
-  await Brand.deleteMany()
-  const brands = await Brand.insertMany(data);
-  return brands;
-}
-
-
-// get all Brands service
-exports.getBrandsService = async () => {
-  const brands = await Brand.find({status:'active'}).populate('products');
-  return brands;
-}
-
-// get all Brands service
-exports.deleteBrandsService = async (id) => {
-  const brands = await Brand.findByIdAndDelete(id);
-  return brands;
-}
-
-// update category
-exports.updateBrandService = async (id,payload) => {
-  const isExist = await Brand.findOne({ _id:id })
-
-  if (!isExist) {
-    throw new ApiError(404, 'Brand not found !')
+class BrandService extends BaseService {
+  constructor() {
+    super(Brand);
   }
 
-  const result = await Brand.findOneAndUpdate({ _id:id }, payload, {
-    new: true,
-  })
-  return result
+  /**
+   * Get all brands with pagination, search, and filters
+   */
+  async getAllBrands(queryString) {
+    return await this.getAll(queryString, 'products');
+  }
+
+  /**
+   * Get active brands only
+   */
+  async getActiveBrands(queryString) {
+    const modifiedQuery = { ...queryString, status: 'active' };
+    return await this.getAll(modifiedQuery, 'products');
+  }
+
+  /**
+   * Get single brand by ID
+   */
+  async getSingleBrand(id) {
+    return await this.getById(id, 'products');
+  }
+
+  /**
+   * Create new brand
+   */
+  async createBrand(data) {
+    return await this.create(data);
+  }
+
+  /**
+   * Update brand
+   */
+  async updateBrand(id, data) {
+    return await this.update(id, data);
+  }
+
+  /**
+   * Delete brand
+   */
+  async deleteBrand(id) {
+    return await this.delete(id);
+  }
+
+  /**
+   * Bulk insert brands (for seeding)
+   */
+  async addAllBrands(data) {
+    await Brand.deleteMany();
+    const brands = await Brand.insertMany(data);
+    return brands;
+  }
 }
 
-// get single category
-exports.getSingleBrandService = async (id) => {
-  const result = await Brand.findById(id);
-  return result;
-}
+module.exports = new BrandService();

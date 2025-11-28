@@ -1,92 +1,110 @@
-const Brand = require('../model/Brand');
 const brandService = require('../services/brand.service');
+const ApiResponse = require('../utils/apiResponse');
 
-// add a brand 
-exports.addBrand = async (req, res,next) => {
+/**
+ * Create a new brand
+ */
+exports.addBrand = async (req, res, next) => {
   try {
-    const result = await brandService.addBrandService(req.body);
-    res.status(200).json({
-      status: "success",
-      message: "Brand created successfully!",
+    const result = await brandService.createBrand(req.body);
+    return ApiResponse.created(res, {
       data: result,
+      message: 'Brand created successfully'
     });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
-// add all Brand
-exports.addAllBrand = async (req,res,next) => {
+/**
+ * Bulk insert brands (for seeding)
+ */
+exports.addAllBrand = async (req, res, next) => {
   try {
-    const result = await brandService.addAllBrandService(req.body);
-    res.json({
-      message:'Brands added successfully',
-      result,
-    })
+    const result = await brandService.addAllBrands(req.body);
+    return ApiResponse.success(res, {
+      data: result,
+      message: 'Brands added successfully'
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
-// get active Brand
-exports.getAllBrands = async (req,res,next) => {
+/**
+ * Get all brands with pagination, search, and filters
+ * Supports: ?page=1&limit=10&search=nike&status=active&sort=name
+ */
+exports.getAllBrands = async (req, res, next) => {
   try {
-    const result = await Brand.find({},{name:1,email:1,logo:1,website:1,location:1});
-    res.status(200).json({
-      success:true,
-      result,
-    })
+    const { data, pagination } = await brandService.getAllBrands(req.query);
+    return ApiResponse.successWithPagination(res, {
+      data,
+      pagination,
+      message: 'Brands retrieved successfully'
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
-// get active Brand
-exports.getActiveBrands = async (req,res,next) => {
+/**
+ * Get active brands only with pagination
+ */
+exports.getActiveBrands = async (req, res, next) => {
   try {
-    const result = await brandService.getBrandsService();
-    res.status(200).json({
-      success:true,
-      result,
-    })
+    const { data, pagination } = await brandService.getActiveBrands(req.query);
+    return ApiResponse.successWithPagination(res, {
+      data,
+      pagination,
+      message: 'Active brands retrieved successfully'
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
-// delete Brand
-exports.deleteBrand = async (req,res,next) => {
+/**
+ * Get single brand by ID
+ */
+exports.getSingleBrand = async (req, res, next) => {
   try {
-    await brandService.deleteBrandsService(req.params.id);
-    res.status(200).json({
-      success:true,
-      message:'Brand delete successfully',
-    })
+    const result = await brandService.getSingleBrand(req.params.id);
+    return ApiResponse.success(res, {
+      data: result,
+      message: 'Brand retrieved successfully'
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
-// update category
-exports.updateBrand = async (req,res,next) => {
+/**
+ * Update brand by ID
+ */
+exports.updateBrand = async (req, res, next) => {
   try {
-    const result = await brandService.updateBrandService(req.params.id,req.body);
-    res.status(200).json({
-      status:true,
-      message:'Brand update successfully',
-      data:result,
-    })
+    const result = await brandService.updateBrand(req.params.id, req.body);
+    return ApiResponse.success(res, {
+      data: result,
+      message: 'Brand updated successfully'
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
 
-// get single category
-exports.getSingleBrand = async (req,res,next) => {
+/**
+ * Delete brand by ID
+ */
+exports.deleteBrand = async (req, res, next) => {
   try {
-    const result = await brandService.getSingleBrandService(req.params.id);
-    res.status(200).json(result)
+    await brandService.deleteBrand(req.params.id);
+    return ApiResponse.success(res, {
+      data: null,
+      message: 'Brand deleted successfully'
+    });
   } catch (error) {
-    next(error)
+    next(error);
   }
-}
+};
