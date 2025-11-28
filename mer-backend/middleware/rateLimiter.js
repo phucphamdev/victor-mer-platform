@@ -1,90 +1,69 @@
 const rateLimit = require('express-rate-limit');
 
 /**
- * General API rate limiter
- * 100 requests per 15 minutes
+ * Rate limiter for login endpoints
+ * Prevents brute force attacks
+ */
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Limit each IP to 5 login requests per windowMs
+  message: {
+    success: false,
+    message: 'Too many login attempts from this IP, please try again after 15 minutes'
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  skipSuccessfulRequests: false, // Count successful requests
+});
+
+/**
+ * Rate limiter for general API endpoints
+ * Prevents API abuse
  */
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 phút
-  max: 100, // 100 requests
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
   message: {
     success: false,
-    message: 'Too many requests from this IP, please try again later.'
-  },
-  standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
-  legacyHeaders: false, // Disable `X-RateLimit-*` headers
-  // Skip successful requests
-  skipSuccessfulRequests: false,
-  // Skip failed requests
-  skipFailedRequests: false,
-});
-
-/**
- * Strict rate limiter cho authentication endpoints
- * 5 requests per 15 minutes
- */
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 phút
-  max: 5, // 5 login attempts
-  message: {
-    success: false,
-    message: 'Too many login attempts, please try again after 15 minutes.'
-  },
-  standardHeaders: true,
-  legacyHeaders: false,
-  // Skip successful requests (cho phép login thành công nhiều lần)
-  skipSuccessfulRequests: true,
-});
-
-/**
- * Rate limiter cho registration
- * 3 registrations per hour
- */
-const registerLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 giờ
-  max: 3, // 3 registrations
-  message: {
-    success: false,
-    message: 'Too many accounts created from this IP, please try again after an hour.'
+    message: 'Too many requests from this IP, please try again after 15 minutes'
   },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
 /**
- * Rate limiter cho password reset
- * 3 requests per hour
+ * Rate limiter for password reset endpoints
+ * Prevents abuse of password reset functionality
  */
 const passwordResetLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 giờ
-  max: 3, // 3 requests
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3, // Limit each IP to 3 password reset requests per hour
   message: {
     success: false,
-    message: 'Too many password reset attempts, please try again after an hour.'
+    message: 'Too many password reset attempts, please try again after 1 hour'
   },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
 /**
- * Rate limiter cho file upload
- * 20 uploads per hour
+ * Rate limiter for refresh token endpoint
+ * Prevents abuse of token refresh
  */
-const uploadLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 giờ
-  max: 20, // 20 uploads
+const refreshTokenLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 refresh requests per windowMs
   message: {
     success: false,
-    message: 'Too many file uploads, please try again after an hour.'
+    message: 'Too many token refresh attempts, please try again later'
   },
   standardHeaders: true,
   legacyHeaders: false,
 });
 
 module.exports = {
+  loginLimiter,
   apiLimiter,
-  authLimiter,
-  registerLimiter,
   passwordResetLimiter,
-  uploadLimiter
+  refreshTokenLimiter,
 };

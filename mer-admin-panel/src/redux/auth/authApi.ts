@@ -17,19 +17,21 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
           const result = await queryFulfilled;
-          const { token, ...others } = result.data;
+          const { token, refreshToken, ...others } = result.data;
           Cookies.set(
             "admin",
             JSON.stringify({
               accessToken: token,
+              refreshToken: refreshToken,
               user: others
             }),
-            { expires: 0.5 }
+            { expires: 7 } // 7 days to match refresh token expiry
           );
 
           dispatch(
             userLoggedIn({
               accessToken: token,
+              refreshToken: refreshToken,
               user: others
             })
           );
@@ -49,19 +51,21 @@ export const authApi = apiSlice.injectEndpoints({
       async onQueryStarted(arg, { queryFulfilled, dispatch }) {
         try {
           const result = await queryFulfilled;
-          const { token, ...others } = result.data;
+          const { token, refreshToken, ...others } = result.data;
           Cookies.set(
             "admin",
             JSON.stringify({
               accessToken: token,
+              refreshToken: refreshToken,
               user: others
             }),
-            { expires: 0.5 }
+            { expires: 7 } // 7 days to match refresh token expiry
           );
 
           dispatch(
             userLoggedIn({
               accessToken: token,
+              refreshToken: refreshToken,
               user: others
             })
           );
@@ -156,6 +160,38 @@ export const authApi = apiSlice.injectEndpoints({
       query: (id) => `/api/admin/get/${id}`,
       providesTags: ['Stuff']
     }),
+    // logout
+    logoutAdmin: builder.mutation<{ success: boolean; message: string }, void>({
+      query: () => {
+        const userInfo = Cookies.get("admin");
+        let refreshToken = "";
+        if (userInfo) {
+          try {
+            const user = JSON.parse(userInfo);
+            refreshToken = user?.refreshToken || "";
+          } catch (error) {
+            console.error("Error parsing user info:", error);
+          }
+        }
+        return {
+          url: "api/admin/logout",
+          method: "POST",
+          body: { refreshToken },
+        };
+      },
+      async onQueryStarted(arg, { queryFulfilled }) {
+        try {
+          await queryFulfilled;
+          // Clear cookies and redirect
+          Cookies.remove("admin");
+          window.location.href = "/login";
+        } catch (err) {
+          // Even if logout fails, clear local data
+          Cookies.remove("admin");
+          window.location.href = "/login";
+        }
+      },
+    }),
   }),
 });
 
@@ -170,4 +206,5 @@ export const {
   useAddStaffMutation,
   useDeleteStaffMutation,
   useGetStuffQuery,
+  useLogoutAdminMutation,
 } = authApi;

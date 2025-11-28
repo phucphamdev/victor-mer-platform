@@ -12,6 +12,7 @@ type IUser = {
 };
 type IAuth = {
   accessToken: string;
+  refreshToken?: string;
   user: IUser;
 };
 
@@ -19,18 +20,21 @@ type IAuth = {
 const cookieData = Cookies.get("admin");
 let initialAuthState: {
   accessToken: string | undefined;
+  refreshToken: string | undefined;
   user: IUser | undefined;
 } = {
   accessToken: undefined,
+  refreshToken: undefined,
   user: undefined,
 };
 
 // If the cookie exists, parse its value and set it as the initial state
 if (cookieData) {
   try {
-    const parsedData: { accessToken: string; user: IUser } = JSON.parse(cookieData);
+    const parsedData: { accessToken: string; refreshToken?: string; user: IUser } = JSON.parse(cookieData);
     initialAuthState = {
       accessToken: parsedData.accessToken,
+      refreshToken: parsedData.refreshToken,
       user: parsedData.user,
     };
   } catch (error) {
@@ -44,16 +48,19 @@ const authSlice = createSlice({
   reducers: {
     userLoggedIn: (state, { payload }: { payload: IAuth }) => {
       state.accessToken = payload.accessToken;
+      state.refreshToken = payload.refreshToken;
       state.user = payload.user;
       Cookies.set("admin",JSON.stringify({
           accessToken: payload.accessToken,
+          refreshToken: payload.refreshToken,
           user: payload.user
         }),
-        { expires: 0.5 }
+        { expires: 7 } // 7 days to match refresh token expiry
       );
     },
     userLoggedOut: (state) => {
       state.accessToken = undefined;
+      state.refreshToken = undefined;
       state.user = undefined;
       Cookies.remove("admin");
     },

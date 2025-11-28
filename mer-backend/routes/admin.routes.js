@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const verifyToken = require('../middleware/verifyToken');
+const { loginLimiter, passwordResetLimiter, refreshTokenLimiter } = require('../middleware/rateLimiter');
 const {
   registerAdmin,
   loginAdmin,
@@ -170,7 +171,7 @@ router.post("/register", registerAdmin);
  *                   type: string
  *                   example: "Invalid Email or password!"
  */
-router.post("/login", loginAdmin);
+router.post("/login", loginLimiter, loginAdmin);
 
 /**
  * @swagger
@@ -268,7 +269,7 @@ router.get("/all", verifyToken, getAllStaff);
  *       200:
  *         description: Reset email sent
  */
-router.patch("/forget-password", forgetPassword);
+router.patch("/forget-password", passwordResetLimiter, forgetPassword);
 
 /**
  * @swagger
@@ -407,7 +408,7 @@ router.delete("/:id", verifyToken, deleteStaff);
  *       403:
  *         description: Refresh token không hợp lệ hoặc đã hết hạn
  */
-router.post("/refresh-token", refreshAccessToken);
+router.post("/refresh-token", refreshTokenLimiter, refreshAccessToken);
 
 /**
  * @swagger

@@ -8,6 +8,7 @@ const Admin = require("../model/Admin");
 const { generateToken, generateRefreshToken, verifyRefreshToken } = require("../utils/token");
 const { sendEmail } = require("../config/email");
 const { secret } = require("../config/secret");
+const { logAuth, logSecurityEvent } = require("../middleware/auditLogger");
 
 // register
 const registerAdmin = async (req, res,next) => {
@@ -41,10 +42,9 @@ const registerAdmin = async (req, res,next) => {
 };
 // login admin
 const loginAdmin = async (req, res,next) => {
-  // console.log(req.body)
   try {
     const admin = await Admin.findOne({ email: req.body.email });
-    // console.log(admin)
+    
     if (admin && bcrypt.compareSync(req.body.password, admin.password)) {
       const token = generateToken(admin);
       const refreshToken = generateRefreshToken(admin);
@@ -53,6 +53,14 @@ const loginAdmin = async (req, res,next) => {
       admin.refreshToken = refreshToken;
       admin.refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
       await admin.save({ validateBeforeSave: false });
+      
+      // Log successful login
+      logAuth('LOGIN_SUCCESS', req, {
+        userId: admin._id,
+        email: admin.email,
+        role: admin.role,
+        success: true,
+      });
       
       res.send({
         token,
@@ -65,6 +73,13 @@ const loginAdmin = async (req, res,next) => {
         role: admin.role,
       });
     } else {
+      // Log failed login attempt
+      logAuth('LOGIN_FAILED', req, {
+        email: req.body.email,
+        success: false,
+        reason: admin ? 'Invalid password' : 'User not found',
+      });
+      
       res.status(401).send({
         message: "Invalid Email or password!",
       });
@@ -327,6 +342,7 @@ const refreshAccessToken = async (req, res, next) => {
     const { refreshToken } = req.body;
 
     if (!refreshToken) {
+      logSecurityEvent('REFRESH_TOKEN_MISSING', req, { severity: 'low' });
       return res.status(401).json({
         success: false,
         message: "Refresh token is required",
@@ -340,6 +356,10 @@ const refreshAccessToken = async (req, res, next) => {
     const admin = await Admin.findById(decoded._id);
     
     if (!admin || admin.refreshToken !== refreshToken) {
+      logSecurityEvent('INVALID_REFRESH_TOKEN', req, {
+        severity: 'high',
+        userId: decoded._id,
+      });
       return res.status(403).json({
         success: false,
         message: "Invalid refresh token",
@@ -348,6 +368,11 @@ const refreshAccessToken = async (req, res, next) => {
 
     // Check if refresh token is expired
     if (admin.refreshTokenExpires && new Date() > admin.refreshTokenExpires) {
+      logAuth('REFRESH_TOKEN_EXPIRED', req, {
+        userId: admin._id,
+        email: admin.email,
+        success: false,
+      });
       return res.status(403).json({
         success: false,
         message: "Refresh token expired. Please login again.",
@@ -357,6 +382,13 @@ const refreshAccessToken = async (req, res, next) => {
     // Generate new access token
     const newAccessToken = generateToken(admin);
 
+    // Log successful token refresh
+    logAuth('TOKEN_REFRESHED', req, {
+      userId: admin._id,
+      email: admin.email,
+      success: true,
+    });
+
     res.status(200).json({
       success: true,
       token: newAccessToken,
@@ -364,6 +396,10 @@ const refreshAccessToken = async (req, res, next) => {
     });
 
   } catch (error) {
+    logSecurityEvent('REFRESH_TOKEN_ERROR', req, {
+      severity: 'medium',
+      error: error.message,
+    });
     res.status(403).json({
       success: false,
       message: "Invalid or expired refresh token",
@@ -388,6 +424,13 @@ const logoutAdmin = async (req, res, next) => {
     const admin = await Admin.findOne({ refreshToken });
     
     if (admin) {
+      // Log logout event
+      logAuth('LOGOUT', req, {
+        userId: admin._id,
+        email: admin.email,
+        success: true,
+      });
+      
       admin.refreshToken = undefined;
       admin.refreshTokenExpires = undefined;
       await admin.save({ validateBeforeSave: false });

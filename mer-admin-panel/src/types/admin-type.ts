@@ -15,6 +15,7 @@ export interface IAdminLoginAdd {
 export interface IAdminLoginRes {
   _id: string;
   token: string;
+  refreshToken: string;
   name: string;
   image?: string;
   email: string;
@@ -25,6 +26,7 @@ export interface IAdminLoginRes {
 // Admin RegisterRes
 export interface IAdminRegisterRes {
   token: string;
+  refreshToken: string;
   _id: string;
   name: string;
   email: string;
