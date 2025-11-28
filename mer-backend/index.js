@@ -21,7 +21,8 @@ const reviewRoutes = require("./routes/review.routes");
 const adminRoutes = require("./routes/admin.routes");
 const uploadRouter = require('./routes/uploadFile.routes');
 const cloudinaryRoutes = require("./routes/cloudinary.routes");
-const { specs, swaggerUi } = require('./config/swagger');
+const { specs, swaggerUi, swaggerUiOptions } = require('./config/swagger');
+const verifyToken = require('./middleware/verifyToken');
 
 // middleware
 app.use(cors());
@@ -33,23 +34,22 @@ app.use(express.static(path.join(__dirname, 'public')));
 connectDB();
 
 // Swagger API Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
-  explorer: true,
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: "E-Commerce API Docs"
-}));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
 
+// Public routes (no authentication required)
 app.use("/api/user", userRoutes);
-app.use("/api/category", categoryRoutes);
-app.use("/api/brand", brandRoutes);
-app.use("/api/product", productRoutes);
-app.use('/api/upload', uploadRouter);
-app.use("/api/order", orderRoutes);
-app.use("/api/coupon", couponRoutes);
-app.use("/api/user-order", userOrderRoutes);
-app.use("/api/review", reviewRoutes);
-app.use("/api/cloudinary", cloudinaryRoutes);
-app.use("/api/admin", adminRoutes);
+
+// Protected routes (authentication required)
+app.use("/api/category", verifyToken, categoryRoutes);
+app.use("/api/brand", verifyToken, brandRoutes);
+app.use("/api/product", verifyToken, productRoutes);
+app.use('/api/upload', verifyToken, uploadRouter);
+app.use("/api/order", verifyToken, orderRoutes);
+app.use("/api/coupon", verifyToken, couponRoutes);
+app.use("/api/user-order", verifyToken, userOrderRoutes);
+app.use("/api/review", verifyToken, reviewRoutes);
+app.use("/api/cloudinary", verifyToken, cloudinaryRoutes);
+app.use("/api/admin", verifyToken, adminRoutes);
 
 // root route
 app.get("/", (req, res) => res.send("Apps worked successfully"));

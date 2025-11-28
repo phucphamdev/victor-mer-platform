@@ -4,6 +4,7 @@
 This framework provides a standardized approach for building RESTful APIs following Google API Design Guide standards.
 
 ## Features
+- ✅ JWT Authentication (required for all endpoints except login/signup)
 - ✅ Input validation with express-validator
 - ✅ Automatic pagination (default: 10 items per page)
 - ✅ Search functionality
@@ -11,6 +12,88 @@ This framework provides a standardized approach for building RESTful APIs follow
 - ✅ Standardized response format
 - ✅ Error handling
 - ✅ Base service class for CRUD operations
+- ✅ Swagger UI with authentication support
+
+## Authentication
+
+### Overview
+All API endpoints require JWT authentication except:
+- `POST /api/user/signup` - User registration
+- `POST /api/user/login` - User login
+- `GET /api/user/confirmEmail/:token` - Email verification
+- `PATCH /api/user/forget-password` - Password reset request
+- `PATCH /api/user/confirm-forget-password` - Password reset confirmation
+
+### Getting Started
+
+1. **Register a new user:**
+```bash
+POST /api/user/signup
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "securePassword123"
+}
+```
+
+2. **Login to get access token:**
+```bash
+POST /api/user/login
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "securePassword123"
+}
+
+Response:
+{
+  "status": "success",
+  "message": "Successfully logged in",
+  "data": {
+    "user": { ... },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+  }
+}
+```
+
+3. **Use token in subsequent requests:**
+```bash
+GET /api/product/all
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+### Using Swagger UI
+
+1. Navigate to `/api-docs` in your browser
+2. Click the "Authorize" button (lock icon) at the top right
+3. Enter your token in the format: `Bearer <your-token>`
+4. Click "Authorize" and then "Close"
+5. All subsequent API calls will include your authentication token
+
+### Authentication Errors
+
+**401 Unauthorized - No token provided:**
+```json
+{
+  "success": false,
+  "status": "fail",
+  "message": "Authentication required",
+  "error": "You are not logged in. Please provide a valid authentication token."
+}
+```
+
+**403 Forbidden - Invalid or expired token:**
+```json
+{
+  "success": false,
+  "status": "fail",
+  "message": "Authentication failed",
+  "error": "Invalid token. Please provide a valid authentication token."
+}
+```
 
 ## Installation
 
