@@ -56,9 +56,9 @@ const globalErrorHandler = (error, req, res, next) => {
   }
 
   res.status(statusCode).json({
-    success: false,
+    status: 'error',
     message,
-    errorMessages,
+    errors: errorMessages,
     stack: secret.env !== 'production' ? error?.stack : undefined,
   });
 };

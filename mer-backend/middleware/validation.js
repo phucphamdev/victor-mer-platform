@@ -15,7 +15,7 @@ const validateRequest = (req, res, next) => {
     }));
 
     return res.status(400).json({
-      success: false,
+      status: 'error',
       message: 'Validation Error',
       errors: errorMessages
     });

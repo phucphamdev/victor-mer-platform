@@ -25,10 +25,8 @@ module.exports = async (req, res, next) => {
 
     if(!token){
       return res.status(401).json({
-        success: false,
-        status: "fail",
-        message: "Authentication required",
-        error: "You are not logged in. Please provide a valid authentication token."
+        status: "error",
+        message: "Authentication required. You are not logged in. Please provide a valid authentication token."
       });
     }
     
@@ -47,10 +45,8 @@ module.exports = async (req, res, next) => {
       : 'Invalid token. Please provide a valid authentication token.';
     
     res.status(403).json({
-      success: false,
-      status: "fail",
-      message: "Authentication failed",
-      error: errorMessage
+      status: "error",
+      message: `Authentication failed. ${errorMessage}`
     });
   }
 };

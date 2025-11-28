@@ -344,7 +344,7 @@ const refreshAccessToken = async (req, res, next) => {
     if (!refreshToken) {
       logSecurityEvent('REFRESH_TOKEN_MISSING', req, { severity: 'low' });
       return res.status(401).json({
-        success: false,
+        status: "error",
         message: "Refresh token is required",
       });
     }
@@ -361,7 +361,7 @@ const refreshAccessToken = async (req, res, next) => {
         userId: decoded._id,
       });
       return res.status(403).json({
-        success: false,
+        status: "error",
         message: "Invalid refresh token",
       });
     }
@@ -374,7 +374,7 @@ const refreshAccessToken = async (req, res, next) => {
         success: false,
       });
       return res.status(403).json({
-        success: false,
+        status: "error",
         message: "Refresh token expired. Please login again.",
       });
     }
@@ -390,9 +390,10 @@ const refreshAccessToken = async (req, res, next) => {
     });
 
     res.status(200).json({
-      success: true,
-      token: newAccessToken,
-      message: "Access token refreshed successfully",
+      status: "success",
+      data: {
+        token: newAccessToken
+      }
     });
 
   } catch (error) {
@@ -401,7 +402,7 @@ const refreshAccessToken = async (req, res, next) => {
       error: error.message,
     });
     res.status(403).json({
-      success: false,
+      status: "error",
       message: "Invalid or expired refresh token",
       error: error.message,
     });
@@ -415,7 +416,7 @@ const logoutAdmin = async (req, res, next) => {
 
     if (!refreshToken) {
       return res.status(400).json({
-        success: false,
+        status: "error",
         message: "Refresh token is required",
       });
     }
@@ -437,8 +438,10 @@ const logoutAdmin = async (req, res, next) => {
     }
 
     res.status(200).json({
-      success: true,
-      message: "Logged out successfully",
+      status: "success",
+      data: {
+        message: "Logged out successfully"
+      }
     });
 
   } catch (error) {
