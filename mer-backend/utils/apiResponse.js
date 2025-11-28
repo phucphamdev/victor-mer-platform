@@ -7,13 +7,12 @@ class ApiResponse {
    */
   static success(res, { data, message = 'Success', statusCode = 200, meta = null }) {
     const response = {
-      success: true,
-      message,
-      data
+      status: 'success',
+      data: data
     };
 
     if (meta) {
-      response.meta = meta;
+      response.pagination = meta;
     }
 
     return res.status(statusCode).json(response);
@@ -21,13 +20,20 @@ class ApiResponse {
 
   /**
    * Success response for list/collection with pagination
+   * Following Google API Design Guide standards
    */
   static successWithPagination(res, { data, message = 'Success', pagination, statusCode = 200 }) {
     return res.status(statusCode).json({
-      success: true,
-      message,
-      data,
-      pagination
+      status: 'success',
+      data: data,
+      pagination: {
+        page: pagination.page,
+        limit: pagination.limit,
+        total: pagination.total,
+        currentPage: pagination.currentPage,
+        previousPage: pagination.previousPage,
+        nextPage: pagination.nextPage
+      }
     });
   }
 
@@ -35,7 +41,10 @@ class ApiResponse {
    * Created response (201)
    */
   static created(res, { data, message = 'Resource created successfully' }) {
-    return this.success(res, { data, message, statusCode: 201 });
+    return res.status(201).json({
+      status: 'success',
+      data: data
+    });
   }
 
   /**
@@ -50,7 +59,7 @@ class ApiResponse {
    */
   static error(res, { message = 'An error occurred', statusCode = 500, errors = null }) {
     const response = {
-      success: false,
+      status: 'error',
       message
     };
 

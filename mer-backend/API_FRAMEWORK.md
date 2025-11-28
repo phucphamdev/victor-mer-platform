@@ -51,9 +51,12 @@ Content-Type: application/json
 Response:
 {
   "status": "success",
-  "message": "Successfully logged in",
   "data": {
-    "user": { ... },
+    "user": { 
+      "_id": "123",
+      "name": "John Doe",
+      "email": "john@example.com"
+    },
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   }
 }
@@ -78,20 +81,16 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 **401 Unauthorized - No token provided:**
 ```json
 {
-  "success": false,
-  "status": "fail",
-  "message": "Authentication required",
-  "error": "You are not logged in. Please provide a valid authentication token."
+  "status": "error",
+  "message": "Authentication required. You are not logged in. Please provide a valid authentication token."
 }
 ```
 
 **403 Forbidden - Invalid or expired token:**
 ```json
 {
-  "success": false,
-  "status": "fail",
-  "message": "Authentication failed",
-  "error": "Invalid token. Please provide a valid authentication token."
+  "status": "error",
+  "message": "Authentication failed. Invalid token. Please provide a valid authentication token."
 }
 ```
 
@@ -133,19 +132,56 @@ GET /api/brand/all?page=2&limit=20&search=adidas&status=active&sort=-createdAt
 
 ### 2. Response Format
 
-**Success Response:**
+**Success Response with Pagination (List):**
 ```json
 {
-  "success": true,
-  "message": "Brands retrieved successfully",
-  "data": [...],
+  "status": "success",
+  "data": [
+    {
+      "_id": "123",
+      "name": "Nike",
+      "description": "Sports brand"
+    },
+    {
+      "_id": "124",
+      "name": "Adidas",
+      "description": "Sports brand"
+    }
+  ],
   "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 100,
     "currentPage": 1,
-    "pageSize": 10,
-    "totalItems": 45,
-    "totalPages": 5,
-    "hasNextPage": true,
-    "hasPrevPage": false
+    "previousPage": null,
+    "nextPage": 2
+  }
+}
+```
+
+**Success Response (Single Item - Product Detail, Login, etc.):**
+```json
+{
+  "status": "success",
+  "data": {
+    "_id": "123",
+    "name": "Product Name",
+    "price": 99.99
+  }
+}
+```
+
+**Login Response Example:**
+```json
+{
+  "status": "success",
+  "data": {
+    "user": {
+      "_id": "123",
+      "name": "John Doe",
+      "email": "john@example.com"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   }
 }
 ```
@@ -153,7 +189,7 @@ GET /api/brand/all?page=2&limit=20&search=adidas&status=active&sort=-createdAt
 **Error Response:**
 ```json
 {
-  "success": false,
+  "status": "error",
   "message": "Validation Error",
   "errors": [
     {
@@ -164,6 +200,13 @@ GET /api/brand/all?page=2&limit=20&search=adidas&status=active&sort=-createdAt
   ]
 }
 ```
+
+**Note:** All responses follow Google API Design Guide standards:
+- `status` field indicates "success" or "error"
+- `data` is an object for single items or array for lists
+- `pagination` includes: page, limit, total, currentPage, previousPage, nextPage
+- previousPage is null when on first page
+- nextPage is null when on last page
 
 ### 3. Creating New Validators
 
@@ -282,17 +325,30 @@ router.post('/add',
 ```javascript
 // Success responses
 ApiResponse.success(res, { data, message, statusCode, meta })
+// Returns: { status: 'success', data: {...} or [...] }
+
 ApiResponse.successWithPagination(res, { data, pagination, message })
+// Returns: { status: 'success', data: [...], pagination: {...} }
+
 ApiResponse.created(res, { data, message })
+// Returns: { status: 'success', data: {...} }
+
 ApiResponse.noContent(res)
+// Returns: 204 No Content
 
 // Error responses
 ApiResponse.error(res, { message, statusCode, errors })
+// Returns: { status: 'error', message, errors }
+
 ApiResponse.validationError(res, { errors, message })
 ApiResponse.notFound(res, { message })
 ApiResponse.unauthorized(res, { message })
 ApiResponse.forbidden(res, { message })
 ```
+
+**Important:** 
+- List endpoints return `data` as array with `pagination` object
+- Single item endpoints return `data` as object (login, product detail, etc.)
 
 ## BaseService Methods
 

@@ -103,7 +103,7 @@ class ApiFeatures {
   }
 
   /**
-   * Get pagination metadata
+   * Get pagination metadata following Google API standards
    */
   getPaginationMeta() {
     if (!this.pagination) return null;
@@ -112,12 +112,12 @@ class ApiFeatures {
     const totalPages = Math.ceil(this.totalCount / limit);
 
     return {
+      page: page,
+      limit: limit,
+      total: this.totalCount,
       currentPage: page,
-      pageSize: limit,
-      totalItems: this.totalCount,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
+      previousPage: page > 1 ? page - 1 : null,
+      nextPage: page < totalPages ? page + 1 : null
     };
   }
 }

@@ -21,7 +21,6 @@ exports.signup = async (req, res,next) => {
       // Trả về response ngay lập tức thay vì gửi email
       res.status(200).json({
         status: "success",
-        message: "Account created successfully. You can now login.",
         data: {
           user: {
             _id: saved_user._id,
@@ -91,11 +90,10 @@ module.exports.login = async (req, res,next) => {
 
     res.status(200).json({
       status: "success",
-      message: "Successfully logged in",
       data: {
         user: others,
         token,
-      },
+      }
     });
   } catch (error) {
     next(error)
@@ -136,11 +134,10 @@ exports.confirmEmail = async (req, res,next) => {
 
     res.status(200).json({
       status: "success",
-      message: "Successfully activated your account.",
       data: {
         user: others,
         token: accessToken,
-      },
+      }
     });
   } catch (error) {
     next(error)
@@ -224,7 +221,9 @@ exports.confirmForgetPassword = async (req, res,next) => {
 
       res.status(200).json({
         status: "success",
-        message: "Password reset successfully",
+        data: {
+          message: "Password reset successfully"
+        }
       });
     }
   } catch (error) {
@@ -274,11 +273,10 @@ exports.updateUser = async (req, res,next) => {
       const token = generateToken(updatedUser);
       res.status(200).json({
         status: "success",
-        message: "Successfully updated profile",
         data: {
           user: updatedUser,
           token,
-        },
+        }
       });
     }
   } catch (error) {
@@ -305,8 +303,8 @@ exports.signUpWithProvider = async (req, res,next) => {
             phone: isAdded.phone,
             imageURL: isAdded.imageURL,
             googleSignIn:true,
-          },
-        },
+          }
+        }
       });
     } else {
       const newUser = new User({
@@ -330,7 +328,7 @@ exports.signUpWithProvider = async (req, res,next) => {
             imageURL: signUpUser.imageURL,
             googleSignIn:true,
           }
-        },
+        }
       });
     }
   } catch (error) {
