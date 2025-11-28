@@ -22,6 +22,16 @@ const reviewRoutes = require("./routes/review.routes");
 const adminRoutes = require("./routes/admin.routes");
 const uploadRouter = require('./routes/uploadFile.routes');
 const cloudinaryRoutes = require("./routes/cloudinary.routes");
+const invoiceRoutes = require("./routes/invoice.routes");
+const inventoryRoutes = require("./routes/inventory.routes");
+const affiliateRoutes = require("./routes/affiliate.routes");
+const flashSaleRoutes = require("./routes/flashSale.routes");
+const shipmentRoutes = require("./routes/shipment.routes");
+const productTagRoutes = require("./routes/productTag.routes");
+const productLabelRoutes = require("./routes/productLabel.routes");
+const collectionRoutes = require("./routes/collection.routes");
+const pageRoutes = require("./routes/page.routes");
+const orderReturnRoutes = require("./routes/orderReturn.routes");
 const { specs, swaggerUi, swaggerUiOptions } = require('./config/swagger');
 const verifyToken = require('./middleware/verifyToken');
 
@@ -51,6 +61,18 @@ app.use("/api/order", orderRoutes);
 app.use("/api/coupon", couponRoutes);
 app.use("/api/user-order", verifyToken, userOrderRoutes);
 app.use("/api/cloudinary", verifyToken, cloudinaryRoutes);
+
+// New Ecommerce & Affiliate routes
+app.use("/api/invoice", invoiceRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/affiliate", affiliateRoutes);
+app.use("/api/flash-sale", flashSaleRoutes);
+app.use("/api/shipment", shipmentRoutes);
+app.use("/api/product-tag", productTagRoutes);
+app.use("/api/product-label", productLabelRoutes);
+app.use("/api/collection", collectionRoutes);
+app.use("/api/page", pageRoutes);
+app.use("/api/order-return", orderReturnRoutes);
 
 // root route
 app.get("/", (req, res) => res.send("Apps worked successfully"));
