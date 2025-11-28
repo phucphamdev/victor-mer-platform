@@ -115,10 +115,10 @@ if [ $RETRY_COUNT -eq $MAX_RETRIES ]; then
     exit 1
 fi
 
-# Step 10: Seed database
-print_step "Step 10: Seeding database with sample data"
-docker-compose exec -T backend node seed.js
-print_success "Database seeded successfully"
+# Step 10: Database auto-seeded
+print_step "Step 10: Checking database"
+echo "Database is automatically seeded on first container start"
+print_success "Database ready (auto-seeded by entrypoint script)"
 
 # Step 11: Test API
 print_step "Step 11: Testing API endpoints"
@@ -203,11 +203,13 @@ echo "  - Backend API:     http://localhost:7000"
 echo "  - API Docs:        http://localhost:7000/api-docs"
 echo "  - MongoDB:         mongodb://localhost:27017"
 echo ""
-echo "🔐 Admin Credentials:"
-echo "  Email:    dorothy@gmail.com"
-echo "  Password: 123456"
+echo "🔐 Super Admin Credentials:"
+echo "  Email:    phuc.pham.dev@gmail.com"
+echo "  Password: 12345678"
+echo "  Role:     Super Admin"
 echo ""
 echo "📝 Other Admin Accounts:"
+echo "  - dorothy@gmail.com / 123456 (Admin)"
 echo "  - porter@gmail.com / 123456 (Admin)"
 echo "  - corrie@gmail.com / 123456 (Admin)"
 echo "  - palmer@gmail.com / 123456 (CEO)"

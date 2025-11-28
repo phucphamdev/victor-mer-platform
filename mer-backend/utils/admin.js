@@ -1,6 +1,15 @@
 const bcrypt = require('bcryptjs');
 const admins = [
   {
+    name:'Phuc Pham',
+    image: "https://i.ibb.co/wpjNftS/user-2.jpg",
+    email: "phuc.pham.dev@gmail.com",
+    password: bcrypt.hashSync("12345678"),
+    phone: "+84-123-456-789",
+    role: "Super Admin",
+    joiningData: new Date()
+  },
+  {
     name:'Dorothy R. Brown',
     image: "https://i.ibb.co/wpjNftS/user-2.jpg",
     email: "dorothy@gmail.com",

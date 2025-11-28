@@ -8,8 +8,16 @@ FROM base AS development
 ENV NODE_ENV=development
 RUN npm install
 COPY . .
+
+# Install netcat for health checks
+RUN apk add --no-cache netcat-openbsd
+
+# Copy and set permissions for entrypoint script
+COPY scripts/docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
 EXPOSE 7000
-CMD ["npm", "run", "start-dev"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # Production stage (optimized)
 FROM base AS production
