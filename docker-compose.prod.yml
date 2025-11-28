@@ -1,294 +1,161 @@
+# Docker Compose for Production (VPS)
 version: '3.8'
 
-# ============================================
-# PRODUCTION ENVIRONMENT - Full Featured
-# Môi trường production đầy đủ với SSL, reverse proxy, security
-# ============================================
-# Chạy: docker-compose -f docker-compose.prod.yml up -d
-# Dừng: docker-compose -f docker-compose.prod.yml down
-
 services:
-  # Nginx Reverse Proxy with SSL
-  nginx-proxy:
-    image: nginx:alpine
-    container_name: ${PROJECT_NAME}-nginx-proxy
+  mongodb:
+    image: mongo:7.0
+    container_name: victormer-mongodb-prod
+    restart: always
     ports:
-      - "80:80"
-      - "443:443"
+      - "127.0.0.1:${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-      - nginx-cache:/var/cache/nginx
-    depends_on:
-      - landing
-      - frontend
-      - backend
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
     networks:
-      - prod-network
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      - victormer-network
+    command: mongod --auth
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh -u ${MONGO_ROOT_USER} -p ${MONGO_ROOT_PASSWORD} --authenticationDatabase admin localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
 
-  # Landing Page - Marketing Site
-  landing:
-    build:
-      context: ./apps/landing
-      dockerfile: Dockerfile
-      target: production
-    container_name: ${PROJECT_NAME}-landing-prod
-    expose:
-      - "3000"
-    environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_BASE_URL=${BACKEND_URL}
-      - NEXT_PUBLIC_BACKEND_URL=${BACKEND_URL}
-      - NEXT_PUBLIC_DOCS_URL=${DOCS_URL}
-      - NEXT_PUBLIC_DEMO_STORE_1_URL=${DEMO_STORE_1_URL}
-      - NEXT_PUBLIC_DEMO_STORE_2_URL=${DEMO_STORE_2_URL}
-      - NEXT_PUBLIC_GA_ID=${GA_ID}
-      - NEXT_PUBLIC_ANALYTICS_ENDPOINT=${ANALYTICS_ENDPOINT}
-    networks:
-      - prod-network
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # Frontend - Next.js Storefront
-  frontend:
-    build:
-      context: ./apps/storefront
-      dockerfile: Dockerfile
-      target: production
-    container_name: ${PROJECT_NAME}-storefront-prod
-    expose:
-      - "3000"
-    environment:
-      - NODE_ENV=production
-      - BACKEND_API_URL=http://backend:80
-      - NEXT_PUBLIC_API_URL=${BACKEND_URL}/api
-      - NEXT_PUBLIC_APP_URL=${STOREFRONT_URL}
-    depends_on:
-      - backend
-    networks:
-      - prod-network
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # Backend - Laravel Application
   backend:
     build:
-      context: ./backend
+      context: ./shofy-backend
       dockerfile: Dockerfile
       target: production
-    container_name: ${PROJECT_NAME}-backend-prod
-    expose:
-      - "80"
-    volumes:
-      - backend-storage:/var/www/html/storage
-      - backend-cache:/var/www/html/bootstrap/cache
+    container_name: victormer-backend-prod
+    restart: always
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-7000}:7000"
     environment:
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - APP_NAME=${APP_NAME}
-      - APP_TIMEZONE=${APP_TIMEZONE}
-      - APP_LOCALE=${APP_LOCALE}
-      - APP_FALLBACK_LOCALE=${APP_FALLBACK_LOCALE}
-      - APP_CURRENCY=${APP_CURRENCY}
-      - APP_ADMIN_URL=${APP_ADMIN_URL}
-      - DB_CONNECTION=mysql
-      - DB_HOST=mysql
-      - DB_PORT=3306
-      - DB_DATABASE=${DB_DATABASE}
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
-      - DB_PREFIX=${DB_PREFIX}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_CLIENT=${REDIS_CLIENT}
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - CACHE_STORE=redis
-      - CACHE_PREFIX=${CACHE_PREFIX}
-      - SESSION_DRIVER=redis
-      - SESSION_LIFETIME=${SESSION_LIFETIME}
-      - SESSION_ENCRYPT=${SESSION_ENCRYPT}
-      - SESSION_PATH=${SESSION_PATH}
-      - SESSION_DOMAIN=${SESSION_DOMAIN}
-      - QUEUE_CONNECTION=redis
-      - ELASTICSEARCH_HOST=elasticsearch
-      - ELASTICSEARCH_PORT=9200
-      - MAIL_MAILER=${MAIL_MAILER}
-      - MAIL_HOST=${MAIL_HOST}
-      - MAIL_PORT=${MAIL_PORT}
-      - MAIL_USERNAME=${MAIL_USERNAME}
-      - MAIL_PASSWORD=${MAIL_PASSWORD}
-      - MAIL_ENCRYPTION=${MAIL_ENCRYPTION}
-      - MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
-      - MAIL_FROM_NAME=${MAIL_FROM_NAME}
-      - ADMIN_MAIL_ADDRESS=${ADMIN_MAIL_ADDRESS}
-      - ADMIN_MAIL_NAME=${ADMIN_MAIL_NAME}
-      - COMPANY_NAME=${COMPANY_NAME}
-      - COMPANY_SLOGAN=${COMPANY_SLOGAN}
-      - COMPANY_EMAIL=${COMPANY_EMAIL}
-      - COMPANY_PHONE=${COMPANY_PHONE}
-      - COMPANY_ADDRESS=${COMPANY_ADDRESS}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
-      - AWS_BUCKET=${AWS_BUCKET}
-      - AWS_USE_PATH_STYLE_ENDPOINT=${AWS_USE_PATH_STYLE_ENDPOINT}
+      PORT: 7000
+      NODE_ENV: production
+      MONGO_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
+      TOKEN_SECRET: ${TOKEN_SECRET}
+      JWT_SECRET_FOR_VERIFY: ${JWT_SECRET_FOR_VERIFY}
+      SERVICE: ${EMAIL_SERVICE}
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+      HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      CLOUDINARY_NAME: ${CLOUDINARY_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      CLOUDINARY_UPLOAD_PRESET: ${CLOUDINARY_UPLOAD_PRESET}
+      STRIPE_KEY: ${STRIPE_KEY}
+      STORE_URL: ${STORE_URL}
+      ADMIN_URL: ${ADMIN_URL}
     depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      elasticsearch:
+      mongodb:
         condition: service_healthy
     networks:
-      - prod-network
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # MySQL Database
-  mysql:
-    image: mysql:8.0
-    container_name: ${PROJECT_NAME}-mysql-prod
-    expose:
-      - "3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DB_DATABASE}
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-    volumes:
-      - mysql-prod-data:/var/lib/mysql
-      - ./mysql/my.cnf:/etc/mysql/conf.d/my.cnf:ro
-    command: --default-authentication-plugin=mysql_native_password --max_connections=500
+      - victormer-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      test: ["CMD", "curl", "-f", "http://localhost:7000/health"]
       interval: 30s
       timeout: 10s
-      retries: 5
-      start_period: 60s
-    networks:
-      - prod-network
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 
-  # Redis Cache
-  redis:
-    image: redis:7-alpine
-    container_name: ${PROJECT_NAME}-redis-prod
-    expose:
-      - "6379"
-    command: redis-server --requirepass ${REDIS_PASSWORD} --maxmemory 512mb --maxmemory-policy allkeys-lru
-    volumes:
-      - redis-prod-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    networks:
-      - prod-network
+  frontend:
+    build:
+      context: ./shofy-front-end
+      dockerfile: Dockerfile
+      target: production
+    container_name: victormer-frontend-prod
     restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # Elasticsearch
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.0
-    container_name: ${PROJECT_NAME}-elasticsearch-prod
-    expose:
-      - "9200"
-      - "9300"
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3500}:3000"
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=true
-      - ELASTIC_PASSWORD=${ELASTICSEARCH_PASSWORD}
-      - bootstrap.memory_lock=true
-      - ES_JAVA_OPTS=-Xms${ELASTICSEARCH_MEMORY_MIN:-1g} -Xmx${ELASTICSEARCH_MEMORY_MAX:-1g}
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-      nofile:
-        soft: 65536
-        hard: 65536
-    volumes:
-      - elasticsearch-prod-data:/usr/share/elasticsearch/data
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
-    networks:
-      - prod-network
-    restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-  # Kibana (Optional - for Elasticsearch management)
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.17.0
-    container_name: ${PROJECT_NAME}-kibana-prod
-    expose:
-      - "5601"
-    environment:
-      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
-      ELASTICSEARCH_USERNAME: elastic
-      ELASTICSEARCH_PASSWORD: ${ELASTICSEARCH_PASSWORD}
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      NEXT_PUBLIC_STRIPE_KEY: ${STRIPE_PUBLIC_KEY}
+      NEXT_PUBLIC_API_BASE_URL: ${BACKEND_URL}
     depends_on:
-      elasticsearch:
-        condition: service_healthy
+      - backend
     networks:
-      - prod-network
+      - victormer-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  admin:
+    build:
+      context: ./shofy-admin-panel
+      dockerfile: Dockerfile
+      target: production
+    container_name: victormer-admin-prod
     restart: always
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+    ports:
+      - "127.0.0.1:${ADMIN_PORT:-4000}:4000"
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${BACKEND_URL}
+    depends_on:
+      - backend
+    networks:
+      - victormer-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  nginx:
+    image: nginx:alpine
+    container_name: victormer-nginx-prod
+    restart: always
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - backend
+      - frontend
+      - admin
+    networks:
+      - victormer-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
 
 networks:
-  prod-network:
+  victormer-network:
     driver: bridge
 
 volumes:
-  mysql-prod-data:
-    driver: local
-  redis-prod-data:
-    driver: local
-  elasticsearch-prod-data:
-    driver: local
-  backend-storage:
-    driver: local
-  backend-cache:
-    driver: local
-  nginx-cache:
-    driver: local
+  mongodb_data:
+  mongodb_config:
