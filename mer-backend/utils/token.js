@@ -15,7 +15,7 @@ exports.generateToken = (userInfo) => {
   };
 
   const token = jwt.sign(payload, secret.token_secret, {
-    expiresIn: "15m", // Short-lived access token
+    expiresIn: "1h", // Access token valid for 1 hour
   });
 
   return token;

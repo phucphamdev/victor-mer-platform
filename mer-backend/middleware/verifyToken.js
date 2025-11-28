@@ -26,7 +26,8 @@ module.exports = async (req, res, next) => {
     if(!token){
       return res.status(401).json({
         status: "error",
-        message: "Authentication required. You are not logged in. Please provide a valid authentication token."
+        message: "Authentication required. You are not logged in. Please provide a valid authentication token.",
+        requiresLogout: true // Signal frontend to logout immediately
       });
     }
     
@@ -40,13 +41,15 @@ module.exports = async (req, res, next) => {
 
   } catch (error) {
     // Handle token verification errors
+    // Return 401 to trigger auto-logout on frontend
     const errorMessage = error.name === 'TokenExpiredError' 
       ? 'Token has expired. Please login again.'
       : 'Invalid token. Please provide a valid authentication token.';
     
-    res.status(403).json({
+    res.status(401).json({
       status: "error",
-      message: `Authentication failed. ${errorMessage}`
+      message: `Authentication failed. ${errorMessage}`,
+      requiresLogout: true // Signal frontend to logout immediately
     });
   }
 };
