@@ -21,6 +21,7 @@ const reviewRoutes = require("./routes/review.routes");
 const adminRoutes = require("./routes/admin.routes");
 // const uploadRouter = require('./routes/uploadFile.route');
 const cloudinaryRoutes = require("./routes/cloudinary.routes");
+const { specs, swaggerUi } = require('./config/swagger');
 
 // middleware
 app.use(cors());
@@ -30,6 +31,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // connect database
 connectDB();
+
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: "E-Commerce API Docs"
+}));
 
 app.use("/api/user", userRoutes);
 app.use("/api/category", categoryRoutes);

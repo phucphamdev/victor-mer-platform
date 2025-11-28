@@ -35,6 +35,8 @@
     "redis": "^4.6.11",
     "response-time": "^2.3.2",
     "stripe": "^12.4.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
     "validator": "^13.9.0"
   },
   "devDependencies": {
