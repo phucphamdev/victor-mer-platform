@@ -47,8 +47,8 @@ app.use("/api/review", reviewRoutes);
 
 // Protected routes (authentication required)
 app.use('/api/upload', verifyToken, uploadRouter);
-app.use("/api/order", verifyToken, orderRoutes);
-app.use("/api/coupon", verifyToken, couponRoutes);
+app.use("/api/order", orderRoutes);
+app.use("/api/coupon", couponRoutes);
 app.use("/api/user-order", verifyToken, userOrderRoutes);
 app.use("/api/cloudinary", verifyToken, cloudinaryRoutes);
 

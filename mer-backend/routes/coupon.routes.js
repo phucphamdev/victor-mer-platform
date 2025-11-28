@@ -8,6 +8,8 @@ const {
   updateCoupon,
   deleteCoupon,
 } = require('../controller/coupon.controller');
+const verifyToken = require('../middleware/verifyToken');
+const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
@@ -45,7 +47,7 @@ const {
  *       201:
  *         description: Coupon created successfully
  */
-router.post('/add', addCoupon);
+router.post('/add', verifyToken, authorization('admin'), addCoupon);
 
 /**
  * @swagger
@@ -67,7 +69,7 @@ router.post('/add', addCoupon);
  *       201:
  *         description: Coupons created successfully
  */
-router.post('/all', addAllCoupon);
+router.post('/all', verifyToken, authorization('admin'), addAllCoupon);
 
 /**
  * @swagger
@@ -125,7 +127,7 @@ router.get('/:id', getCouponById);
  *       200:
  *         description: Coupon updated successfully
  */
-router.patch('/:id', updateCoupon);
+router.patch('/:id', verifyToken, authorization('admin'), updateCoupon);
 
 /**
  * @swagger
@@ -145,6 +147,6 @@ router.patch('/:id', updateCoupon);
  *       200:
  *         description: Coupon deleted successfully
  */
-router.delete('/:id', deleteCoupon);
+router.delete('/:id', verifyToken, authorization('admin'), deleteCoupon);
 
 module.exports = router;

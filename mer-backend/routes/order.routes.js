@@ -6,6 +6,8 @@ const {
   updateOrderStatus,
   getSingleOrder,
 } = require("../controller/order.controller");
+const verifyToken = require('../middleware/verifyToken');
+const authorization = require('../middleware/authorization');
 
 // router
 const router = express.Router();
@@ -87,7 +89,7 @@ const router = express.Router();
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.get("/orders", getOrders);
+router.get("/orders", verifyToken, authorization('admin'), getOrders);
 
 /**
  * @swagger
@@ -107,7 +109,7 @@ router.get("/orders", getOrders);
  *       200:
  *         description: Order details
  */
-router.get("/:id", getSingleOrder);
+router.get("/:id", verifyToken, getSingleOrder);
 
 /**
  * @swagger
@@ -181,7 +183,7 @@ router.post("/create-payment-intent", paymentIntent);
  *       201:
  *         description: Order created successfully
  */
-router.post("/saveOrder", addOrder);
+router.post("/saveOrder", verifyToken, addOrder);
 
 /**
  * @swagger
@@ -211,6 +213,6 @@ router.post("/saveOrder", addOrder);
  *       200:
  *         description: Order status updated
  */
-router.patch("/update-status/:id", updateOrderStatus);
+router.patch("/update-status/:id", verifyToken, authorization('admin'), updateOrderStatus);
 
 module.exports = router;

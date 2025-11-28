@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const userController= require('../controller/user.controller');
+const verifyToken = require('../middleware/verifyToken');
 
 /**
  * @swagger
@@ -270,7 +271,7 @@ router.patch('/confirm-forget-password', userController.confirmForgetPassword);
  *       200:
  *         description: Password changed successfully
  */
-router.patch('/change-password', userController.changePassword);
+router.patch('/change-password', verifyToken, userController.changePassword);
 
 /**
  * @swagger
@@ -321,7 +322,7 @@ router.get('/confirmEmail/:token', userController.confirmEmail);
  *       200:
  *         description: User updated successfully
  */
-router.put('/update-user/:id', userController.updateUser);
+router.put('/update-user/:id', verifyToken, userController.updateUser);
 
 /**
  * @swagger
