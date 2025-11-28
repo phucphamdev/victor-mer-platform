@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const { addReview, deleteReviews} = require("../controller/review.controller");
+const verifyToken = require('../middleware/verifyToken');
+const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
@@ -40,7 +42,7 @@ const { addReview, deleteReviews} = require("../controller/review.controller");
  *       201:
  *         description: Review added successfully
  */
-router.post("/add", addReview);
+router.post("/add", verifyToken, addReview);
 
 /**
  * @swagger
@@ -60,6 +62,6 @@ router.post("/add", addReview);
  *       200:
  *         description: Review deleted successfully
  */
-router.delete("/delete/:id", deleteReviews);
+router.delete("/delete/:id", verifyToken, authorization('admin'), deleteReviews);
 
 module.exports = router;

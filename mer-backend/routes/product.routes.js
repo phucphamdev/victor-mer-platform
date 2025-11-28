@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 // internal
 const productController = require('../controller/product.controller');
+const verifyToken = require('../middleware/verifyToken');
+const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
@@ -92,7 +94,7 @@ const productController = require('../controller/product.controller');
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post('/add', productController.addProduct);
+router.post('/add', verifyToken, authorization('admin'), productController.addProduct);
 
 /**
  * @swagger
@@ -148,7 +150,7 @@ router.post('/add', productController.addProduct);
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post('/add-all', productController.addAllProducts);
+router.post('/add-all', verifyToken, authorization('admin'), productController.addAllProducts);
 
 /**
  * @swagger
@@ -397,7 +399,7 @@ router.get("/stock-out", productController.stockOutProducts);
  *       404:
  *         description: Không tìm thấy sản phẩm
  */
-router.patch("/edit-product/:id", productController.updateProduct);
+router.patch("/edit-product/:id", verifyToken, authorization('admin'), productController.updateProduct);
 
 /**
  * @swagger
@@ -435,6 +437,6 @@ router.get('/:type', productController.getProductsByType);
  *       200:
  *         description: Product deleted successfully
  */
-router.delete('/:id', productController.deleteProduct);
+router.delete('/:id', verifyToken, authorization('admin'), productController.deleteProduct);
 
 module.exports = router;

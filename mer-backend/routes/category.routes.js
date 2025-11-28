@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 // internal
 const categoryController = require('../controller/category.controller');
+const verifyToken = require('../middleware/verifyToken');
+const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
@@ -94,7 +96,7 @@ router.get('/get/:id', categoryController.getSingleCategory);
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
  */
-router.post('/add', categoryController.addCategory);
+router.post('/add', verifyToken, authorization('admin'), categoryController.addCategory);
 
 /**
  * @swagger
@@ -116,7 +118,7 @@ router.post('/add', categoryController.addCategory);
  *       201:
  *         description: Categories created
  */
-router.post('/add-all', categoryController.addAllCategory);
+router.post('/add-all', verifyToken, authorization('admin'), categoryController.addAllCategory);
 
 /**
  * @swagger
@@ -228,7 +230,7 @@ router.get('/show', categoryController.getShowCategory);
  *       200:
  *         description: Category deleted
  */
-router.delete('/delete/:id', categoryController.deleteCategory);
+router.delete('/delete/:id', verifyToken, authorization('admin'), categoryController.deleteCategory);
 
 /**
  * @swagger
@@ -254,6 +256,6 @@ router.delete('/delete/:id', categoryController.deleteCategory);
  *       200:
  *         description: Category updated
  */
-router.patch('/edit/:id', categoryController.updateCategory);
+router.patch('/edit/:id', verifyToken, authorization('admin'), categoryController.updateCategory);
 
 module.exports = router;

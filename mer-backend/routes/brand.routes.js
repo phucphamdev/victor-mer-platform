@@ -4,6 +4,8 @@ const router = express.Router();
 const brandController = require('../controller/brand.controller');
 const brandValidators = require('../validators/brand.validator');
 const { validateRequest } = require('../middleware/validation');
+const verifyToken = require('../middleware/verifyToken');
+const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
@@ -39,7 +41,7 @@ const { validateRequest } = require('../middleware/validation');
  *       201:
  *         description: Brand created successfully
  */
-router.post('/add', brandValidators.create, validateRequest, brandController.addBrand);
+router.post('/add', verifyToken, authorization('admin'), brandValidators.create, validateRequest, brandController.addBrand);
 
 /**
  * @swagger
@@ -61,7 +63,7 @@ router.post('/add', brandValidators.create, validateRequest, brandController.add
  *       201:
  *         description: Brands created successfully
  */
-router.post('/add-all',brandController.addAllBrand);
+router.post('/add-all', verifyToken, authorization('admin'), brandController.addAllBrand);
 
 /**
  * @swagger
@@ -105,7 +107,7 @@ router.get('/all', brandValidators.list, validateRequest, brandController.getAll
  *       200:
  *         description: Brand deleted successfully
  */
-router.delete('/delete/:id', brandValidators.delete, validateRequest, brandController.deleteBrand);
+router.delete('/delete/:id', verifyToken, authorization('admin'), brandValidators.delete, validateRequest, brandController.deleteBrand);
 
 /**
  * @swagger
@@ -151,6 +153,6 @@ router.get('/get/:id', brandValidators.getById, validateRequest, brandController
  *       200:
  *         description: Brand updated successfully
  */
-router.patch('/edit/:id', brandValidators.update, validateRequest, brandController.updateBrand);
+router.patch('/edit/:id', verifyToken, authorization('admin'), brandValidators.update, validateRequest, brandController.updateBrand);
 
 module.exports = router;
