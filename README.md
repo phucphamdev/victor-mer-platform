@@ -208,13 +208,13 @@ victor-mer-platform/
 ├── Makefile                    # Shortcuts commands
 ├── generate-secrets.sh         # Script tạo credentials
 ├── mongo-init.js              # MongoDB initialization
-├── shofy-backend/
+├── mer-backend/
 │   ├── Dockerfile             # Backend container
 │   └── ...
-├── shofy-front-end/
+├── mer-front-end/
 │   ├── Dockerfile             # Frontend container
 │   └── ...
-├── shofy-admin-panel/
+├── mer-admin-panel/
 │   ├── Dockerfile             # Admin container
 │   └── ...
 └── nginx/

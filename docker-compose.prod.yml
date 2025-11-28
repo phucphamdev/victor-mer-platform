@@ -35,7 +35,7 @@ services:
 
   backend:
     build:
-      context: ./shofy-backend
+      context: ./mer-backend
       dockerfile: Dockerfile
       target: production
     container_name: victormer-backend-prod
@@ -81,7 +81,7 @@ services:
 
   frontend:
     build:
-      context: ./shofy-front-end
+      context: ./mer-front-end
       dockerfile: Dockerfile
       target: production
     container_name: victormer-frontend-prod
@@ -107,7 +107,7 @@ services:
 
   admin:
     build:
-      context: ./shofy-admin-panel
+      context: ./mer-admin-panel
       dockerfile: Dockerfile
       target: production
     container_name: victormer-admin-prod
