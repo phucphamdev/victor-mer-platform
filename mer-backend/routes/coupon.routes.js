@@ -9,22 +9,142 @@ const {
   deleteCoupon,
 } = require('../controller/coupon.controller');
 
-//add a coupon
+/**
+ * @swagger
+ * tags:
+ *   name: Coupon
+ *   description: Coupon management
+ */
+
+/**
+ * @swagger
+ * /api/coupon/add:
+ *   post:
+ *     summary: Add a new coupon
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - code
+ *               - discount
+ *             properties:
+ *               code:
+ *                 type: string
+ *               discount:
+ *                 type: number
+ *               expiryDate:
+ *                 type: string
+ *                 format: date
+ *     responses:
+ *       201:
+ *         description: Coupon created successfully
+ */
 router.post('/add', addCoupon);
 
-//add multiple coupon
+/**
+ * @swagger
+ * /api/coupon/all:
+ *   post:
+ *     summary: Add multiple coupons
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: object
+ *     responses:
+ *       201:
+ *         description: Coupons created successfully
+ */
 router.post('/all', addAllCoupon);
 
-//get all coupon
+/**
+ * @swagger
+ * /api/coupon:
+ *   get:
+ *     summary: Get all coupons
+ *     tags: [Coupon]
+ *     responses:
+ *       200:
+ *         description: List of coupons
+ */
 router.get('/', getAllCoupons);
 
-//get a coupon
+/**
+ * @swagger
+ * /api/coupon/{id}:
+ *   get:
+ *     summary: Get coupon by ID
+ *     tags: [Coupon]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon details
+ *       404:
+ *         description: Coupon not found
+ */
 router.get('/:id', getCouponById);
 
-//update a coupon
+/**
+ * @swagger
+ * /api/coupon/{id}:
+ *   patch:
+ *     summary: Update coupon
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Coupon updated successfully
+ */
 router.patch('/:id', updateCoupon);
 
-//delete a coupon
+/**
+ * @swagger
+ * /api/coupon/{id}:
+ *   delete:
+ *     summary: Delete coupon
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon deleted successfully
+ */
 router.delete('/:id', deleteCoupon);
 
 module.exports = router;

@@ -77,3 +77,32 @@ restore-db: ## Restore MongoDB database (usage: make restore-db BACKUP=backup-20
 	docker cp ./backups/$(BACKUP) victormer-mongodb-prod:/tmp/restore
 	docker-compose exec mongodb mongorestore --uri="mongodb://$(MONGO_ROOT_USER):$(MONGO_ROOT_PASSWORD)@localhost:27017/$(MONGO_DB_NAME)?authSource=admin" /tmp/restore
 	@echo "Database restore completed!"
+
+# API Testing commands
+test-api: ## Test API endpoints (development)
+	@echo "Testing API endpoints..."
+	@chmod +x test-api.sh
+	@./test-api.sh dev
+
+test-api-prod: ## Test API endpoints (production)
+	@echo "Testing production API endpoints..."
+	@chmod +x test-api.sh
+	@./test-api.sh prod
+
+health-check: ## Check health of all services
+	@echo "Checking service health..."
+	@echo "\n=== Backend Health ==="
+	@curl -s http://localhost:7000/health | jq '.' || echo "Backend not responding"
+	@echo "\n=== Frontend Health ==="
+	@curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" http://localhost:3500 || echo "Frontend not responding"
+	@echo "\n=== Admin Health ==="
+	@curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" http://localhost:4000 || echo "Admin not responding"
+	@echo "\n=== MongoDB Health ==="
+	@docker-compose exec -T mongodb mongosh --eval "db.adminCommand('ping')" --quiet || echo "MongoDB not responding"
+
+swagger: ## Open Swagger API documentation
+	@echo "Opening Swagger UI..."
+	@echo "URL: http://localhost:7000/api-docs"
+	@command -v xdg-open > /dev/null && xdg-open http://localhost:7000/api-docs || \
+	 command -v open > /dev/null && open http://localhost:7000/api-docs || \
+	 echo "Please open http://localhost:7000/api-docs in your browser"
