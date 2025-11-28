@@ -21,13 +21,71 @@ const router = express.Router();
  * @swagger
  * /api/order/orders:
  *   get:
- *     summary: Get all orders
+ *     summary: Lấy danh sách đơn hàng
+ *     description: Lấy tất cả đơn hàng trong hệ thống. Yêu cầu xác thực Bearer token.
  *     tags: [Order]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Số trang (không bắt buộc, mặc định 1)
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Số đơn hàng mỗi trang (không bắt buộc, mặc định 10)
+ *         example: 10
+ *       - in: query
+ *         name: status
+ *         required: false
+ *         schema:
+ *           type: string
+ *           enum: [pending, processing, delivered, cancelled]
+ *         description: Lọc theo trạng thái đơn hàng (không bắt buộc)
+ *         example: "pending"
+ *       - in: query
+ *         name: startDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Lọc từ ngày (không bắt buộc, định dạng YYYY-MM-DD)
+ *         example: "2025-01-01"
+ *       - in: query
+ *         name: endDate
+ *         required: false
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Lọc đến ngày (không bắt buộc, định dạng YYYY-MM-DD)
+ *         example: "2025-12-31"
  *     responses:
  *       200:
- *         description: List of orders
+ *         description: Lấy danh sách đơn hàng thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 pagination:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.get("/orders", getOrders);
 
@@ -55,7 +113,8 @@ router.get("/:id", getSingleOrder);
  * @swagger
  * /api/order/create-payment-intent:
  *   post:
- *     summary: Create payment intent
+ *     summary: Tạo payment intent cho thanh toán
+ *     description: Tạo payment intent với Stripe để xử lý thanh toán. Không yêu cầu xác thực.
  *     tags: [Order]
  *     requestBody:
  *       required: true
@@ -68,9 +127,29 @@ router.get("/:id", getSingleOrder);
  *             properties:
  *               amount:
  *                 type: number
+ *                 description: Số tiền thanh toán (bắt buộc, đơn vị VND)
+ *                 example: 1000000
+ *               currency:
+ *                 type: string
+ *                 description: Loại tiền tệ (không bắt buộc, mặc định VND)
+ *                 example: "vnd"
+ *           example:
+ *             amount: 1000000
+ *             currency: "vnd"
  *     responses:
  *       200:
- *         description: Payment intent created
+ *         description: Tạo payment intent thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 clientSecret:
+ *                   type: string
+ *                   description: Client secret để hoàn tất thanh toán
+ *                   example: "pi_xxx_secret_xxx"
+ *       400:
+ *         description: Dữ liệu không hợp lệ
  */
 router.post("/create-payment-intent", paymentIntent);
 

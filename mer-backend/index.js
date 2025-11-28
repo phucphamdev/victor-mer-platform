@@ -38,6 +38,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, swaggerUiOptions));
 
 // Public routes (no authentication required)
 app.use("/api/user", userRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Protected routes (authentication required)
 app.use("/api/category", verifyToken, categoryRoutes);
@@ -49,7 +50,6 @@ app.use("/api/coupon", verifyToken, couponRoutes);
 app.use("/api/user-order", verifyToken, userOrderRoutes);
 app.use("/api/review", verifyToken, reviewRoutes);
 app.use("/api/cloudinary", verifyToken, cloudinaryRoutes);
-app.use("/api/admin", verifyToken, adminRoutes);
 
 // root route
 app.get("/", (req, res) => res.send("Apps worked successfully"));

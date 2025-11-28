@@ -62,6 +62,14 @@ const adminSchema = new mongoose.Schema(
     },
     confirmationToken: String,
     confirmationTokenExpires: Date,
+    refreshToken: {
+      type: String,
+      required: false,
+    },
+    refreshTokenExpires: {
+      type: Date,
+      required: false,
+    },
   },
   {
     timestamps: true, 

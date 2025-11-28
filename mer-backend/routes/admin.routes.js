@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const verifyToken = require('../middleware/verifyToken');
 const {
   registerAdmin,
   loginAdmin,
@@ -11,6 +12,8 @@ const {
   getStaffById,
   forgetPassword,
   confirmAdminForgetPass,
+  refreshAccessToken,
+  logoutAdmin,
 } = require("../controller/admin.controller");
 
 /**
@@ -24,7 +27,8 @@ const {
  * @swagger
  * /api/admin/register:
  *   post:
- *     summary: Register a new admin
+ *     summary: Đăng ký admin mới
+ *     description: Tạo tài khoản admin mới trong hệ thống. Không yêu cầu xác thực.
  *     tags: [Admin]
  *     requestBody:
  *       required: true
@@ -39,13 +43,59 @@ const {
  *             properties:
  *               name:
  *                 type: string
+ *                 description: Tên admin (bắt buộc)
+ *                 example: "Nguyễn Văn A"
  *               email:
  *                 type: string
+ *                 format: email
+ *                 description: Email admin (bắt buộc, phải là email hợp lệ)
+ *                 example: "admin@example.com"
  *               password:
  *                 type: string
+ *                 format: password
+ *                 description: Mật khẩu (bắt buộc, tối thiểu 6 ký tự)
+ *                 example: "123456"
+ *               phone:
+ *                 type: string
+ *                 description: Số điện thoại (không bắt buộc)
+ *                 example: "0901234567"
+ *               role:
+ *                 type: string
+ *                 description: Vai trò (không bắt buộc, mặc định Admin)
+ *                 enum: [Admin, Manager, CEO, Super Admin]
+ *                 example: "Admin"
+ *               image:
+ *                 type: string
+ *                 description: URL ảnh đại diện (không bắt buộc)
+ *                 example: "https://example.com/avatar.jpg"
+ *           example:
+ *             name: "Nguyễn Văn A"
+ *             email: "admin@example.com"
+ *             password: "123456"
+ *             phone: "0901234567"
+ *             role: "Admin"
  *     responses:
  *       201:
- *         description: Admin registered successfully
+ *         description: Đăng ký admin thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 _id:
+ *                   type: string
+ *                   example: "507f1f77bcf86cd799439011"
+ *                 name:
+ *                   type: string
+ *                   example: "Nguyễn Văn A"
+ *                 email:
+ *                   type: string
+ *                   example: "admin@example.com"
+ *       400:
+ *         description: Email đã tồn tại hoặc dữ liệu không hợp lệ
  */
 router.post("/register", registerAdmin);
 
@@ -53,7 +103,8 @@ router.post("/register", registerAdmin);
  * @swagger
  * /api/admin/login:
  *   post:
- *     summary: Admin login
+ *     summary: Đăng nhập admin
+ *     description: Đăng nhập vào hệ thống admin và nhận JWT token. Không yêu cầu xác thực.
  *     tags: [Admin]
  *     requestBody:
  *       required: true
@@ -67,13 +118,57 @@ router.post("/register", registerAdmin);
  *             properties:
  *               email:
  *                 type: string
+ *                 format: email
+ *                 description: Email admin (bắt buộc)
+ *                 example: "dorothy@gmail.com"
  *               password:
  *                 type: string
+ *                 format: password
+ *                 description: Mật khẩu (bắt buộc)
+ *                 example: "123456"
+ *           example:
+ *             email: "dorothy@gmail.com"
+ *             password: "123456"
  *     responses:
  *       200:
- *         description: Login successful
+ *         description: Đăng nhập thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 token:
+ *                   type: string
+ *                   description: JWT token để xác thực các request tiếp theo
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 _id:
+ *                   type: string
+ *                   example: "507f1f77bcf86cd799439011"
+ *                 name:
+ *                   type: string
+ *                   example: "Dorothy R. Brown"
+ *                 email:
+ *                   type: string
+ *                   example: "dorothy@gmail.com"
+ *                 phone:
+ *                   type: string
+ *                   example: "708-628-3122"
+ *                 role:
+ *                   type: string
+ *                   example: "Admin"
+ *                 image:
+ *                   type: string
+ *                   example: "https://i.ibb.co/wpjNftS/user-2.jpg"
  *       401:
- *         description: Invalid credentials
+ *         description: Email hoặc mật khẩu không đúng
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Invalid Email or password!"
  */
 router.post("/login", loginAdmin);
 
@@ -103,7 +198,7 @@ router.post("/login", loginAdmin);
  *       200:
  *         description: Password changed successfully
  */
-router.patch("/change-password", changePassword);
+router.patch("/change-password", verifyToken, changePassword);
 
 /**
  * @swagger
@@ -136,7 +231,7 @@ router.patch("/change-password", changePassword);
  *       201:
  *         description: Staff added successfully
  */
-router.post("/add", addStaff);
+router.post("/add", verifyToken, addStaff);
 
 /**
  * @swagger
@@ -150,7 +245,7 @@ router.post("/add", addStaff);
  *       200:
  *         description: List of staff members
  */
-router.get("/all", getAllStaff);
+router.get("/all", verifyToken, getAllStaff);
 
 /**
  * @swagger
@@ -221,7 +316,7 @@ router.patch("/confirm-forget-password", confirmAdminForgetPass);
  *       404:
  *         description: Staff not found
  */
-router.get("/get/:id", getStaffById);
+router.get("/get/:id", verifyToken, getStaffById);
 
 /**
  * @swagger
@@ -247,7 +342,7 @@ router.get("/get/:id", getStaffById);
  *       200:
  *         description: Staff updated successfully
  */
-router.patch("/update-stuff/:id", updateStaff);
+router.patch("/update-stuff/:id", verifyToken, updateStaff);
 
 /**
  * @swagger
@@ -267,6 +362,90 @@ router.patch("/update-stuff/:id", updateStaff);
  *       200:
  *         description: Staff deleted successfully
  */
-router.delete("/:id", deleteStaff);
+router.delete("/:id", verifyToken, deleteStaff);
+
+/**
+ * @swagger
+ * /api/admin/refresh-token:
+ *   post:
+ *     summary: Làm mới access token
+ *     description: Sử dụng refresh token để lấy access token mới mà không cần đăng nhập lại. Giúp duy trì phiên đăng nhập an toàn.
+ *     tags: [Admin]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: Refresh token nhận được khi đăng nhập (bắt buộc)
+ *                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *     responses:
+ *       200:
+ *         description: Access token mới được tạo thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 token:
+ *                   type: string
+ *                   description: Access token mới
+ *                   example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *                 message:
+ *                   type: string
+ *                   example: "Access token refreshed successfully"
+ *       401:
+ *         description: Thiếu refresh token
+ *       403:
+ *         description: Refresh token không hợp lệ hoặc đã hết hạn
+ */
+router.post("/refresh-token", refreshAccessToken);
+
+/**
+ * @swagger
+ * /api/admin/logout:
+ *   post:
+ *     summary: Đăng xuất
+ *     description: Vô hiệu hóa refresh token để đăng xuất an toàn. Sau khi logout, refresh token không thể sử dụng được nữa.
+ *     tags: [Admin]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - refreshToken
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *                 description: Refresh token cần vô hiệu hóa (bắt buộc)
+ *                 example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+ *     responses:
+ *       200:
+ *         description: Đăng xuất thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: "Logged out successfully"
+ *       400:
+ *         description: Thiếu refresh token
+ */
+router.post("/logout", logoutAdmin);
 
 module.exports = router;

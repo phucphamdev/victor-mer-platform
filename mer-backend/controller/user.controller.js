@@ -13,33 +13,25 @@ exports.signup = async (req, res,next) => {
     if (user) {
       res.send({ status: "failed", message: "Email already exists" });
     } else {
-      const saved_user = await User.create(req.body);
-      const token = saved_user.generateConfirmationToken();
+      const saved_user = await User.create({
+        ...req.body,
+        status: 'active' // Tự động active cho môi trường dev
+      });
 
-      await saved_user.save({ validateBeforeSave: false });
-
-      const mailData = {
-        from: secret.email_user,
-        to: `${req.body.email}`,
-        subject: "Email Activation",
-        subject: "Verify Your Email",
-        html: `<h2>Hello ${req.body.name}</h2>
-        <p>Verify your email address to complete the signup and login into your <strong>shofy</strong> account.</p>
-  
-          <p>This link will expire in <strong> 10 minute</strong>.</p>
-  
-          <p style="margin-bottom:20px;">Click this link for active your account</p>
-  
-          <a href="${secret.client_url}/email-verify/${token}" style="background:#0989FF;color:white;border:1px solid #0989FF; padding: 10px 15px; border-radius: 4px; text-decoration:none;">Verify Account</a>
-  
-          <p style="margin-top: 35px;">If you did not initiate this request, please contact us immediately at support@shofy.com</p>
-  
-          <p style="margin-bottom:0px;">Thank you</p>
-          <strong>shofy Team</strong>
-           `,
-      };
-      const message = "Please check your email to verify!";
-      sendEmail(mailData, res, message);
+      // Trả về response ngay lập tức thay vì gửi email
+      res.status(200).json({
+        status: "success",
+        message: "Account created successfully. You can now login.",
+        data: {
+          user: {
+            _id: saved_user._id,
+            name: saved_user.name,
+            email: saved_user.email,
+            role: saved_user.role,
+            status: saved_user.status
+          }
+        }
+      });
     }
   } catch (error) {
     next(error)

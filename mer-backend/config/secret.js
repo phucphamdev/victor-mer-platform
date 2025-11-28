@@ -8,6 +8,7 @@ module.exports.secret = {
   env: process.env.NODE_ENV,
   db_url: process.env.MONGO_URI,
   token_secret: process.env.TOKEN_SECRET,
+  refresh_token_secret: process.env.REFRESH_TOKEN_SECRET || process.env.TOKEN_SECRET + '_refresh',
   jwt_secret_for_verify: process.env.JWT_SECRET_FOR_VERIFY,
 
   email_service: process.env.SERVICE,

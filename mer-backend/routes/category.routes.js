@@ -32,7 +32,8 @@ router.get('/get/:id', categoryController.getSingleCategory);
  * @swagger
  * /api/category/add:
  *   post:
- *     summary: Add new category
+ *     summary: Thêm danh mục mới
+ *     description: Tạo danh mục sản phẩm mới. Yêu cầu xác thực Bearer token.
  *     tags: [Category]
  *     security:
  *       - bearerAuth: []
@@ -47,11 +48,51 @@ router.get('/get/:id', categoryController.getSingleCategory);
  *             properties:
  *               name:
  *                 type: string
+ *                 description: Tên danh mục (bắt buộc)
+ *                 example: "Điện thoại"
+ *               slug:
+ *                 type: string
+ *                 description: URL slug (không bắt buộc, tự động tạo nếu không có)
+ *                 example: "dien-thoai"
  *               description:
  *                 type: string
+ *                 description: Mô tả danh mục (không bắt buộc)
+ *                 example: "Danh mục điện thoại di động"
+ *               parent:
+ *                 type: string
+ *                 description: ID danh mục cha (không bắt buộc, để trống nếu là danh mục gốc)
+ *                 example: "507f1f77bcf86cd799439011"
+ *               image:
+ *                 type: string
+ *                 description: URL hình ảnh danh mục (không bắt buộc)
+ *                 example: "https://example.com/category.jpg"
+ *               status:
+ *                 type: string
+ *                 description: Trạng thái hiển thị (không bắt buộc, mặc định active)
+ *                 enum: [active, inactive]
+ *                 example: "active"
+ *           example:
+ *             name: "Điện thoại"
+ *             description: "Danh mục điện thoại di động"
+ *             status: "active"
  *     responses:
  *       201:
- *         description: Category created
+ *         description: Tạo danh mục thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 message:
+ *                   type: string
+ *                   example: "Category created successfully"
+ *                 data:
+ *                   type: object
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
  */
 router.post('/add', categoryController.addCategory);
 
@@ -81,11 +122,61 @@ router.post('/add-all', categoryController.addAllCategory);
  * @swagger
  * /api/category/all:
  *   get:
- *     summary: Get all categories
+ *     summary: Lấy tất cả danh mục
+ *     description: Lấy danh sách tất cả danh mục sản phẩm. Không yêu cầu xác thực.
  *     tags: [Category]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Số trang (không bắt buộc, mặc định 1)
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *         description: Số danh mục mỗi trang (không bắt buộc, mặc định 20)
+ *         example: 20
+ *       - in: query
+ *         name: search
+ *         required: false
+ *         schema:
+ *           type: string
+ *         description: Tìm kiếm theo tên danh mục (không bắt buộc)
+ *         example: "Điện thoại"
  *     responses:
  *       200:
- *         description: List of categories
+ *         description: Lấy danh sách danh mục thành công
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: "success"
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         example: "507f1f77bcf86cd799439011"
+ *                       name:
+ *                         type: string
+ *                         example: "Điện thoại"
+ *                       slug:
+ *                         type: string
+ *                         example: "dien-thoai"
+ *                       description:
+ *                         type: string
+ *                         example: "Danh mục điện thoại di động"
  */
 router.get('/all', categoryController.getAllCategory);
 

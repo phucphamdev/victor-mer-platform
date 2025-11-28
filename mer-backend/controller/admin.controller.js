@@ -5,7 +5,7 @@ dayjs.extend(utc);
 const jwt = require('jsonwebtoken');
 const { tokenForVerify } = require("../config/auth");
 const Admin = require("../model/Admin");
-const { generateToken } = require("../utils/token");
+const { generateToken, generateRefreshToken, verifyRefreshToken } = require("../utils/token");
 const { sendEmail } = require("../config/email");
 const { secret } = require("../config/secret");
 
@@ -47,8 +47,16 @@ const loginAdmin = async (req, res,next) => {
     // console.log(admin)
     if (admin && bcrypt.compareSync(req.body.password, admin.password)) {
       const token = generateToken(admin);
+      const refreshToken = generateRefreshToken(admin);
+      
+      // Save refresh token to database
+      admin.refreshToken = refreshToken;
+      admin.refreshTokenExpires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+      await admin.save({ validateBeforeSave: false });
+      
       res.send({
         token,
+        refreshToken,
         _id: admin._id,
         name: admin.name,
         phone: admin.phone,
@@ -313,6 +321,88 @@ const updatedStatus = async (req, res) => {
   }
 };
 
+// Refresh Token - Get new access token without re-login
+const refreshAccessToken = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(401).json({
+        success: false,
+        message: "Refresh token is required",
+      });
+    }
+
+    // Verify refresh token
+    const decoded = verifyRefreshToken(refreshToken);
+
+    // Find admin and check if refresh token matches
+    const admin = await Admin.findById(decoded._id);
+    
+    if (!admin || admin.refreshToken !== refreshToken) {
+      return res.status(403).json({
+        success: false,
+        message: "Invalid refresh token",
+      });
+    }
+
+    // Check if refresh token is expired
+    if (admin.refreshTokenExpires && new Date() > admin.refreshTokenExpires) {
+      return res.status(403).json({
+        success: false,
+        message: "Refresh token expired. Please login again.",
+      });
+    }
+
+    // Generate new access token
+    const newAccessToken = generateToken(admin);
+
+    res.status(200).json({
+      success: true,
+      token: newAccessToken,
+      message: "Access token refreshed successfully",
+    });
+
+  } catch (error) {
+    res.status(403).json({
+      success: false,
+      message: "Invalid or expired refresh token",
+      error: error.message,
+    });
+  }
+};
+
+// Logout - Invalidate refresh token
+const logoutAdmin = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        success: false,
+        message: "Refresh token is required",
+      });
+    }
+
+    // Find admin and clear refresh token
+    const admin = await Admin.findOne({ refreshToken });
+    
+    if (admin) {
+      admin.refreshToken = undefined;
+      admin.refreshTokenExpires = undefined;
+      await admin.save({ validateBeforeSave: false });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   registerAdmin,
   loginAdmin,
@@ -326,4 +416,6 @@ module.exports = {
   updatedStatus,
   changePassword,
   confirmAdminForgetPass,
+  refreshAccessToken,
+  logoutAdmin,
 };
