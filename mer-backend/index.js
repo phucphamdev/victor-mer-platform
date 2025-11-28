@@ -5,6 +5,7 @@ const path = require('path');
 const cors = require("cors");
 const connectDB = require("./config/db");
 const { secret } = require("./config/secret");
+const logger = require("./utils/logger");
 const PORT = secret.port || 7000;
 const morgan = require('morgan')
 // error handler
@@ -63,7 +64,13 @@ app.get("/health", (req, res) => {
   });
 });
 
-app.listen(PORT, () => console.log(`server running on port ${PORT}`));
+app.listen(PORT, () => {
+  logger.info(`🚀 Server running on port ${PORT}`, { 
+    port: PORT, 
+    env: process.env.NODE_ENV || 'development',
+    nodeVersion: process.version 
+  });
+});
 
 // global error handler
 app.use(globalErrorHandler);

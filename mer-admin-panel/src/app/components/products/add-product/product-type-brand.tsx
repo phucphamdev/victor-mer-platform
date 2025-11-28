@@ -1,16 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   FieldErrors,
   UseFormRegister,
-  Controller,
   Control,
 } from "react-hook-form";
 import { useGetAllBrandsQuery } from "@/redux/brand/brandApi";
-
-import ReactSelect, { GroupBase } from "react-select";
+import { GroupBase } from "react-select";
 import ErrorMsg from "../../common/error-msg";
 import Loading from "../../common/loading";
+import FormInput from "../../common/form-input";
+import FormSelect from "../../common/form-select";
 import ProductType from "./product-type";
+
 // prop type
 type IPropType = {
   register: UseFormRegister<any>;
@@ -36,16 +37,26 @@ const ProductTypeBrand = ({
   default_value,
 }: IPropType) => {
   const { data: brands, isError, isLoading } = useGetAllBrandsQuery();
-
   const [hasDefaultValues, setHasDefaultValues] = useState<boolean>(false);
-  // default value set
+
+  // Memoize brand options to avoid recalculation
+  const brandOptions = useMemo(() => {
+    if (!brands?.result) return [];
+    return brands.result.map((b) => ({
+      value: b.name,
+      label: b.name,
+    })) as unknown as readonly (string | GroupBase<string>)[];
+  }, [brands?.result]);
+
+  // Set default values
   useEffect(() => {
     if (
       default_value?.product_type &&
       default_value.brand &&
-      !hasDefaultValues
+      !hasDefaultValues &&
+      brands?.result
     ) {
-      const brand = brands?.result.find((b) => b.name === default_value.brand);
+      const brand = brands.result.find((b) => b.name === default_value.brand);
       if (brand) {
         setSelectBrand({ id: brand._id as string, name: default_value.brand });
         setSelectProductType(default_value.product_type);
@@ -60,76 +71,62 @@ const ProductTypeBrand = ({
     setSelectProductType,
   ]);
 
-  // decide what to render
-  let content = null;
-  if (isLoading) {
-    content = (
-      <div className="mb-5">
-        <p className="mb-0 text-base text-black">Loading...</p>
-        <Loading loading={isLoading} spinner="scale" />
-      </div>
-    );
-  }
-  if (!isLoading && isError) {
-    content = <ErrorMsg msg="There was an error" />;
-  }
-  if (!isLoading && isError && brands?.result.length === 0) {
-    content = <ErrorMsg msg="No Category Found" />;
-  }
+  // Handle brand change
+  const handleBrandChange = (selectedBrand: string) => {
+    if (!brands?.result) return;
+    const brand = brands.result.find((b) => b.name === selectedBrand);
+    if (brand) {
+      setSelectBrand({ id: brand._id as string, name: selectedBrand });
+    }
+  };
 
-  if (!isLoading && !isError && brands?.success) {
-    const brandItems = brands.result;
+  // Render brand select content
+  const renderBrandSelect = () => {
+    if (isLoading) {
+      return (
+        <div className="mb-5">
+          <p className="mb-0 text-base text-black">Loading...</p>
+          <Loading loading={isLoading} spinner="scale" />
+        </div>
+      );
+    }
 
-    // handleBrandChange
-    const handleBrandChange = (selectBrand: string) => {
-      const brand = brandItems.find((b) => b.name === selectBrand);
-      setSelectBrand({ id: brand?._id as string, name: selectBrand });
-    };
-    const option = brandItems.map((b) => ({
-      value: b.name,
-      label: b.name,
-    })) as unknown as readonly (string | GroupBase<string>)[];
+    if (isError) {
+      return <ErrorMsg msg="Failed to load brands" />;
+    }
 
-    content = (
-      <div className="mb-5">
-        <p className="mb-0 text-base text-black">Brands</p>
-        <Controller
-          name="brand"
-          control={control}
-          rules={{
-            required: default_value?.brand ? false : "Brand is required!",
-          }}
-          render={({ field }) => (
-            <ReactSelect
-              {...field}
-              value={field.value}
-              defaultValue={
-                default_value
-                  ? {
-                      label: default_value.brand,
-                      value: default_value.brand,
-                    }
-                  : {
-                      label: "Select..",
-                      value: 0,
-                    }
+    if (!brands?.result || brands.result.length === 0) {
+      return <ErrorMsg msg="No brands found" />;
+    }
+
+    return (
+      <FormSelect
+        name="brand"
+        label="Brands"
+        control={control}
+        errors={errors}
+        options={brandOptions}
+        defaultValue={
+          default_value?.brand
+            ? {
+                label: default_value.brand,
+                value: default_value.brand,
               }
-              onChange={(selectedOption) => {
-                field.onChange(selectedOption);
-                handleBrandChange(selectedOption?.value);
-              }}
-              options={option}
-            />
-          )}
-        />
-        <ErrorMsg msg={errors?.brand?.message as string} />
-        <span className="text-tiny leading-4">Set the product Brand.</span>
-      </div>
+            : undefined
+        }
+        placeholder="Select brand..."
+        required={!default_value?.brand}
+        helpText="Set the product brand."
+        onChange={handleBrandChange}
+        isLoading={isLoading}
+      />
     );
-  }
+  };
+
   return (
     <div className="bg-white px-8 py-8 rounded-md mb-6">
       <div className="grid sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-x-6">
+        {/* Product Type */}
         <div className="mb-5">
           <p className="mb-0 text-base text-black">ProductType</p>
           <ProductType
@@ -143,23 +140,21 @@ const ProductTypeBrand = ({
           </span>
         </div>
 
-        {content}
+        {/* Brand Select */}
+        {renderBrandSelect()}
 
-        <div className="mb-5">
-          <p className="mb-0 text-base text-black">
-            Unit <span className="text-red">*</span>
-          </p>
-          <input
-            id="unit"
-            {...register("unit", { required: `unit is required!` })}
-            defaultValue={default_value?.unit}
-            className="input w-full h-[44px] rounded-md border border-gray6 px-6 text-base"
-            type="text"
-            placeholder="Product unit"
-          />
-          <ErrorMsg msg={errors?.unit?.message as string} />
-          <span className="text-tiny leading-4">Set the unit of product.</span>
-        </div>
+        {/* Unit Input */}
+        <FormInput
+          name="unit"
+          label="Unit"
+          register={register}
+          errors={errors}
+          type="text"
+          placeholder="Product unit"
+          required={true}
+          defaultValue={default_value?.unit}
+          helpText="Set the unit of product."
+        />
       </div>
     </div>
   );
