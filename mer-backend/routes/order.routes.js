@@ -21,7 +21,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /api/order/orders:
+ * /api/order:
  *   get:
  *     summary: Lấy danh sách đơn hàng
  *     description: Lấy tất cả đơn hàng trong hệ thống. Yêu cầu xác thực Bearer token.
@@ -88,8 +88,33 @@ const router = express.Router();
  *                   type: object
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
+ *   post:
+ *     summary: Save new order
+ *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - cart
+ *               - user
+ *             properties:
+ *               cart:
+ *                 type: array
+ *               user:
+ *                 type: string
+ *               shippingAddress:
+ *                 type: object
+ *     responses:
+ *       201:
+ *         description: Order created successfully
  */
-router.get("/orders", verifyToken, authorization('admin'), getOrders);
+router.get("/", verifyToken, authorization('admin'), getOrders);
+router.post("/", verifyToken, addOrder);
 
 /**
  * @swagger
@@ -108,8 +133,33 @@ router.get("/orders", verifyToken, authorization('admin'), getOrders);
  *     responses:
  *       200:
  *         description: Order details
+ *   patch:
+ *     summary: Update order status
+ *     tags: [Order]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               status:
+ *                 type: string
+ *                 enum: [pending, processing, delivered, cancelled]
+ *     responses:
+ *       200:
+ *         description: Order status updated
  */
 router.get("/:id", verifyToken, getSingleOrder);
+router.patch("/:id", verifyToken, authorization('admin'), updateOrderStatus);
 
 /**
  * @swagger
@@ -155,64 +205,6 @@ router.get("/:id", verifyToken, getSingleOrder);
  */
 router.post("/create-payment-intent", paymentIntent);
 
-/**
- * @swagger
- * /api/order/saveOrder:
- *   post:
- *     summary: Save new order
- *     tags: [Order]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required:
- *               - cart
- *               - user
- *             properties:
- *               cart:
- *                 type: array
- *               user:
- *                 type: string
- *               shippingAddress:
- *                 type: object
- *     responses:
- *       201:
- *         description: Order created successfully
- */
-router.post("/saveOrder", verifyToken, addOrder);
 
-/**
- * @swagger
- * /api/order/update-status/{id}:
- *   patch:
- *     summary: Update order status
- *     tags: [Order]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               status:
- *                 type: string
- *                 enum: [pending, processing, delivered, cancelled]
- *     responses:
- *       200:
- *         description: Order status updated
- */
-router.patch("/update-status/:id", verifyToken, authorization('admin'), updateOrderStatus);
 
 module.exports = router;

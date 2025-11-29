@@ -13,7 +13,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/review/add:
+ * /api/review:
  *   post:
  *     summary: Add a product review
  *     tags: [Review]
@@ -42,11 +42,11 @@ const authorization = require('../middleware/authorization');
  *       201:
  *         description: Review added successfully
  */
-router.post("/add", verifyToken, addReview);
+router.post("/", verifyToken, addReview);
 
 /**
  * @swagger
- * /api/review/delete/{id}:
+ * /api/review/{id}:
  *   delete:
  *     summary: Delete a review
  *     tags: [Review]
@@ -62,6 +62,6 @@ router.post("/add", verifyToken, addReview);
  *       200:
  *         description: Review deleted successfully
  */
-router.delete("/delete/:id", verifyToken, authorization('admin'), deleteReviews);
+router.delete("/:id", verifyToken, authorization('admin'), deleteReviews);
 
 module.exports = router;

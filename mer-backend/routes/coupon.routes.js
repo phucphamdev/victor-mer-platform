@@ -20,7 +20,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/coupon/add:
+ * /api/coupon:
  *   post:
  *     summary: Add a new coupon
  *     tags: [Coupon]
@@ -46,12 +46,19 @@ const authorization = require('../middleware/authorization');
  *     responses:
  *       201:
  *         description: Coupon created successfully
+ *   get:
+ *     summary: Get all coupons
+ *     tags: [Coupon]
+ *     responses:
+ *       200:
+ *         description: List of coupons
  */
-router.post('/add', verifyToken, authorization('admin'), addCoupon);
+router.post('/', verifyToken, authorization('admin'), addCoupon);
+router.get('/', getAllCoupons);
 
 /**
  * @swagger
- * /api/coupon/all:
+ * /api/coupon/bulk:
  *   post:
  *     summary: Add multiple coupons
  *     tags: [Coupon]
@@ -69,19 +76,7 @@ router.post('/add', verifyToken, authorization('admin'), addCoupon);
  *       201:
  *         description: Coupons created successfully
  */
-router.post('/all', verifyToken, authorization('admin'), addAllCoupon);
-
-/**
- * @swagger
- * /api/coupon:
- *   get:
- *     summary: Get all coupons
- *     tags: [Coupon]
- *     responses:
- *       200:
- *         description: List of coupons
- */
-router.get('/', getAllCoupons);
+router.post('/bulk', verifyToken, authorization('admin'), addAllCoupon);
 
 /**
  * @swagger

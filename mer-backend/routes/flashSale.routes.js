@@ -13,7 +13,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/flash-sale/add:
+ * /api/flash-sale:
  *   post:
  *     summary: Create flash sale
  *     tags: [FlashSale]
@@ -53,12 +53,6 @@ const authorization = require('../middleware/authorization');
  *     responses:
  *       201:
  *         description: Flash sale created successfully
- */
-router.post('/add', verifyToken, authorization('admin'), flashSaleController.createFlashSale);
-
-/**
- * @swagger
- * /api/flash-sale/all:
  *   get:
  *     summary: Get all flash sales
  *     tags: [FlashSale]
@@ -79,7 +73,8 @@ router.post('/add', verifyToken, authorization('admin'), flashSaleController.cre
  *       200:
  *         description: List of flash sales
  */
-router.get('/all', flashSaleController.getAllFlashSales);
+router.post('/', verifyToken, authorization('admin'), flashSaleController.createFlashSale);
+router.get('/', flashSaleController.getAllFlashSales);
 
 /**
  * @swagger

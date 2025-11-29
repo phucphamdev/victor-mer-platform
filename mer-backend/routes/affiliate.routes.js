@@ -13,7 +13,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/affiliate/register:
+ * /api/affiliate:
  *   post:
  *     summary: Register new affiliate
  *     tags: [Affiliate]
@@ -37,12 +37,6 @@ const authorization = require('../middleware/authorization');
  *     responses:
  *       201:
  *         description: Affiliate registered successfully
- */
-router.post('/register', verifyToken, affiliateController.registerAffiliate);
-
-/**
- * @swagger
- * /api/affiliate/all:
  *   get:
  *     summary: Get all affiliates
  *     tags: [Affiliate]
@@ -65,7 +59,8 @@ router.post('/register', verifyToken, affiliateController.registerAffiliate);
  *       200:
  *         description: List of affiliates
  */
-router.get('/all', verifyToken, authorization('admin'), affiliateController.getAllAffiliates);
+router.post('/', verifyToken, affiliateController.registerAffiliate);
+router.get('/', verifyToken, authorization('admin'), affiliateController.getAllAffiliates);
 
 /**
  * @swagger
@@ -140,27 +135,7 @@ router.get('/stats/:id', verifyToken, affiliateController.getAffiliateStats);
 
 /**
  * @swagger
- * /api/affiliate/{id}:
- *   get:
- *     summary: Get affiliate by ID
- *     tags: [Affiliate]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Affiliate details
- */
-router.get('/:id', verifyToken, affiliateController.getAffiliateById);
-
-/**
- * @swagger
- * /api/affiliate/approve/{id}:
+ * /api/affiliate/{id}/approve:
  *   patch:
  *     summary: Approve affiliate
  *     tags: [Affiliate]
@@ -176,11 +151,25 @@ router.get('/:id', verifyToken, affiliateController.getAffiliateById);
  *       200:
  *         description: Affiliate approved
  */
-router.patch('/approve/:id', verifyToken, authorization('admin'), affiliateController.approveAffiliate);
+router.patch('/:id/approve', verifyToken, authorization('admin'), affiliateController.approveAffiliate);
 
 /**
  * @swagger
  * /api/affiliate/{id}:
+ *   get:
+ *     summary: Get affiliate by ID
+ *     tags: [Affiliate]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Affiliate details
  *   patch:
  *     summary: Update affiliate
  *     tags: [Affiliate]
@@ -196,6 +185,7 @@ router.patch('/approve/:id', verifyToken, authorization('admin'), affiliateContr
  *       200:
  *         description: Affiliate updated
  */
+router.get('/:id', verifyToken, affiliateController.getAffiliateById);
 router.patch('/:id', verifyToken, authorization('admin'), affiliateController.updateAffiliate);
 
 module.exports = router;

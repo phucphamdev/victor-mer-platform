@@ -13,7 +13,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/shipment/add:
+ * /api/shipment:
  *   post:
  *     summary: Create shipment
  *     tags: [Shipment]
@@ -44,12 +44,6 @@ const authorization = require('../middleware/authorization');
  *     responses:
  *       201:
  *         description: Shipment created successfully
- */
-router.post('/add', verifyToken, authorization('admin'), shipmentController.createShipment);
-
-/**
- * @swagger
- * /api/shipment/all:
  *   get:
  *     summary: Get all shipments
  *     tags: [Shipment]
@@ -76,7 +70,8 @@ router.post('/add', verifyToken, authorization('admin'), shipmentController.crea
  *       200:
  *         description: List of shipments
  */
-router.get('/all', verifyToken, authorization('admin'), shipmentController.getAllShipments);
+router.post('/', verifyToken, authorization('admin'), shipmentController.createShipment);
+router.get('/', verifyToken, authorization('admin'), shipmentController.getAllShipments);
 
 /**
  * @swagger
@@ -113,12 +108,6 @@ router.get('/track/:trackingNumber', shipmentController.getShipmentByTracking);
  *     responses:
  *       200:
  *         description: Shipment details
- */
-router.get('/:id', verifyToken, authorization('admin'), shipmentController.getShipmentById);
-
-/**
- * @swagger
- * /api/shipment/status/{id}:
  *   patch:
  *     summary: Update shipment status
  *     tags: [Shipment]
@@ -146,12 +135,6 @@ router.get('/:id', verifyToken, authorization('admin'), shipmentController.getSh
  *     responses:
  *       200:
  *         description: Shipment status updated
- */
-router.patch('/status/:id', verifyToken, authorization('admin'), shipmentController.updateShipmentStatus);
-
-/**
- * @swagger
- * /api/shipment/{id}:
  *   delete:
  *     summary: Delete shipment
  *     tags: [Shipment]
@@ -167,6 +150,9 @@ router.patch('/status/:id', verifyToken, authorization('admin'), shipmentControl
  *       200:
  *         description: Shipment deleted
  */
+router.get('/:id', verifyToken, authorization('admin'), shipmentController.getShipmentById);
+router.patch('/:id', verifyToken, authorization('admin'), shipmentController.updateShipmentStatus);
+
 router.delete('/:id', verifyToken, authorization('admin'), shipmentController.deleteShipment);
 
 module.exports = router;

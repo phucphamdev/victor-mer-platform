@@ -13,7 +13,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/product-label/add:
+ * /api/product-label:
  *   post:
  *     summary: Create product label
  *     tags: [ProductLabel]
@@ -42,12 +42,6 @@ const authorization = require('../middleware/authorization');
  *     responses:
  *       201:
  *         description: Label created successfully
- */
-router.post('/add', verifyToken, authorization('admin'), productLabelController.createLabel);
-
-/**
- * @swagger
- * /api/product-label/all:
  *   get:
  *     summary: Get all product labels
  *     tags: [ProductLabel]
@@ -68,7 +62,8 @@ router.post('/add', verifyToken, authorization('admin'), productLabelController.
  *       200:
  *         description: List of labels
  */
-router.get('/all', productLabelController.getAllLabels);
+router.post('/', verifyToken, authorization('admin'), productLabelController.createLabel);
+router.get('/', productLabelController.getAllLabels);
 
 /**
  * @swagger

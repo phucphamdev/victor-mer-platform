@@ -13,7 +13,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/invoice/add:
+ * /api/invoice:
  *   post:
  *     summary: Create invoice
  *     tags: [Invoice]
@@ -49,12 +49,6 @@ const authorization = require('../middleware/authorization');
  *     responses:
  *       201:
  *         description: Invoice created successfully
- */
-router.post('/add', verifyToken, authorization('admin'), invoiceController.createInvoice);
-
-/**
- * @swagger
- * /api/invoice/all:
  *   get:
  *     summary: Get all invoices
  *     tags: [Invoice]
@@ -81,7 +75,8 @@ router.post('/add', verifyToken, authorization('admin'), invoiceController.creat
  *       200:
  *         description: List of invoices
  */
-router.get('/all', verifyToken, authorization('admin'), invoiceController.getAllInvoices);
+router.post('/', verifyToken, authorization('admin'), invoiceController.createInvoice);
+router.get('/', verifyToken, authorization('admin'), invoiceController.getAllInvoices);
 
 /**
  * @swagger
@@ -125,7 +120,7 @@ router.get('/:id', verifyToken, invoiceController.getInvoiceById);
 
 /**
  * @swagger
- * /api/invoice/mark-paid/{id}:
+ * /api/invoice/{id}/paid:
  *   patch:
  *     summary: Mark invoice as paid
  *     tags: [Invoice]
@@ -141,7 +136,7 @@ router.get('/:id', verifyToken, invoiceController.getInvoiceById);
  *       200:
  *         description: Invoice marked as paid
  */
-router.patch('/mark-paid/:id', verifyToken, authorization('admin'), invoiceController.markAsPaid);
+router.patch('/:id/paid', verifyToken, authorization('admin'), invoiceController.markAsPaid);
 
 /**
  * @swagger

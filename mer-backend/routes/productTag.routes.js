@@ -13,7 +13,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/product-tag/add:
+ * /api/product-tag:
  *   post:
  *     summary: Create product tag
  *     tags: [ProductTag]
@@ -42,12 +42,6 @@ const authorization = require('../middleware/authorization');
  *     responses:
  *       201:
  *         description: Tag created successfully
- */
-router.post('/add', verifyToken, authorization('admin'), productTagController.createTag);
-
-/**
- * @swagger
- * /api/product-tag/all:
  *   get:
  *     summary: Get all product tags
  *     tags: [ProductTag]
@@ -72,7 +66,8 @@ router.post('/add', verifyToken, authorization('admin'), productTagController.cr
  *       200:
  *         description: List of tags
  */
-router.get('/all', productTagController.getAllTags);
+router.post('/', verifyToken, authorization('admin'), productTagController.createTag);
+router.get('/', productTagController.getAllTags);
 
 /**
  * @swagger

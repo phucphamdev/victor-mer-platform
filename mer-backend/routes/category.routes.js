@@ -14,25 +14,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/category/get/{id}:
- *   get:
- *     summary: Get single category
- *     tags: [Category]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Category details
- */
-router.get('/get/:id', categoryController.getSingleCategory);
-
-/**
- * @swagger
- * /api/category/add:
+ * /api/category:
  *   post:
  *     summary: Thêm danh mục mới
  *     description: Tạo danh mục sản phẩm mới. Yêu cầu xác thực Bearer token.
@@ -95,34 +77,6 @@ router.get('/get/:id', categoryController.getSingleCategory);
  *                   type: object
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
- */
-router.post('/add', verifyToken, authorization('admin'), categoryController.addCategory);
-
-/**
- * @swagger
- * /api/category/add-all:
- *   post:
- *     summary: Add multiple categories
- *     tags: [Category]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: array
- *             items:
- *               type: object
- *     responses:
- *       201:
- *         description: Categories created
- */
-router.post('/add-all', verifyToken, authorization('admin'), categoryController.addAllCategory);
-
-/**
- * @swagger
- * /api/category/all:
  *   get:
  *     summary: Lấy tất cả danh mục
  *     description: Lấy danh sách tất cả danh mục sản phẩm. Không yêu cầu xác thực.
@@ -180,7 +134,30 @@ router.post('/add-all', verifyToken, authorization('admin'), categoryController.
  *                         type: string
  *                         example: "Danh mục điện thoại di động"
  */
-router.get('/all', categoryController.getAllCategory);
+router.post('/', verifyToken, authorization('admin'), categoryController.addCategory);
+router.get('/', categoryController.getAllCategory);
+
+/**
+ * @swagger
+ * /api/category/bulk:
+ *   post:
+ *     summary: Add multiple categories
+ *     tags: [Category]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: object
+ *     responses:
+ *       201:
+ *         description: Categories created
+ */
+router.post('/bulk', verifyToken, authorization('admin'), categoryController.addAllCategory);
 
 /**
  * @swagger
@@ -214,12 +191,10 @@ router.get('/show', categoryController.getShowCategory);
 
 /**
  * @swagger
- * /api/category/delete/{id}:
- *   delete:
- *     summary: Delete category
+ * /api/category/{id}:
+ *   get:
+ *     summary: Get single category
  *     tags: [Category]
- *     security:
- *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -228,13 +203,7 @@ router.get('/show', categoryController.getShowCategory);
  *           type: string
  *     responses:
  *       200:
- *         description: Category deleted
- */
-router.delete('/delete/:id', verifyToken, authorization('admin'), categoryController.deleteCategory);
-
-/**
- * @swagger
- * /api/category/edit/{id}:
+ *         description: Category details
  *   patch:
  *     summary: Update category
  *     tags: [Category]
@@ -255,7 +224,23 @@ router.delete('/delete/:id', verifyToken, authorization('admin'), categoryContro
  *     responses:
  *       200:
  *         description: Category updated
+ *   delete:
+ *     summary: Delete category
+ *     tags: [Category]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Category deleted
  */
-router.patch('/edit/:id', verifyToken, authorization('admin'), categoryController.updateCategory);
+router.get('/:id', categoryController.getSingleCategory);
+router.patch('/:id', verifyToken, authorization('admin'), categoryController.updateCategory);
+router.delete('/:id', verifyToken, authorization('admin'), categoryController.deleteCategory);
 
 module.exports = router;

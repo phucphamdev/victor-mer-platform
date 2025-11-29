@@ -1,5 +1,157 @@
 # 📝 CHANGELOG - Victor Mer Platform
 
+## [2024-11-29] - RESTful API Standardization
+
+### ✅ Major API Refactoring
+
+#### RESTful API Routes Update
+- ✅ Standardized all API routes to follow RESTful conventions
+- ✅ Removed action verbs from URLs (`/add`, `/edit`, `/delete`, `/get`)
+- ✅ Consolidated endpoints using proper HTTP methods (GET, POST, PATCH, DELETE)
+- ✅ Added comprehensive Swagger documentation to all endpoints
+
+#### Routes Updated (20 files)
+**Admin Routes:**
+- `/api/admin/change-password` → `/api/admin/password` (PATCH)
+- `/api/admin/add` → `/api/admin/staff` (POST)
+- `/api/admin/all` → `/api/admin/staff` (GET)
+- `/api/admin/get/:id` → `/api/admin/staff/:id` (GET)
+- `/api/admin/update-stuff/:id` → `/api/admin/staff/:id` (PATCH)
+
+**Resource Routes (Brand, Category, Product, etc.):**
+- `/add` → `/` (POST)
+- `/all` → `/` (GET)
+- `/add-all` → `/bulk` (POST)
+- `/get/:id` → `/:id` (GET)
+- `/edit/:id` → `/:id` (PATCH)
+- `/delete/:id` → `/:id` (DELETE)
+
+**User Routes:**
+- `/api/user/signup` → `/api/user/register` (POST)
+- `/api/user/forget-password` → `/api/user/password/reset` (POST)
+- `/api/user/confirm-forget-password` → `/api/user/password/confirm` (POST)
+- `/api/user/change-password` → `/api/user/password` (PATCH)
+- `/api/user/update-user/:id` → `/api/user/:id` (PATCH)
+
+**Order Routes:**
+- `/api/order/orders` → `/api/order` (GET)
+- `/api/order/saveOrder` → `/api/order` (POST)
+- `/api/order/update-status/:id` → `/api/order/:id` (PATCH)
+
+**Nested Resource Actions:**
+- `/approve/:id` → `/:id/approve` (PATCH)
+- `/mark-paid/:id` → `/:id/paid` (PATCH)
+- `/publish/:id` → `/:id/publish` (PATCH)
+
+#### Files Modified
+1. `mer-backend/routes/admin.routes.js`
+2. `mer-backend/routes/affiliate.routes.js`
+3. `mer-backend/routes/brand.routes.js`
+4. `mer-backend/routes/category.routes.js`
+5. `mer-backend/routes/collection.routes.js`
+6. `mer-backend/routes/coupon.routes.js`
+7. `mer-backend/routes/flashSale.routes.js`
+8. `mer-backend/routes/inventory.routes.js`
+9. `mer-backend/routes/invoice.routes.js`
+10. `mer-backend/routes/order.routes.js`
+11. `mer-backend/routes/orderReturn.routes.js`
+12. `mer-backend/routes/page.routes.js`
+13. `mer-backend/routes/product.routes.js`
+14. `mer-backend/routes/productLabel.routes.js`
+15. `mer-backend/routes/productTag.routes.js`
+16. `mer-backend/routes/review.routes.js`
+17. `mer-backend/routes/shipment.routes.js`
+18. `mer-backend/routes/user.routes.js`
+19. `mer-backend/routes/user.order.routes.js`
+20. `mer-backend/routes/cloudinary.routes.js`
+
+#### Documentation Updates
+- ✅ Updated `docs/API_DOCUMENTATION.md` with new RESTful endpoints
+- ✅ Updated `CHANGELOG.md` with detailed changes
+- ✅ Updated `docs/FEATURES.md` with complete feature list
+- ✅ Updated `docs/TESTING.md` with new endpoint examples
+- ✅ Removed unnecessary `SETUP.md` file
+
+### 🎯 RESTful Principles Applied
+
+1. **Resource-Based URLs**
+   - Use nouns, not verbs
+   - Plural resource names
+   - Hierarchical structure
+
+2. **HTTP Methods**
+   - GET: Retrieve resources
+   - POST: Create new resources
+   - PATCH: Update existing resources
+   - DELETE: Remove resources
+
+3. **Consistent Patterns**
+   - `POST /resource` - Create
+   - `GET /resource` - List all
+   - `GET /resource/:id` - Get one
+   - `PATCH /resource/:id` - Update
+   - `DELETE /resource/:id` - Delete
+   - `POST /resource/bulk` - Bulk create
+
+4. **Nested Resources**
+   - `PATCH /resource/:id/action` - Specific actions
+   - `GET /resource/slug/:slug` - Alternative identifiers
+
+### 📊 Impact
+
+- **API Consistency:** 100% RESTful compliance
+- **Swagger Compatibility:** Full auto-documentation support
+- **Developer Experience:** Predictable, intuitive API structure
+- **Maintainability:** Easier to understand and extend
+- **Standards Compliance:** Industry best practices
+
+### 🔄 Migration Guide
+
+**Old → New Endpoint Mapping:**
+
+```
+# Admin
+POST /api/admin/add → POST /api/admin/staff
+GET /api/admin/all → GET /api/admin/staff
+GET /api/admin/get/:id → GET /api/admin/staff/:id
+PATCH /api/admin/update-stuff/:id → PATCH /api/admin/staff/:id
+
+# Products
+POST /api/product/add → POST /api/product
+GET /api/product/all → GET /api/product
+POST /api/product/add-all → POST /api/product/bulk
+GET /api/product/single-product/:id → GET /api/product/:id
+PATCH /api/product/edit-product/:id → PATCH /api/product/:id
+
+# Categories
+POST /api/category/add → POST /api/category
+GET /api/category/all → GET /api/category
+POST /api/category/add-all → POST /api/category/bulk
+GET /api/category/get/:id → GET /api/category/:id
+PATCH /api/category/edit/:id → PATCH /api/category/:id
+DELETE /api/category/delete/:id → DELETE /api/category/:id
+
+# Similar patterns for all other resources
+```
+
+### ⚠️ Breaking Changes
+
+**This is a breaking change** - Frontend applications must update API calls:
+1. Update all endpoint URLs
+2. Verify HTTP methods
+3. Test all API integrations
+4. Update API documentation references
+
+### 🔧 Next Steps
+
+1. [ ] Update frontend applications (mer-admin-panel, mer-front-end)
+2. [ ] Update API client libraries
+3. [ ] Test all endpoints
+4. [ ] Deploy to staging
+5. [ ] Update production after testing
+
+---
+
 ## [2024-11-29] - Menu & API Enhancement
 
 ### ✅ Added Features

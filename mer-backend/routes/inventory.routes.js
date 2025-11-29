@@ -13,7 +13,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/inventory/add:
+ * /api/inventory:
  *   post:
  *     summary: Create inventory record
  *     tags: [Inventory]
@@ -43,12 +43,6 @@ const authorization = require('../middleware/authorization');
  *     responses:
  *       201:
  *         description: Inventory created successfully
- */
-router.post('/add', verifyToken, authorization('admin'), inventoryController.createInventory);
-
-/**
- * @swagger
- * /api/inventory/all:
  *   get:
  *     summary: Get all inventory
  *     tags: [Inventory]
@@ -75,7 +69,8 @@ router.post('/add', verifyToken, authorization('admin'), inventoryController.cre
  *       200:
  *         description: List of inventory
  */
-router.get('/all', verifyToken, authorization('admin'), inventoryController.getAllInventory);
+router.post('/', verifyToken, authorization('admin'), inventoryController.createInventory);
+router.get('/', verifyToken, authorization('admin'), inventoryController.getAllInventory);
 
 /**
  * @swagger

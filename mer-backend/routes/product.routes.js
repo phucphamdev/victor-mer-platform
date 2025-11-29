@@ -14,7 +14,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/product/add:
+ * /api/product:
  *   post:
  *     summary: Thêm sản phẩm mới
  *     description: Tạo một sản phẩm mới trong hệ thống. Yêu cầu xác thực Bearer token.
@@ -93,68 +93,6 @@ const authorization = require('../middleware/authorization');
  *                   type: object
  *       401:
  *         $ref: '#/components/responses/UnauthorizedError'
- */
-router.post('/add', verifyToken, authorization('admin'), productController.addProduct);
-
-/**
- * @swagger
- * /api/product/add-all:
- *   post:
- *     summary: Thêm nhiều sản phẩm cùng lúc
- *     description: Tạo nhiều sản phẩm trong một request. Yêu cầu xác thực Bearer token.
- *     tags: [Product]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: array
- *             items:
- *               type: object
- *               required:
- *                 - title
- *                 - price
- *                 - category
- *               properties:
- *                 title:
- *                   type: string
- *                   example: "iPhone 15 Pro Max"
- *                 price:
- *                   type: number
- *                   example: 29990000
- *                 category:
- *                   type: string
- *                   example: "507f1f77bcf86cd799439011"
- *                 description:
- *                   type: string
- *                   example: "Mô tả sản phẩm"
- *                 images:
- *                   type: array
- *                   items:
- *                     type: string
- *                   example: ["https://example.com/image1.jpg"]
- *           example:
- *             - title: "iPhone 15 Pro Max"
- *               price: 29990000
- *               category: "507f1f77bcf86cd799439011"
- *               stock: 100
- *             - title: "Samsung Galaxy S24"
- *               price: 22990000
- *               category: "507f1f77bcf86cd799439011"
- *               stock: 50
- *     responses:
- *       201:
- *         description: Tạo sản phẩm thành công
- *       401:
- *         $ref: '#/components/responses/UnauthorizedError'
- */
-router.post('/add-all', verifyToken, authorization('admin'), productController.addAllProducts);
-
-/**
- * @swagger
- * /api/product/all:
  *   get:
  *     summary: Lấy danh sách tất cả sản phẩm
  *     description: Lấy danh sách sản phẩm có phân trang. Không yêu cầu xác thực.
@@ -225,7 +163,64 @@ router.post('/add-all', verifyToken, authorization('admin'), productController.a
  *                       type: integer
  *                       example: 100
  */
-router.get('/all', productController.getAllProducts);
+router.post('/', verifyToken, authorization('admin'), productController.addProduct);
+router.get('/', productController.getAllProducts);
+
+/**
+ * @swagger
+ * /api/product/bulk:
+ *   post:
+ *     summary: Thêm nhiều sản phẩm cùng lúc
+ *     description: Tạo nhiều sản phẩm trong một request. Yêu cầu xác thực Bearer token.
+ *     tags: [Product]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: object
+ *               required:
+ *                 - title
+ *                 - price
+ *                 - category
+ *               properties:
+ *                 title:
+ *                   type: string
+ *                   example: "iPhone 15 Pro Max"
+ *                 price:
+ *                   type: number
+ *                   example: 29990000
+ *                 category:
+ *                   type: string
+ *                   example: "507f1f77bcf86cd799439011"
+ *                 description:
+ *                   type: string
+ *                   example: "Mô tả sản phẩm"
+ *                 images:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                   example: ["https://example.com/image1.jpg"]
+ *           example:
+ *             - title: "iPhone 15 Pro Max"
+ *               price: 29990000
+ *               category: "507f1f77bcf86cd799439011"
+ *               stock: 100
+ *             - title: "Samsung Galaxy S24"
+ *               price: 22990000
+ *               category: "507f1f77bcf86cd799439011"
+ *               stock: 50
+ *     responses:
+ *       201:
+ *         description: Tạo sản phẩm thành công
+ *       401:
+ *         $ref: '#/components/responses/UnauthorizedError'
+ */
+router.post('/bulk', verifyToken, authorization('admin'), productController.addAllProducts);
 
 /**
  * @swagger
@@ -299,25 +294,7 @@ router.get('/popular/:type', productController.getPopularProductByType);
  */
 router.get('/related-product/:id', productController.getRelatedProducts);
 
-/**
- * @swagger
- * /api/product/single-product/{id}:
- *   get:
- *     summary: Get single product details
- *     tags: [Product]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Product details
- *       404:
- *         description: Product not found
- */
-router.get("/single-product/:id", productController.getSingleProduct);
+
 
 /**
  * @swagger
@@ -333,7 +310,39 @@ router.get("/stock-out", productController.stockOutProducts);
 
 /**
  * @swagger
- * /api/product/edit-product/{id}:
+ * /api/product/type/{type}:
+ *   get:
+ *     summary: Get products by type
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: type
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of products by type
+ */
+router.get('/type/:type', productController.getProductsByType);
+
+/**
+ * @swagger
+ * /api/product/{id}:
+ *   get:
+ *     summary: Get single product details
+ *     tags: [Product]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Product details
+ *       404:
+ *         description: Product not found
  *   patch:
  *     summary: Cập nhật sản phẩm
  *     description: Cập nhật thông tin sản phẩm. Yêu cầu xác thực Bearer token.
@@ -398,30 +407,6 @@ router.get("/stock-out", productController.stockOutProducts);
  *         $ref: '#/components/responses/UnauthorizedError'
  *       404:
  *         description: Không tìm thấy sản phẩm
- */
-router.patch("/edit-product/:id", verifyToken, authorization('admin'), productController.updateProduct);
-
-/**
- * @swagger
- * /api/product/{type}:
- *   get:
- *     summary: Get products by type
- *     tags: [Product]
- *     parameters:
- *       - in: path
- *         name: type
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: List of products by type
- */
-router.get('/:type', productController.getProductsByType);
-
-/**
- * @swagger
- * /api/product/{id}:
  *   delete:
  *     summary: Delete product
  *     tags: [Product]
@@ -437,6 +422,8 @@ router.get('/:type', productController.getProductsByType);
  *       200:
  *         description: Product deleted successfully
  */
+router.get('/:id', productController.getSingleProduct);
+router.patch('/:id', verifyToken, authorization('admin'), productController.updateProduct);
 router.delete('/:id', verifyToken, authorization('admin'), productController.deleteProduct);
 
 module.exports = router;

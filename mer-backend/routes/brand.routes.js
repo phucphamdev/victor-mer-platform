@@ -16,7 +16,7 @@ const authorization = require('../middleware/authorization');
 
 /**
  * @swagger
- * /api/brand/add:
+ * /api/brand:
  *   post:
  *     summary: Add a new brand
  *     tags: [Brand]
@@ -40,12 +40,19 @@ const authorization = require('../middleware/authorization');
  *     responses:
  *       201:
  *         description: Brand created successfully
+ *   get:
+ *     summary: Get all brands
+ *     tags: [Brand]
+ *     responses:
+ *       200:
+ *         description: List of all brands
  */
-router.post('/add', verifyToken, authorization('admin'), brandValidators.create, validateRequest, brandController.addBrand);
+router.post('/', verifyToken, authorization('admin'), brandValidators.create, validateRequest, brandController.addBrand);
+router.get('/', brandValidators.list, validateRequest, brandController.getAllBrands);
 
 /**
  * @swagger
- * /api/brand/add-all:
+ * /api/brand/bulk:
  *   post:
  *     summary: Add multiple brands
  *     tags: [Brand]
@@ -63,7 +70,7 @@ router.post('/add', verifyToken, authorization('admin'), brandValidators.create,
  *       201:
  *         description: Brands created successfully
  */
-router.post('/add-all', verifyToken, authorization('admin'), brandController.addAllBrand);
+router.post('/bulk', verifyToken, authorization('admin'), brandController.addAllBrand);
 
 /**
  * @swagger
@@ -79,39 +86,7 @@ router.get('/active', brandValidators.list, validateRequest, brandController.get
 
 /**
  * @swagger
- * /api/brand/all:
- *   get:
- *     summary: Get all brands
- *     tags: [Brand]
- *     responses:
- *       200:
- *         description: List of all brands
- */
-router.get('/all', brandValidators.list, validateRequest, brandController.getAllBrands);
-
-/**
- * @swagger
- * /api/brand/delete/{id}:
- *   delete:
- *     summary: Delete brand
- *     tags: [Brand]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Brand deleted successfully
- */
-router.delete('/delete/:id', verifyToken, authorization('admin'), brandValidators.delete, validateRequest, brandController.deleteBrand);
-
-/**
- * @swagger
- * /api/brand/get/{id}:
+ * /api/brand/{id}:
  *   get:
  *     summary: Get single brand
  *     tags: [Brand]
@@ -126,12 +101,6 @@ router.delete('/delete/:id', verifyToken, authorization('admin'), brandValidator
  *         description: Brand details
  *       404:
  *         description: Brand not found
- */
-router.get('/get/:id', brandValidators.getById, validateRequest, brandController.getSingleBrand);
-
-/**
- * @swagger
- * /api/brand/edit/{id}:
  *   patch:
  *     summary: Update brand
  *     tags: [Brand]
@@ -152,7 +121,23 @@ router.get('/get/:id', brandValidators.getById, validateRequest, brandController
  *     responses:
  *       200:
  *         description: Brand updated successfully
+ *   delete:
+ *     summary: Delete brand
+ *     tags: [Brand]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Brand deleted successfully
  */
-router.patch('/edit/:id', verifyToken, authorization('admin'), brandValidators.update, validateRequest, brandController.updateBrand);
+router.get('/:id', brandValidators.getById, validateRequest, brandController.getSingleBrand);
+router.patch('/:id', verifyToken, authorization('admin'), brandValidators.update, validateRequest, brandController.updateBrand);
+router.delete('/:id', verifyToken, authorization('admin'), brandValidators.delete, validateRequest, brandController.deleteBrand);
 
 module.exports = router;

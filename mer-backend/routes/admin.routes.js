@@ -175,7 +175,7 @@ router.post("/login", loginLimiter, loginAdmin);
 
 /**
  * @swagger
- * /api/admin/change-password:
+ * /api/admin/password:
  *   patch:
  *     summary: Change admin password
  *     tags: [Admin]
@@ -199,11 +199,11 @@ router.post("/login", loginLimiter, loginAdmin);
  *       200:
  *         description: Password changed successfully
  */
-router.patch("/change-password", verifyToken, changePassword);
+router.patch("/password", verifyToken, changePassword);
 
 /**
  * @swagger
- * /api/admin/add:
+ * /api/admin/staff:
  *   post:
  *     summary: Add a new staff member
  *     tags: [Admin]
@@ -231,12 +231,6 @@ router.patch("/change-password", verifyToken, changePassword);
  *     responses:
  *       201:
  *         description: Staff added successfully
- */
-router.post("/add", verifyToken, addStaff);
-
-/**
- * @swagger
- * /api/admin/all:
  *   get:
  *     summary: Get all staff members
  *     tags: [Admin]
@@ -246,7 +240,8 @@ router.post("/add", verifyToken, addStaff);
  *       200:
  *         description: List of staff members
  */
-router.get("/all", verifyToken, getAllStaff);
+router.post("/staff", verifyToken, addStaff);
+router.get("/staff", verifyToken, getAllStaff);
 
 /**
  * @swagger
@@ -299,7 +294,7 @@ router.patch("/confirm-forget-password", confirmAdminForgetPass);
 
 /**
  * @swagger
- * /api/admin/get/{id}:
+ * /api/admin/staff/{id}:
  *   get:
  *     summary: Get staff by ID
  *     tags: [Admin]
@@ -316,12 +311,6 @@ router.patch("/confirm-forget-password", confirmAdminForgetPass);
  *         description: Staff details
  *       404:
  *         description: Staff not found
- */
-router.get("/get/:id", verifyToken, getStaffById);
-
-/**
- * @swagger
- * /api/admin/update-stuff/{id}:
  *   patch:
  *     summary: Update staff information
  *     tags: [Admin]
@@ -342,12 +331,6 @@ router.get("/get/:id", verifyToken, getStaffById);
  *     responses:
  *       200:
  *         description: Staff updated successfully
- */
-router.patch("/update-stuff/:id", verifyToken, updateStaff);
-
-/**
- * @swagger
- * /api/admin/{id}:
  *   delete:
  *     summary: Delete staff member
  *     tags: [Admin]
@@ -363,7 +346,9 @@ router.patch("/update-stuff/:id", verifyToken, updateStaff);
  *       200:
  *         description: Staff deleted successfully
  */
-router.delete("/:id", verifyToken, deleteStaff);
+router.get("/staff/:id", verifyToken, getStaffById);
+router.patch("/staff/:id", verifyToken, updateStaff);
+router.delete("/staff/:id", verifyToken, deleteStaff);
 
 /**
  * @swagger

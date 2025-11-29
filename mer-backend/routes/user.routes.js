@@ -12,7 +12,7 @@ const verifyToken = require('../middleware/verifyToken');
 
 /**
  * @swagger
- * /api/user/signup:
+ * /api/user/register:
  *   post:
  *     summary: Đăng ký tài khoản người dùng
  *     description: Tạo tài khoản người dùng mới. Tài khoản sẽ được kích hoạt tự động trong môi trường dev.
@@ -107,7 +107,7 @@ const verifyToken = require('../middleware/verifyToken');
  *                   type: string
  *                   example: "Email already exists"
  */
-router.post("/signup", userController.signup);
+router.post("/register", userController.signup);
 
 /**
  * @swagger
@@ -198,8 +198,8 @@ router.post("/login", userController.login);
 
 /**
  * @swagger
- * /api/user/forget-password:
- *   patch:
+ * /api/user/password/reset:
+ *   post:
  *     summary: Request password reset
  *     tags: [User]
  *     requestBody:
@@ -217,12 +217,12 @@ router.post("/login", userController.login);
  *       200:
  *         description: Reset email sent
  */
-router.patch('/forget-password', userController.forgetPassword);
+router.post('/password/reset', userController.forgetPassword);
 
 /**
  * @swagger
- * /api/user/confirm-forget-password:
- *   patch:
+ * /api/user/password/confirm:
+ *   post:
  *     summary: Confirm password reset
  *     tags: [User]
  *     requestBody:
@@ -243,11 +243,11 @@ router.patch('/forget-password', userController.forgetPassword);
  *       200:
  *         description: Password reset successful
  */
-router.patch('/confirm-forget-password', userController.confirmForgetPassword);
+router.post('/password/confirm', userController.confirmForgetPassword);
 
 /**
  * @swagger
- * /api/user/change-password:
+ * /api/user/password:
  *   patch:
  *     summary: Change user password
  *     tags: [User]
@@ -271,11 +271,11 @@ router.patch('/confirm-forget-password', userController.confirmForgetPassword);
  *       200:
  *         description: Password changed successfully
  */
-router.patch('/change-password', verifyToken, userController.changePassword);
+router.patch('/password', verifyToken, userController.changePassword);
 
 /**
  * @swagger
- * /api/user/confirmEmail/{token}:
+ * /api/user/email/confirm/{token}:
  *   get:
  *     summary: Confirm user email
  *     tags: [User]
@@ -289,12 +289,30 @@ router.patch('/change-password', verifyToken, userController.changePassword);
  *       200:
  *         description: Email confirmed
  */
-router.get('/confirmEmail/:token', userController.confirmEmail);
+router.get('/email/confirm/:token', userController.confirmEmail);
 
 /**
  * @swagger
- * /api/user/update-user/{id}:
- *   put:
+ * /api/user/oauth/{token}:
+ *   post:
+ *     summary: Register or login with OAuth provider
+ *     tags: [User]
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Authentication successful
+ */
+router.post("/oauth/:token", userController.signUpWithProvider);
+
+/**
+ * @swagger
+ * /api/user/{id}:
+ *   patch:
  *     summary: Update user information
  *     tags: [User]
  *     security:
@@ -322,24 +340,6 @@ router.get('/confirmEmail/:token', userController.confirmEmail);
  *       200:
  *         description: User updated successfully
  */
-router.put('/update-user/:id', verifyToken, userController.updateUser);
-
-/**
- * @swagger
- * /api/user/register/{token}:
- *   post:
- *     summary: Register or login with OAuth provider
- *     tags: [User]
- *     parameters:
- *       - in: path
- *         name: token
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Authentication successful
- */
-router.post("/register/:token", userController.signUpWithProvider);
+router.patch('/:id', verifyToken, userController.updateUser);
 
 module.exports = router;
