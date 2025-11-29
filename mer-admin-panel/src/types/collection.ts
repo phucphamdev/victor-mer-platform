@@ -10,6 +10,7 @@ export interface ICollection {
   status: string;
   priority: number;
   featured: boolean;
+  categories?: string[]; // Array of category IDs
   createdAt: string;
   updatedAt: string;
 }
@@ -24,6 +25,7 @@ export interface IAddCollection {
   status?: string;
   priority?: number;
   featured?: boolean;
+  categories?: string[]; // Array of category IDs
 }
 
 export interface ICollectionCategory {
@@ -34,6 +36,7 @@ export interface ICollectionCategory {
   icon?: string;
   status: string;
   priority: number;
+  collectionCount?: number; // Count of collections in this category
   createdAt: string;
   updatedAt: string;
 }

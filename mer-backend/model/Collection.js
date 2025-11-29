@@ -37,6 +37,10 @@ const collectionSchema = mongoose.Schema({
     default: 0,
     min: 0
   },
+  categories: [{
+    type: ObjectId,
+    ref: 'CollectionCategory'
+  }],
   status: {
     type: String,
     enum: ['active', 'inactive', 'scheduled'],

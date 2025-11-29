@@ -43,6 +43,7 @@ Content-Type: application/json
 - `icon` - Icon/emoji for collection
 - `type` - Collection type (seasonal, trending, new-arrival, best-seller, custom)
 - `products` - Array of product IDs
+- `categories` - Array of collection category IDs (many-to-many relationship)
 - `status` - Status (active, inactive, scheduled)
 - `priority` - Display priority (number)
 - `featured` - Featured flag (boolean)
@@ -52,6 +53,35 @@ Content-Type: application/json
 - `limit` - Items per page (default: 10)
 - `status` - Filter by status (active, inactive, scheduled)
 - `type` - Filter by type (seasonal, trending, new-arrival, best-seller, custom)
+
+### 1.1. Collection Categories
+**Base URL:** `/api/collection-category`
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/` | Create new collection category | Admin |
+| GET | `/` | Get all collection categories | Public |
+| GET | `/:id` | Get collection category by ID | Public |
+| PATCH | `/:id` | Update collection category | Admin |
+| DELETE | `/:id` | Delete collection category | Admin |
+
+**Collection Category Schema:**
+- `name` - Category name (required)
+- `slug` - URL slug (auto-generated if not provided)
+- `description` - Category description
+- `icon` - Icon/emoji for category
+- `status` - Status (active, inactive)
+- `priority` - Display priority (number)
+- `collectionCount` - Number of collections in this category (auto-calculated)
+
+**Query Parameters (GET /):**
+- `page` - Page number (default: 1)
+- `limit` - Items per page (default: 20)
+- `status` - Filter by status (active, inactive)
+
+**Relationship:**
+- One category can have many collections
+- One collection can belong to many categories (many-to-many)
 
 ### 2. Flash Sales
 **Base URL:** `/api/flash-sale`

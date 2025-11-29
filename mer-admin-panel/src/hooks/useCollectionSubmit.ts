@@ -11,6 +11,7 @@ const useCollectionSubmit = () => {
   const [openSidebar, setOpenSidebar] = useState<boolean>(false);
   const [selectType, setSelectType] = useState<string>("custom");
   const [slug, setSlug] = useState<string>("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const router = useRouter();
 
   // add collection
@@ -41,6 +42,7 @@ const useCollectionSubmit = () => {
       setIcon("");
       setSelectType("custom");
       setSlug("");
+      setSelectedCategories([]);
       reset();
     }
   }, [openSidebar, reset]);
@@ -61,6 +63,7 @@ const useCollectionSubmit = () => {
         status: data?.status || "active",
         priority: data?.priority ? parseInt(data.priority) : 1,
         featured: data?.featured || false,
+        categories: selectedCategories,
       };
 
       const res = await addCollection({ ...collection_data });
@@ -76,6 +79,7 @@ const useCollectionSubmit = () => {
         setIsSubmitted(true);
         setIcon("");
         setSlug("");
+        setSelectedCategories([]);
         setOpenSidebar(false);
         setSelectType("custom");
         reset();
@@ -98,6 +102,7 @@ const useCollectionSubmit = () => {
         status: data?.status,
         priority: data?.priority ? parseInt(data.priority) : 1,
         featured: data?.featured || false,
+        categories: selectedCategories,
       };
       const res = await editCollection({ id, data: collection_data });
       if ("error" in res) {
@@ -137,6 +142,8 @@ const useCollectionSubmit = () => {
     handleSubmitEditCollection,
     slug,
     setSlug,
+    selectedCategories,
+    setSelectedCategories,
   };
 };
 

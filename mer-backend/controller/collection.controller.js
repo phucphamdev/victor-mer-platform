@@ -56,6 +56,7 @@ exports.getAllCollections = async (req, res, next) => {
     
     const collections = await Collection.find(filter)
       .populate('products', 'title img price')
+      .populate('categories', 'name slug icon status')
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .sort({ priority: -1, createdAt: -1 });
@@ -82,7 +83,8 @@ exports.getAllCollections = async (req, res, next) => {
 exports.getCollectionBySlug = async (req, res, next) => {
   try {
     const collection = await Collection.findOne({ slug: req.params.slug })
-      .populate('products');
+      .populate('products')
+      .populate('categories', 'name slug icon status');
     
     if (!collection) {
       return ApiResponse.notFound(res, { message: 'Collection not found' });
@@ -98,7 +100,8 @@ exports.getCollectionBySlug = async (req, res, next) => {
 exports.getCollectionById = async (req, res, next) => {
   try {
     const collection = await Collection.findById(req.params.id)
-      .populate('products');
+      .populate('products')
+      .populate('categories', 'name slug icon status');
     
     if (!collection) {
       return ApiResponse.notFound(res, { message: 'Collection not found' });

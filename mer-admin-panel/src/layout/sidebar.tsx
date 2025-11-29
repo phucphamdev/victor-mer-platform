@@ -20,6 +20,20 @@ export default function Sidebar({sideMenu,setSideMenu}:IProps) {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Check if any submenu is active
+  const isSubmenuActive = (menu: any) => {
+    if (!menu.subMenus) return false;
+    return menu.subMenus.some((sub: any) => pathname === sub.link);
+  };
+
+  // Auto-open dropdown if submenu is active
+  React.useEffect(() => {
+    const activeMenu = sidebar_menu.find(menu => isSubmenuActive(menu));
+    if (activeMenu) {
+      setIsDropDown(activeMenu.title);
+    }
+  }, [pathname]);
+
   // handle active menu
   const handleMenuActive = (title: string) => {
     if (title === isDropdown) {
@@ -77,7 +91,7 @@ export default function Sidebar({sideMenu,setSideMenu}:IProps) {
                     {menu.subMenus && (
                       <a
                         onClick={() => handleMenuActive(menu.title)}
-                        className={`group cursor-pointer rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-2 hover:bg-gray sidebar-link-active ${isDropdown === menu.title ? "bg-themeLight hover:bg-themeLight text-theme": ""}`}
+                        className={`group cursor-pointer rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-2 hover:bg-gray sidebar-link-active ${isDropdown === menu.title || isSubmenuActive(menu) ? "bg-themeLight hover:bg-themeLight text-theme": ""}`}
                       >
                         <span className="inline-block mr-[10px] text-xl">
                           <menu.icon />
@@ -85,7 +99,7 @@ export default function Sidebar({sideMenu,setSideMenu}:IProps) {
                         {menu.title}
 
                         {menu.subMenus && (
-                          <span className={`absolute right-4 top-[52%] -translate-y-1/2 transition-transform duration-300 origin-center w-4 h-4 ${isDropdown === menu.title ? "rotate-180" : ""}`}>
+                          <span className={`absolute right-4 top-[52%] -translate-y-1/2 transition-transform duration-300 origin-center w-4 h-4 ${isDropdown === menu.title || isSubmenuActive(menu) ? "rotate-180" : ""}`}>
                             <DownArrow />
                           </span>
                         )}
@@ -106,7 +120,7 @@ export default function Sidebar({sideMenu,setSideMenu}:IProps) {
 
                     {menu.subMenus && (
                       <ul
-                        className={`pl-[42px] pr-[20px] pb-2 space-y-1 transition-all duration-300 ${isDropdown === menu.title ? "block" : "hidden"}`}
+                        className={`pl-[42px] pr-[20px] pb-2 space-y-1 transition-all duration-300 ${isDropdown === menu.title || isSubmenuActive(menu) ? "block" : "hidden"}`}
                       >
                         {menu.subMenus.map((sub, i) => (
                           <li key={i}>

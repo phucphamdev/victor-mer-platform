@@ -23,6 +23,18 @@
   - Product count tracking
   - Search and filter functionality
   - Pagination support
+  - Grid and Table view modes
+  - Modal popup for add/edit operations
+  - Many-to-many relationship with categories
+- ✅ **Collection Categories** - Organize collections into categories
+  - Full CRUD operations
+  - Icon/emoji support
+  - Priority sorting
+  - Status management (active, inactive)
+  - Collection count tracking per category
+  - Grid and Table view modes
+  - Modal popup for add/edit operations
+  - Many-to-many relationship with collections
 - ✅ **Product Tags** - Flexible product tagging system
 - ✅ **Product Labels** - Visual badges (New, Sale, Hot, etc.)
 - ✅ **Brand Management** - Organize products by brands
@@ -232,6 +244,17 @@
 ## 🎯 Feature Highlights
 
 ### Recently Added (Latest Update)
+- ✅ **Collection Categories & Many-to-Many Relationship** (2024-11-29)
+  - Collection Categories management system
+  - Many-to-many relationship between Collections and Categories
+  - Grid/Table view toggle for both Collections and Categories
+  - Unified modal popup design for add/edit operations
+  - Category selector with checkboxes in Collection forms
+  - Auto-calculated collection count per category
+  - Sidebar menu auto-active for nested routes
+  - Backend API with populate support for categories
+  - Sample seed data for testing
+
 - ✅ **Admin Panel UI Complete** (2024-11-29)
   - All 9 missing admin pages created
   - Empty state component for features in development

@@ -47,9 +47,55 @@ curl -X POST "http://localhost:7000/api/user/login" \
   }'
 ```
 
-### 2. Collections Testing
+### 2. Collection Categories Testing
 
-#### Create Collection
+#### Create Collection Category
+```bash
+curl -X POST "http://localhost:4000/api/collection-category" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Seasonal Collections",
+    "slug": "seasonal-collections",
+    "description": "Collections that change with the seasons",
+    "icon": "🌸",
+    "status": "active",
+    "priority": 10
+  }'
+```
+
+#### Get All Collection Categories
+```bash
+curl "http://localhost:4000/api/collection-category?page=1&limit=20"
+```
+
+#### Get Collection Category by ID (with collection count)
+```bash
+curl "http://localhost:4000/api/collection-category/CATEGORY_ID"
+```
+
+#### Update Collection Category
+```bash
+curl -X PATCH "http://localhost:4000/api/collection-category/CATEGORY_ID" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Updated Seasonal Collections",
+    "icon": "🌺",
+    "status": "active",
+    "priority": 15
+  }'
+```
+
+#### Delete Collection Category
+```bash
+curl -X DELETE "http://localhost:4000/api/collection-category/CATEGORY_ID" \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+### 3. Collections Testing
+
+#### Create Collection (with categories)
 ```bash
 curl -X POST "http://localhost:4000/api/collection" \
   -H "Authorization: Bearer YOUR_TOKEN" \
@@ -62,18 +108,45 @@ curl -X POST "http://localhost:4000/api/collection" \
     "type": "seasonal",
     "status": "active",
     "priority": 10,
-    "featured": true
+    "featured": true,
+    "categories": ["CATEGORY_ID_1", "CATEGORY_ID_2"]
   }'
 ```
 
-#### Get All Collections
+#### Get All Collections (with categories populated)
 ```bash
 curl "http://localhost:4000/api/collection?page=1&limit=10"
 ```
 
-#### Get Collection by ID
+#### Get Collection by ID (with categories populated)
 ```bash
 curl "http://localhost:4000/api/collection/COLLECTION_ID"
+```
+
+Expected Response:
+```json
+{
+  "success": true,
+  "data": {
+    "_id": "...",
+    "name": "Summer Collection",
+    "slug": "summer-collection",
+    "icon": "☀️",
+    "type": "seasonal",
+    "categories": [
+      {
+        "_id": "...",
+        "name": "Seasonal Collections",
+        "slug": "seasonal-collections",
+        "icon": "🌸",
+        "status": "active"
+      }
+    ],
+    "productCount": 0,
+    "status": "active",
+    "priority": 10
+  }
+}
 ```
 
 #### Get Collection by Slug
@@ -81,7 +154,7 @@ curl "http://localhost:4000/api/collection/COLLECTION_ID"
 curl "http://localhost:4000/api/collection/slug/summer-collection"
 ```
 
-#### Update Collection
+#### Update Collection (with categories)
 ```bash
 curl -X PATCH "http://localhost:4000/api/collection/COLLECTION_ID" \
   -H "Authorization: Bearer YOUR_TOKEN" \
@@ -90,7 +163,8 @@ curl -X PATCH "http://localhost:4000/api/collection/COLLECTION_ID" \
     "name": "Updated Summer Collection",
     "icon": "🌞",
     "status": "active",
-    "priority": 20
+    "priority": 20,
+    "categories": ["CATEGORY_ID_1", "CATEGORY_ID_3"]
   }'
 ```
 
@@ -100,7 +174,7 @@ curl -X DELETE "http://localhost:4000/api/collection/COLLECTION_ID" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-### 3. Flash Sales Testing
+### 4. Flash Sales Testing
 
 #### Create Flash Sale
 ```bash
@@ -128,7 +202,7 @@ curl -X POST "http://localhost:7000/api/flash-sale/add" \
 curl "http://localhost:7000/api/flash-sale/active"
 ```
 
-### 4. Inventory Testing
+### 5. Inventory Testing
 
 #### Create Inventory Record
 ```bash
@@ -162,7 +236,7 @@ curl -X PATCH "http://localhost:7000/api/inventory/INVENTORY_ID" \
   }'
 ```
 
-### 5. Shipment Testing
+### 6. Shipment Testing
 
 #### Create Shipment
 ```bash
@@ -202,7 +276,7 @@ curl -X PATCH "http://localhost:7000/api/shipment/status/SHIPMENT_ID" \
   }'
 ```
 
-### 6. Order Returns Testing
+### 7. Order Returns Testing
 
 #### Create Return Request
 ```bash
@@ -230,7 +304,7 @@ curl -X PATCH "http://localhost:7000/api/order-return/approve/RETURN_ID" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-### 7. Invoice Testing
+### 8. Invoice Testing
 
 #### Create Invoice
 ```bash
@@ -253,7 +327,7 @@ curl -X PATCH "http://localhost:7000/api/invoice/mark-paid/INVOICE_ID" \
   -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
-### 8. Affiliate Testing
+### 9. Affiliate Testing
 
 #### Register Affiliate
 ```bash

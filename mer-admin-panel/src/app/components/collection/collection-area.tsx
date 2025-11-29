@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Search } from "@/svg";
 import CollectionTable from "./collection-table";
+import CollectionGrid from "./collection-grid";
 import CollectionOffcanvas from "./collection-offcanvas";
 import useCollectionSubmit from "@/hooks/useCollectionSubmit";
 
@@ -21,9 +22,12 @@ const CollectionArea = () => {
     setSelectType,
     slug,
     selectType,
+    selectedCategories,
+    setSelectedCategories,
   } = useCollectionSubmit();
   const [searchValue, setSearchValue] = useState<string>("");
   const [selectValue, setSelectValue] = useState<string>("");
+  const [viewMode, setViewMode] = useState<"grid" | "table">("table");
   
   // handle search value
   const handleSearchValue = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,6 +57,36 @@ const CollectionArea = () => {
                 </button>
               </div>
               <div className="flex justify-end space-x-6">
+                {/* View Toggle */}
+                <div className="flex border border-gray rounded-md overflow-hidden">
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={`px-3 py-2 transition-colors ${
+                      viewMode === "grid"
+                        ? "bg-theme text-white"
+                        : "bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                    title="Grid View"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={() => setViewMode("table")}
+                    className={`px-3 py-2 transition-colors ${
+                      viewMode === "table"
+                        ? "bg-theme text-white"
+                        : "bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                    title="Table View"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                  </button>
+                </div>
+
                 <div className="search-select mr-3 flex items-center space-x-3 ">
                   <span className="text-tiny inline-block leading-none -translate-y-[2px]">
                     Status :{" "}
@@ -74,11 +108,19 @@ const CollectionArea = () => {
                 </div>
               </div>
             </div>
-            <CollectionTable
-              setOpenSidebar={setOpenSidebar}
-              searchValue={searchValue}
-              selectValue={selectValue}
-            />
+            {viewMode === "table" ? (
+              <CollectionTable
+                setOpenSidebar={setOpenSidebar}
+                searchValue={searchValue}
+                selectValue={selectValue}
+              />
+            ) : (
+              <CollectionGrid
+                setOpenSidebar={setOpenSidebar}
+                searchValue={searchValue}
+                selectValue={selectValue}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -100,6 +142,8 @@ const CollectionArea = () => {
           setSelectType,
           slug,
           selectType,
+          selectedCategories,
+          setSelectedCategories,
         }}
       />
       {/* collection offcanvas end */}

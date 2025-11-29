@@ -10,9 +10,10 @@ import Link from "next/link";
 type IPropType = {
   id: string;
   setOpenSidebar?: React.Dispatch<React.SetStateAction<boolean>>;
+  variant?: "default" | "compact"; // Add variant for different styles
 }
 
-const CollectionAction = ({ id, setOpenSidebar }: IPropType) => {
+const CollectionAction = ({ id, setOpenSidebar, variant = "default" }: IPropType) => {
   const [showEdit, setShowEdit] = useState<boolean>(false);
   const [showDelete, setShowDelete] = useState<boolean>(false);
 
@@ -42,6 +43,24 @@ const CollectionAction = ({ id, setOpenSidebar }: IPropType) => {
       }
     });
   };
+
+  if (variant === "compact") {
+    return (
+      <div className="flex gap-2 w-full">
+        <Link href={`/collections/${id}`} className="flex-1">
+          <button className="w-full px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors">
+            Edit
+          </button>
+        </Link>
+        <button
+          onClick={() => handleDelete(id)}
+          className="flex-1 px-3 py-1.5 text-sm bg-red-50 text-red-600 rounded hover:bg-red-100 transition-colors"
+        >
+          Delete
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-end space-x-2">

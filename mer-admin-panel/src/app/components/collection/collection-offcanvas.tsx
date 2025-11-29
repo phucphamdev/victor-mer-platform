@@ -8,6 +8,7 @@ import {
 } from "react-hook-form";
 import CollectionFormField from "../brand/form-field-two";
 import { collectionIcons, collectionTypes } from "@/data/collection-data";
+import { useGetAllCollectionCategoriesQuery } from "@/redux/collectionCategory/collectionCategoryApi";
 
 // prop type
 type IPropType = {
@@ -26,6 +27,8 @@ type IPropType = {
     control: Control;
     slug: string;
     selectType: string;
+    selectedCategories: string[];
+    setSelectedCategories: React.Dispatch<React.SetStateAction<string[]>>;
   };
 };
 
@@ -45,9 +48,20 @@ const CollectionOffcanvas = ({ propsItems }: IPropType) => {
     setSelectType,
     slug,
     selectType,
+    selectedCategories,
+    setSelectedCategories,
   } = propsItems;
   
   const [showIconPicker, setShowIconPicker] = useState(false);
+  const { data: categories } = useGetAllCollectionCategoriesQuery();
+  
+  const handleCategoryToggle = (categoryId: string) => {
+    setSelectedCategories(prev => 
+      prev.includes(categoryId) 
+        ? prev.filter(id => id !== categoryId)
+        : [...prev, categoryId]
+    );
+  };
   
   return (
     <>
@@ -177,6 +191,41 @@ const CollectionOffcanvas = ({ propsItems }: IPropType) => {
                   isReq={false}
                   type="number"
                 />
+
+                {/* Categories Selection */}
+                <div className="mb-6">
+                  <p className="mb-2 text-base text-black">Categories - Optional</p>
+                  <div className="border border-gray-300 rounded-md p-3 max-h-[200px] overflow-y-auto">
+                    {categories && categories.length > 0 ? (
+                      <div className="space-y-2">
+                        {categories
+                          .filter(cat => cat.status === "active")
+                          .map((category) => (
+                            <label
+                              key={category._id}
+                              className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedCategories.includes(category._id)}
+                                onChange={() => handleCategoryToggle(category._id)}
+                                className="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                              />
+                              <span className="flex items-center space-x-2">
+                                {category.icon && <span className="text-lg">{category.icon}</span>}
+                                <span className="text-sm">{category.name}</span>
+                              </span>
+                            </label>
+                          ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500">No categories available</p>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Select one or more categories for this collection
+                  </p>
+                </div>
               </div>
             </div>
             <div className="sm:flex items-center sm:space-x-3 py-6 px-8 sticky bottom-0 left-0 right-0 w-full z-[99] bg-white shadow-_md mt-8 flex-wrap sm:flex-nowrap">

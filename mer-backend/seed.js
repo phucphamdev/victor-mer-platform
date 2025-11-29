@@ -26,6 +26,12 @@ const reviewsData = require('./utils/reviews');
 const Admin = require('./model/Admin');
 const adminData = require('./utils/admin');
 
+const CollectionCategory = require('./model/CollectionCategory');
+const collectionCategoryData = require('./utils/collectionCategories');
+
+const Collection = require('./model/Collection');
+const collectionData = require('./utils/collections');
+
 connectDB();
 const importData = async () => {
   try {
@@ -53,7 +59,32 @@ const importData = async () => {
     await Admin.deleteMany();
     await Admin.insertMany(adminData);
 
-    console.log('data inserted successfully!');
+    // Insert collection categories first
+    await CollectionCategory.deleteMany();
+    const insertedCategories = await CollectionCategory.insertMany(collectionCategoryData);
+    console.log('Collection categories inserted successfully!');
+
+    // Insert collections with category references
+    await Collection.deleteMany();
+    const collectionsWithCategories = collectionData.map((collection, index) => {
+      // Assign categories to collections
+      if (index === 0) { // Customer Favorites -> Best Sellers
+        collection.categories = [insertedCategories[2]._id];
+      } else if (index === 1) { // Hot Right Now -> Trending
+        collection.categories = [insertedCategories[4]._id];
+      } else if (index === 2) { // Gift Ideas -> Special Events
+        collection.categories = [insertedCategories[1]._id];
+      } else if (index === 3) { // Top Rated -> Best Sellers
+        collection.categories = [insertedCategories[2]._id];
+      } else if (index === 4) { // Premium Collection -> Custom Collections
+        collection.categories = [insertedCategories[5]._id];
+      }
+      return collection;
+    });
+    await Collection.insertMany(collectionsWithCategories);
+    console.log('Collections inserted successfully!');
+
+    console.log('All data inserted successfully!');
     process.exit();
   } catch (error) {
     console.log('error', error);

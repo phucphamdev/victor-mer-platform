@@ -39,6 +39,7 @@ exports.createCollectionCategory = async (req, res, next) => {
 exports.getAllCollectionCategories = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, status } = req.query;
+    const Collection = require('../model/Collection');
     
     const filter = {};
     if (status) filter.status = status;
@@ -48,10 +49,23 @@ exports.getAllCollectionCategories = async (req, res, next) => {
       .skip((page - 1) * limit)
       .sort({ priority: -1, createdAt: -1 });
     
+    // Add collection count for each category
+    const categoriesWithCount = await Promise.all(
+      categories.map(async (category) => {
+        const collectionCount = await Collection.countDocuments({
+          categories: category._id
+        });
+        return {
+          ...category.toObject(),
+          collectionCount
+        };
+      })
+    );
+    
     const total = await CollectionCategory.countDocuments(filter);
     
     return ApiResponse.successWithPagination(res, {
-      data: categories,
+      data: categoriesWithCount,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
@@ -69,13 +83,24 @@ exports.getAllCollectionCategories = async (req, res, next) => {
 // Get collection category by ID
 exports.getCollectionCategoryById = async (req, res, next) => {
   try {
+    const Collection = require('../model/Collection');
     const category = await CollectionCategory.findById(req.params.id);
     
     if (!category) {
       return ApiResponse.notFound(res, { message: 'Collection category not found' });
     }
     
-    return ApiResponse.success(res, { data: category });
+    // Add collection count
+    const collectionCount = await Collection.countDocuments({
+      categories: category._id
+    });
+    
+    const categoryWithCount = {
+      ...category.toObject(),
+      collectionCount
+    };
+    
+    return ApiResponse.success(res, { data: categoryWithCount });
   } catch (error) {
     next(error);
   }

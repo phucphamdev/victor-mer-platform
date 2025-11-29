@@ -1,5 +1,70 @@
 # 📝 CHANGELOG - Victor Mer Platform
 
+## [2024-11-29] - Collection Categories & Many-to-Many Relationship
+
+### ✅ Added Collection Categories Feature
+
+#### Frontend (Admin Panel)
+- ✅ Created Collection Categories CRUD interface with Grid/Table toggle
+- ✅ Updated Collections page with Grid/Table toggle view
+- ✅ Unified modal popup design for both Collections and Categories
+- ✅ Category selector with checkboxes in Collection forms (many-to-many)
+- ✅ Sidebar menu auto-active and auto-expand for nested routes
+- ✅ Edit Collection page redesigned with modal popup
+- ✅ Display selected categories on Collection detail page
+
+#### Backend Updates
+- ✅ Added `categories` field to Collection model (array of ObjectIds)
+- ✅ Updated Collection controller to populate categories
+- ✅ Added `collectionCount` calculation in CollectionCategory controller
+- ✅ Created seed data for Collection Categories
+- ✅ Updated seed.js to create sample data with relationships
+
+#### New Components
+**Frontend:**
+- `mer-admin-panel/src/app/collection-category/page.tsx` - Collection Categories page
+- `mer-admin-panel/src/app/components/collection/collection-grid.tsx` - Grid view component
+- Updated `mer-admin-panel/src/app/components/collection/collection-area.tsx` - Added view toggle
+- Updated `mer-admin-panel/src/app/components/collection/collection-edit-area.tsx` - Modal design
+- Updated `mer-admin-panel/src/app/components/collection/collection-offcanvas.tsx` - Category selector
+- Updated `mer-admin-panel/src/app/components/collection/collection-action.tsx` - Compact variant
+
+**Backend:**
+- `mer-backend/utils/collectionCategories.js` - Sample category data
+- `mer-backend/utils/collections.js` - Sample collection data
+- Updated `mer-backend/controller/collection.controller.js` - Populate categories
+- Updated `mer-backend/controller/collectionCategory.controller.js` - Collection count
+- Updated `mer-backend/seed.js` - Seed with relationships
+
+**Types:**
+- Updated `mer-admin-panel/src/types/collection.ts` - Added categories field
+
+#### Features
+- ✅ Many-to-many relationship between Collections and Categories
+- ✅ Grid/Table view toggle for both pages
+- ✅ Modal popup for add/edit operations (unified design)
+- ✅ Category selector with checkboxes (multi-select)
+- ✅ Auto-calculated collection count per category
+- ✅ Sidebar menu auto-active for nested routes
+- ✅ Responsive design for mobile and desktop
+- ✅ Icon/emoji support for visual representation
+
+#### API Enhancements
+- `GET /api/collection` - Now populates categories
+- `GET /api/collection/:id` - Now populates categories
+- `GET /api/collection/slug/:slug` - Now populates categories
+- `GET /api/collection-category` - Returns collectionCount per category
+- `GET /api/collection-category/:id` - Returns collectionCount
+
+### 🎯 Impact
+- Complete collection organization system with categories
+- Many-to-many relationship for flexible organization
+- Unified UI/UX across Collections and Categories
+- Better data visualization with Grid/Table views
+- Improved navigation with auto-active sidebar menu
+
+---
+
 ## [2024-11-29] - Collections Feature Implementation
 
 ### ✅ Added Collections Management Feature
