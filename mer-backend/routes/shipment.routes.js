@@ -98,6 +98,26 @@ router.get('/track/:trackingNumber', shipmentController.getShipmentByTracking);
 
 /**
  * @swagger
+ * /api/shipment/{id}:
+ *   get:
+ *     summary: Get shipment by ID
+ *     tags: [Shipment]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Shipment details
+ */
+router.get('/:id', verifyToken, authorization('admin'), shipmentController.getShipmentById);
+
+/**
+ * @swagger
  * /api/shipment/status/{id}:
  *   patch:
  *     summary: Update shipment status

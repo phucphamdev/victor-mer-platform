@@ -140,6 +140,26 @@ router.get('/stats/:id', verifyToken, affiliateController.getAffiliateStats);
 
 /**
  * @swagger
+ * /api/affiliate/{id}:
+ *   get:
+ *     summary: Get affiliate by ID
+ *     tags: [Affiliate]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Affiliate details
+ */
+router.get('/:id', verifyToken, affiliateController.getAffiliateById);
+
+/**
+ * @swagger
  * /api/affiliate/approve/{id}:
  *   patch:
  *     summary: Approve affiliate

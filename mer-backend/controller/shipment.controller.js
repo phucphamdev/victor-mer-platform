@@ -63,6 +63,22 @@ exports.getShipmentByTracking = async (req, res, next) => {
   }
 };
 
+// Get shipment by ID
+exports.getShipmentById = async (req, res, next) => {
+  try {
+    const shipment = await Shipment.findById(req.params.id)
+      .populate('order');
+    
+    if (!shipment) {
+      return ApiResponse.notFound(res, { message: 'Shipment not found' });
+    }
+    
+    return ApiResponse.success(res, { data: shipment });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Update shipment status
 exports.updateShipmentStatus = async (req, res, next) => {
   try {

@@ -1,4 +1,88 @@
-# 📝 CHANGELOG - Victor Mer Platform Optimization
+# 📝 CHANGELOG - Victor Mer Platform
+
+## [2024-11-29] - Menu & API Enhancement
+
+### ✅ Added Features
+
+#### Admin Panel Menu Updates
+- ✅ Added 9 new menu items with custom icons:
+  - Collections - Product collection management
+  - Flash Sales - Time-limited promotional campaigns
+  - Product Tags - Flexible product tagging system
+  - Product Labels - Visual product badges
+  - Inventory - Stock and warehouse management
+  - Shipments - Shipping and tracking system
+  - Order Returns - Return request management
+  - Invoices - Invoice generation and tracking
+  - Affiliates - Affiliate marketing program
+
+#### New SVG Icons Created
+- `return.tsx` - Bidirectional arrow icon
+- `inventory.tsx` - 3D box icon
+- `flash-sale.tsx` - Lightning bolt icon
+- `tag.tsx` - Tag icon
+- `shipment.tsx` - Truck icon
+- `collection.tsx` - Grid icon
+- `affiliate.tsx` - Network icon
+
+#### Backend API Enhancements
+- ✅ Created ProductLabel controller with full CRUD operations
+- ✅ Added `getById` methods to 6 controllers:
+  - Collection
+  - Inventory
+  - Invoice
+  - Shipment
+  - OrderReturn
+  - Affiliate
+- ✅ Added GET `/:id` routes to all feature endpoints
+- ✅ Updated ProductLabel routes with Swagger documentation
+
+#### Documentation
+- ✅ Created comprehensive documentation in `docs/` folder:
+  - `FEATURES.md` - Complete feature list
+  - `API_DOCUMENTATION.md` - Full API reference
+  - `TESTING.md` - Testing guidelines and examples
+
+### 🔧 Files Modified
+
+**Frontend (Admin Panel):**
+- `mer-admin-panel/src/svg/` - Added 7 new icon components
+- `mer-admin-panel/src/svg/index.tsx` - Exported new icons
+- `mer-admin-panel/src/data/sidebar-menus.ts` - Added 9 new menu items
+
+**Backend:**
+- `mer-backend/controller/productLabel.controller.js` - Created new controller
+- `mer-backend/controller/collection.controller.js` - Added getCollectionById
+- `mer-backend/controller/inventory.controller.js` - Added getInventoryById
+- `mer-backend/controller/invoice.controller.js` - Added getInvoiceById
+- `mer-backend/controller/shipment.controller.js` - Added getShipmentById
+- `mer-backend/controller/orderReturn.controller.js` - Added getReturnById
+- `mer-backend/controller/affiliate.controller.js` - Added getAffiliateById
+- `mer-backend/routes/productLabel.routes.js` - Updated with controller methods
+- `mer-backend/routes/collection.routes.js` - Added GET /:id route
+- `mer-backend/routes/inventory.routes.js` - Added GET /:id route
+- `mer-backend/routes/invoice.routes.js` - Added GET /:id route
+- `mer-backend/routes/shipment.routes.js` - Added GET /:id route
+- `mer-backend/routes/orderReturn.routes.js` - Added GET /:id route
+- `mer-backend/routes/affiliate.routes.js` - Added GET /:id route
+
+### 📊 API Completeness
+
+All features now have complete RESTful API operations:
+- ✅ CREATE - POST `/add`
+- ✅ READ ALL - GET `/all` (with pagination)
+- ✅ READ ONE - GET `/:id` or `/slug/:slug`
+- ✅ UPDATE - PATCH `/:id`
+- ✅ DELETE - DELETE `/:id`
+
+### 🎯 Impact
+
+- **Menu Coverage:** 100% of backend features now visible in admin menu
+- **API Completeness:** All endpoints have full CRUD operations
+- **Documentation:** Comprehensive docs for features, API, and testing
+- **Developer Experience:** Improved with consistent API patterns
+
+---
 
 ## [2024-11-28] - Đổi tên & Tối ưu hóa
 

@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const ProductLabel = require('../model/ProductLabel');
-const ApiResponse = require('../utils/apiResponse');
+const productLabelController = require('../controller/productLabel.controller');
 const verifyToken = require('../middleware/verifyToken');
 const authorization = require('../middleware/authorization');
 
@@ -12,62 +11,121 @@ const authorization = require('../middleware/authorization');
  *   description: Product label management
  */
 
-// Create label
-router.post('/add', verifyToken, authorization('admin'), async (req, res, next) => {
-  try {
-    const label = await ProductLabel.create(req.body);
-    return ApiResponse.created(res, { data: label, message: 'Label created successfully' });
-  } catch (error) {
-    next(error);
-  }
-});
+/**
+ * @swagger
+ * /api/product-label/add:
+ *   post:
+ *     summary: Create product label
+ *     tags: [ProductLabel]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - slug
+ *             properties:
+ *               name:
+ *                 type: string
+ *               slug:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               color:
+ *                 type: string
+ *               backgroundColor:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Label created successfully
+ */
+router.post('/add', verifyToken, authorization('admin'), productLabelController.createLabel);
 
-// Get all labels
-router.get('/all', async (req, res, next) => {
-  try {
-    const { page = 1, limit = 10, status } = req.query;
-    const filter = {};
-    if (status) filter.status = status;
-    
-    const labels = await ProductLabel.find(filter)
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .sort({ priority: -1 });
-    
-    const total = await ProductLabel.countDocuments(filter);
-    
-    return ApiResponse.successWithPagination(res, {
-      data: labels,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        currentPage: parseInt(page),
-        previousPage: page > 1 ? parseInt(page) - 1 : null,
-        nextPage: page * limit < total ? parseInt(page) + 1 : null
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
-});
+/**
+ * @swagger
+ * /api/product-label/all:
+ *   get:
+ *     summary: Get all product labels
+ *     tags: [ProductLabel]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of labels
+ */
+router.get('/all', productLabelController.getAllLabels);
 
-router.patch('/:id', verifyToken, authorization('admin'), async (req, res, next) => {
-  try {
-    const label = await ProductLabel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    return ApiResponse.success(res, { data: label, message: 'Label updated' });
-  } catch (error) {
-    next(error);
-  }
-});
+/**
+ * @swagger
+ * /api/product-label/slug/{slug}:
+ *   get:
+ *     summary: Get label by slug
+ *     tags: [ProductLabel]
+ *     parameters:
+ *       - in: path
+ *         name: slug
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Label details
+ */
+router.get('/slug/:slug', productLabelController.getLabelBySlug);
 
-router.delete('/:id', verifyToken, authorization('admin'), async (req, res, next) => {
-  try {
-    await ProductLabel.findByIdAndDelete(req.params.id);
-    return ApiResponse.success(res, { message: 'Label deleted' });
-  } catch (error) {
-    next(error);
-  }
-});
+/**
+ * @swagger
+ * /api/product-label/{id}:
+ *   patch:
+ *     summary: Update label
+ *     tags: [ProductLabel]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Label updated
+ */
+router.patch('/:id', verifyToken, authorization('admin'), productLabelController.updateLabel);
+
+/**
+ * @swagger
+ * /api/product-label/{id}:
+ *   delete:
+ *     summary: Delete label
+ *     tags: [ProductLabel]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Label deleted
+ */
+router.delete('/:id', verifyToken, authorization('admin'), productLabelController.deleteLabel);
 
 module.exports = router;

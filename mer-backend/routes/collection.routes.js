@@ -14,6 +14,7 @@ const authorization = require('../middleware/authorization');
 router.post('/add', verifyToken, authorization('admin'), collectionController.createCollection);
 router.get('/all', collectionController.getAllCollections);
 router.get('/slug/:slug', collectionController.getCollectionBySlug);
+router.get('/:id', collectionController.getCollectionById);
 router.patch('/:id', verifyToken, authorization('admin'), collectionController.updateCollection);
 router.delete('/:id', verifyToken, authorization('admin'), collectionController.deleteCollection);
 

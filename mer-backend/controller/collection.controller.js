@@ -63,6 +63,22 @@ exports.getCollectionBySlug = async (req, res, next) => {
   }
 };
 
+// Get collection by ID
+exports.getCollectionById = async (req, res, next) => {
+  try {
+    const collection = await Collection.findById(req.params.id)
+      .populate('products');
+    
+    if (!collection) {
+      return ApiResponse.notFound(res, { message: 'Collection not found' });
+    }
+    
+    return ApiResponse.success(res, { data: collection });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Update collection
 exports.updateCollection = async (req, res, next) => {
   try {

@@ -64,6 +64,23 @@ exports.getReturnByNumber = async (req, res, next) => {
   }
 };
 
+// Get return by ID
+exports.getReturnById = async (req, res, next) => {
+  try {
+    const returnRequest = await OrderReturn.findById(req.params.id)
+      .populate('order')
+      .populate('customer');
+    
+    if (!returnRequest) {
+      return ApiResponse.notFound(res, { message: 'Return request not found' });
+    }
+    
+    return ApiResponse.success(res, { data: returnRequest });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Approve return
 exports.approveReturn = async (req, res, next) => {
   try {

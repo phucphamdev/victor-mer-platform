@@ -105,6 +105,26 @@ router.get('/number/:invoiceNumber', verifyToken, invoiceController.getInvoiceBy
 
 /**
  * @swagger
+ * /api/invoice/{id}:
+ *   get:
+ *     summary: Get invoice by ID
+ *     tags: [Invoice]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Invoice details
+ */
+router.get('/:id', verifyToken, invoiceController.getInvoiceById);
+
+/**
+ * @swagger
  * /api/invoice/mark-paid/{id}:
  *   patch:
  *     summary: Mark invoice as paid

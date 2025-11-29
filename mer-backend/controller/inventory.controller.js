@@ -60,6 +60,22 @@ exports.getLowStockItems = async (req, res, next) => {
   }
 };
 
+// Get inventory by ID
+exports.getInventoryById = async (req, res, next) => {
+  try {
+    const inventory = await Inventory.findById(req.params.id)
+      .populate('product', 'title img price');
+    
+    if (!inventory) {
+      return ApiResponse.notFound(res, { message: 'Inventory not found' });
+    }
+    
+    return ApiResponse.success(res, { data: inventory });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Update inventory
 exports.updateInventory = async (req, res, next) => {
   try {

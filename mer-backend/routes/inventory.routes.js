@@ -94,6 +94,26 @@ router.get('/low-stock', verifyToken, authorization('admin'), inventoryControlle
 /**
  * @swagger
  * /api/inventory/{id}:
+ *   get:
+ *     summary: Get inventory by ID
+ *     tags: [Inventory]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Inventory details
+ */
+router.get('/:id', verifyToken, authorization('admin'), inventoryController.getInventoryById);
+
+/**
+ * @swagger
+ * /api/inventory/{id}:
  *   patch:
  *     summary: Update inventory
  *     tags: [Inventory]

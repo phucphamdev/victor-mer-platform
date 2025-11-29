@@ -75,6 +75,22 @@ exports.getAffiliateByCode = async (req, res, next) => {
   }
 };
 
+// Get affiliate by ID
+exports.getAffiliateById = async (req, res, next) => {
+  try {
+    const affiliate = await Affiliate.findById(req.params.id)
+      .populate('user', 'name email');
+    
+    if (!affiliate) {
+      return ApiResponse.notFound(res, { message: 'Affiliate not found' });
+    }
+    
+    return ApiResponse.success(res, { data: affiliate });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Track affiliate click
 exports.trackClick = async (req, res, next) => {
   try {

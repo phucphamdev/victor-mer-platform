@@ -14,6 +14,7 @@ const authorization = require('../middleware/authorization');
 router.post('/add', verifyToken, orderReturnController.createReturnRequest);
 router.get('/all', verifyToken, authorization('admin'), orderReturnController.getAllReturns);
 router.get('/number/:returnNumber', verifyToken, orderReturnController.getReturnByNumber);
+router.get('/:id', verifyToken, orderReturnController.getReturnById);
 router.patch('/approve/:id', verifyToken, authorization('admin'), orderReturnController.approveReturn);
 router.patch('/status/:id', verifyToken, authorization('admin'), orderReturnController.updateReturnStatus);
 router.delete('/:id', verifyToken, authorization('admin'), orderReturnController.deleteReturn);

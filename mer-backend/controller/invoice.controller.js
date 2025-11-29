@@ -65,6 +65,23 @@ exports.getInvoiceByNumber = async (req, res, next) => {
   }
 };
 
+// Get invoice by ID
+exports.getInvoiceById = async (req, res, next) => {
+  try {
+    const invoice = await Invoice.findById(req.params.id)
+      .populate('order')
+      .populate('customer');
+    
+    if (!invoice) {
+      return ApiResponse.notFound(res, { message: 'Invoice not found' });
+    }
+    
+    return ApiResponse.success(res, { data: invoice });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Update invoice
 exports.updateInvoice = async (req, res, next) => {
   try {

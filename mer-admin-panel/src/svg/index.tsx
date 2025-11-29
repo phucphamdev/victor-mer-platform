@@ -30,6 +30,13 @@ import Camera from "./camera";
 import CameraTwo from "./camera-2";
 import Leaf from "./leaf";
 import StuffUser from "./stuff-user";
+import Return from "./return";
+import Inventory from "./inventory";
+import FlashSale from "./flash-sale";
+import Tag from "./tag";
+import Shipment from "./shipment";
+import Collection from "./collection";
+import Affiliate from "./affiliate";
 
 export {
   Categories,
@@ -64,4 +71,11 @@ export {
   Next,
   Prev,
   SmClose,
+  Return,
+  Inventory,
+  FlashSale,
+  Tag,
+  Shipment,
+  Collection,
+  Affiliate,
 }
