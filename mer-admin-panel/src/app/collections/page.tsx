@@ -1,20 +1,21 @@
-import React from "react";
-import Breadcrumb from "../components/breadcrumb/breadcrumb";
 import Wrapper from "@/layout/wrapper";
-import EmptyState from "@/components/shared/empty-state";
+import Breadcrumb from "../components/breadcrumb/breadcrumb";
+import CollectionArea from "../components/collection/collection-area";
 
-const Collections = () => {
+const CollectionsPage = () => {
   return (
     <Wrapper>
       <div className="body-content px-8 py-8 bg-slate-100">
+        {/* breadcrumb start */}
         <Breadcrumb title="Collections" subtitle="Collections List" />
-        <EmptyState 
-          title="Chưa có bộ sưu tập"
-          message="Tính năng quản lý bộ sưu tập đang được phát triển."
-        />
+        {/* breadcrumb end */}
+
+        {/* collection area start */}
+        <CollectionArea />
+        {/* collection area end */}
       </div>
     </Wrapper>
   );
 };
 
-export default Collections;
+export default CollectionsPage;

@@ -51,26 +51,53 @@ curl -X POST "http://localhost:7000/api/user/login" \
 
 #### Create Collection
 ```bash
-curl -X POST "http://localhost:7000/api/collection/add" \
+curl -X POST "http://localhost:4000/api/collection" \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Summer Collection",
     "slug": "summer-collection",
     "description": "Hot summer products",
+    "icon": "☀️",
     "type": "seasonal",
-    "status": "active"
+    "status": "active",
+    "priority": 10,
+    "featured": true
   }'
 ```
 
 #### Get All Collections
 ```bash
-curl "http://localhost:7000/api/collection/all?page=1&limit=10"
+curl "http://localhost:4000/api/collection?page=1&limit=10"
+```
+
+#### Get Collection by ID
+```bash
+curl "http://localhost:4000/api/collection/COLLECTION_ID"
 ```
 
 #### Get Collection by Slug
 ```bash
-curl "http://localhost:7000/api/collection/slug/summer-collection"
+curl "http://localhost:4000/api/collection/slug/summer-collection"
+```
+
+#### Update Collection
+```bash
+curl -X PATCH "http://localhost:4000/api/collection/COLLECTION_ID" \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Updated Summer Collection",
+    "icon": "🌞",
+    "status": "active",
+    "priority": 20
+  }'
+```
+
+#### Delete Collection
+```bash
+curl -X DELETE "http://localhost:4000/api/collection/COLLECTION_ID" \
+  -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ### 3. Flash Sales Testing

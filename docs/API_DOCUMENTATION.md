@@ -29,14 +29,25 @@ Content-Type: application/json
 
 | Method | Endpoint | Description | Auth |
 |--------|----------|-------------|------|
-| POST | `/add` | Create new collection | Admin |
-| GET | `/all` | Get all collections | Public |
+| POST | `/` | Create new collection | Admin |
+| GET | `/` | Get all collections | Public |
 | GET | `/slug/:slug` | Get collection by slug | Public |
 | GET | `/:id` | Get collection by ID | Public |
 | PATCH | `/:id` | Update collection | Admin |
 | DELETE | `/:id` | Delete collection | Admin |
 
-**Query Parameters (GET /all):**
+**Collection Schema:**
+- `name` - Collection name (required)
+- `slug` - URL slug (auto-generated if not provided)
+- `description` - Collection description
+- `icon` - Icon/emoji for collection
+- `type` - Collection type (seasonal, trending, new-arrival, best-seller, custom)
+- `products` - Array of product IDs
+- `status` - Status (active, inactive, scheduled)
+- `priority` - Display priority (number)
+- `featured` - Featured flag (boolean)
+
+**Query Parameters (GET /):**
 - `page` - Page number (default: 1)
 - `limit` - Items per page (default: 10)
 - `status` - Filter by status (active, inactive, scheduled)

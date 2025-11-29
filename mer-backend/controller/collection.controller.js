@@ -4,6 +4,13 @@ const ApiResponse = require('../utils/apiResponse');
 // Create collection
 exports.createCollection = async (req, res, next) => {
   try {
+    // Auto-generate slug if not provided
+    if (!req.body.slug && req.body.name) {
+      req.body.slug = req.body.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
     const collection = await Collection.create(req.body);
     return ApiResponse.created(res, {
       data: collection,
@@ -82,6 +89,13 @@ exports.getCollectionById = async (req, res, next) => {
 // Update collection
 exports.updateCollection = async (req, res, next) => {
   try {
+    // Auto-generate slug if name is updated but slug is not provided
+    if (req.body.name && !req.body.slug) {
+      req.body.slug = req.body.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
     const collection = await Collection.findByIdAndUpdate(
       req.params.id,
       req.body,

@@ -20,6 +20,7 @@ const collectionSchema = mongoose.Schema({
     type: String,
     maxLength: [500, 'Description cannot exceed 500 characters']
   },
+  icon: String,
   image: String,
   banner: String,
   type: {
