@@ -19,6 +19,8 @@ const CollectionArea = () => {
     setOpenSidebar,
     control,
     setSelectType,
+    slug,
+    selectType,
   } = useCollectionSubmit();
   const [searchValue, setSearchValue] = useState<string>("");
   const [selectValue, setSelectValue] = useState<string>("");
@@ -96,6 +98,8 @@ const CollectionArea = () => {
           setIsSubmitted,
           control,
           setSelectType,
+          slug,
+          selectType,
         }}
       />
       {/* collection offcanvas end */}

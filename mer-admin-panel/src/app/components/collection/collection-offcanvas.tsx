@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { CloseTwo } from "@/svg";
 import {
   Control,
@@ -7,6 +7,7 @@ import {
   UseFormRegister,
 } from "react-hook-form";
 import CollectionFormField from "../brand/form-field-two";
+import { collectionIcons, collectionTypes } from "@/data/collection-data";
 
 // prop type
 type IPropType = {
@@ -23,6 +24,8 @@ type IPropType = {
     icon: string;
     handleSubmit: UseFormHandleSubmit<any, undefined>;
     control: Control;
+    slug: string;
+    selectType: string;
   };
 };
 
@@ -40,7 +43,11 @@ const CollectionOffcanvas = ({ propsItems }: IPropType) => {
     register,
     control,
     setSelectType,
+    slug,
+    selectType,
   } = propsItems;
+  
+  const [showIconPicker, setShowIconPicker] = useState(false);
   
   return (
     <>
@@ -64,37 +71,105 @@ const CollectionOffcanvas = ({ propsItems }: IPropType) => {
             {/* <!-- main content --> */}
             <div className="px-8 pt-6">
               <div className="">
-                {/* icon input */}
-                <div className="mb-6">
-                  <p className="mb-0 text-base text-black">Icon (emoji)</p>
-                  <input
-                    type="text"
-                    className="input w-full h-[44px] text-2xl text-center"
-                    placeholder="🎁"
-                    value={icon}
-                    onChange={(e) => setIcon(e.target.value)}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Enter an emoji or icon</p>
-                </div>
-                {/* icon input */}
+                {/* Name input */}
                 <CollectionFormField
                   register={register}
                   errors={errors}
                   name="Name"
                   isReq={true}
                 />
-                <CollectionFormField
-                  register={register}
-                  errors={errors}
-                  name="Slug"
-                  isReq={false}
-                />
+                
+                {/* Auto-generated Slug (read-only) */}
+                <div className="mb-6">
+                  <p className="mb-0 text-base text-black">
+                    Slug <span className="text-red-500">*</span>
+                  </p>
+                  <input
+                    type="text"
+                    className="input w-full h-[44px] bg-gray-100 cursor-not-allowed"
+                    value={slug}
+                    readOnly
+                    placeholder="Auto-generated from name"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Automatically generated from name
+                  </p>
+                </div>
+
+                {/* Icon picker */}
+                <div className="mb-6">
+                  <p className="mb-0 text-base text-black">Icon (emoji) - Optional</p>
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowIconPicker(!showIconPicker)}
+                      className="input w-full h-[44px] text-2xl text-center hover:bg-gray-50 transition-colors"
+                    >
+                      {icon || "Select an icon"}
+                    </button>
+                    {showIconPicker && (
+                      <div className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg max-h-[200px] overflow-y-auto">
+                        <div className="grid grid-cols-5 gap-2 p-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIcon("");
+                              setShowIconPicker(false);
+                            }}
+                            className="p-2 hover:bg-gray-100 rounded text-xs text-gray-500 col-span-5"
+                          >
+                            No icon
+                          </button>
+                          {collectionIcons.map((item) => (
+                            <button
+                              key={item.emoji}
+                              type="button"
+                              onClick={() => {
+                                setIcon(item.emoji);
+                                setShowIconPicker(false);
+                              }}
+                              className="p-2 hover:bg-gray-100 rounded text-2xl transition-colors"
+                              title={item.label}
+                            >
+                              {item.emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Choose an icon or leave empty
+                  </p>
+                </div>
+
+                {/* Collection Type */}
+                <div className="mb-6">
+                  <p className="mb-0 text-base text-black">
+                    Collection Type <span className="text-red-500">*</span>
+                  </p>
+                  <div className="category-add-select select-bordered">
+                    <select
+                      value={selectType}
+                      onChange={(e) => setSelectType(e.target.value)}
+                      className="input w-full h-[44px]"
+                    >
+                      {collectionTypes.map((type) => (
+                        <option key={type.value} value={type.value}>
+                          {type.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 <CollectionFormField
                   register={register}
                   errors={errors}
                   name="Description"
                   isReq={false}
                 />
+                
                 <CollectionFormField
                   register={register}
                   errors={errors}
@@ -102,23 +177,6 @@ const CollectionOffcanvas = ({ propsItems }: IPropType) => {
                   isReq={false}
                   type="number"
                 />
-                {/* Collection Type */}
-                <div className="mb-6">
-                  <p className="mb-0 text-base text-black">Collection Type</p>
-                  <div className="category-add-select select-bordered">
-                    <select
-                      onChange={(e) => setSelectType(e.target.value)}
-                      className="input w-full h-[44px]"
-                    >
-                      <option value="custom">Custom</option>
-                      <option value="seasonal">Seasonal</option>
-                      <option value="trending">Trending</option>
-                      <option value="new-arrival">New Arrival</option>
-                      <option value="best-seller">Best Seller</option>
-                    </select>
-                  </div>
-                </div>
-                {/* Collection Type */}
               </div>
             </div>
             <div className="sm:flex items-center sm:space-x-3 py-6 px-8 sticky bottom-0 left-0 right-0 w-full z-[99] bg-white shadow-_md mt-8 flex-wrap sm:flex-nowrap">

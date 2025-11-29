@@ -1,9 +1,11 @@
 import Cookies from "js-cookie";
 import { createApi, fetchBaseQuery, BaseQueryFn, FetchArgs, FetchBaseQueryError } from "@reduxjs/toolkit/query/react";
 import { Mutex } from "async-mutex";
+import { notifyError } from "@/utils/toast";
 
 // Mutex to prevent multiple refresh token requests
 const mutex = new Mutex();
+let isRedirecting = false;
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.NEXT_PUBLIC_API_BASE_URL,
@@ -74,13 +76,34 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
               result = await baseQuery(args, api, extraOptions);
             } else {
               // Refresh token failed - logout user
-              Cookies.remove("admin");
-              window.location.href = "/login";
+              if (!isRedirecting) {
+                isRedirecting = true;
+                Cookies.remove("admin");
+                notifyError("Authentication required. You are not logged in. Please provide a valid authentication token.");
+                setTimeout(() => {
+                  window.location.href = "/login";
+                }, 1000);
+              }
             }
           } else {
             // No refresh token - logout user
-            Cookies.remove("admin");
-            window.location.href = "/login";
+            if (!isRedirecting) {
+              isRedirecting = true;
+              Cookies.remove("admin");
+              notifyError("Authentication required. You are not logged in. Please provide a valid authentication token.");
+              setTimeout(() => {
+                window.location.href = "/login";
+              }, 1000);
+            }
+          }
+        } else {
+          // No user info - logout user
+          if (!isRedirecting) {
+            isRedirecting = true;
+            notifyError("Authentication required. You are not logged in. Please provide a valid authentication token.");
+            setTimeout(() => {
+              window.location.href = "/login";
+            }, 1000);
           }
         }
       } finally {

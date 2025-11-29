@@ -4,19 +4,43 @@ const ApiResponse = require('../utils/apiResponse');
 // Create collection
 exports.createCollection = async (req, res, next) => {
   try {
+    // Validate required fields
+    if (!req.body.name) {
+      return ApiResponse.badRequest(res, { message: 'Collection name is required' });
+    }
+
     // Auto-generate slug if not provided
     if (!req.body.slug && req.body.name) {
       req.body.slug = req.body.name
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
         .replace(/^-+|-+$/g, '');
     }
+
+    // Check if slug already exists
+    const existingCollection = await Collection.findOne({ slug: req.body.slug });
+    if (existingCollection) {
+      return ApiResponse.badRequest(res, { 
+        message: 'A collection with this slug already exists. Please use a different name.' 
+      });
+    }
+
     const collection = await Collection.create(req.body);
     return ApiResponse.created(res, {
       data: collection,
       message: 'Collection created successfully'
     });
   } catch (error) {
+    // Handle duplicate key error
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      return ApiResponse.badRequest(res, { 
+        message: `A collection with this ${field} already exists` 
+      });
+    }
     next(error);
   }
 };
@@ -93,9 +117,26 @@ exports.updateCollection = async (req, res, next) => {
     if (req.body.name && !req.body.slug) {
       req.body.slug = req.body.name
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
         .replace(/^-+|-+$/g, '');
     }
+
+    // Check if slug already exists (excluding current collection)
+    if (req.body.slug) {
+      const existingCollection = await Collection.findOne({ 
+        slug: req.body.slug,
+        _id: { $ne: req.params.id }
+      });
+      if (existingCollection) {
+        return ApiResponse.badRequest(res, { 
+          message: 'A collection with this slug already exists. Please use a different name.' 
+        });
+      }
+    }
+
     const collection = await Collection.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -111,6 +152,13 @@ exports.updateCollection = async (req, res, next) => {
       message: 'Collection updated successfully'
     });
   } catch (error) {
+    // Handle duplicate key error
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      return ApiResponse.badRequest(res, { 
+        message: `A collection with this ${field} already exists` 
+      });
+    }
     next(error);
   }
 };

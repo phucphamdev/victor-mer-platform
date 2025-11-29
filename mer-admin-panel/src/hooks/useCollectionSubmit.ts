@@ -3,12 +3,14 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { notifyError, notifySuccess } from "@/utils/toast";
 import { useAddCollectionMutation, useEditCollectionMutation } from "@/redux/collection/collectionApi";
+import { generateSlug } from "@/data/collection-data";
 
 const useCollectionSubmit = () => {
   const [icon, setIcon] = useState<string>("");
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [openSidebar, setOpenSidebar] = useState<boolean>(false);
   const [selectType, setSelectType] = useState<string>("custom");
+  const [slug, setSlug] = useState<string>("");
   const router = useRouter();
 
   // add collection
@@ -22,12 +24,23 @@ const useCollectionSubmit = () => {
     formState: { errors },
     reset,
     control,
+    watch,
   } = useForm();
+
+  // Watch name field to auto-generate slug
+  const nameValue = watch("name");
+
+  useEffect(() => {
+    if (nameValue) {
+      setSlug(generateSlug(nameValue));
+    }
+  }, [nameValue]);
 
   useEffect(() => {
     if (!openSidebar) {
       setIcon("");
       setSelectType("custom");
+      setSlug("");
       reset();
     }
   }, [openSidebar, reset]);
@@ -35,14 +48,18 @@ const useCollectionSubmit = () => {
   // submit handle
   const handleCollectionSubmit = async (data: any) => {
     try {
+      if (!slug) {
+        return notifyError("Slug is required");
+      }
+
       const collection_data = {
         name: data?.name,
-        slug: data?.slug || data?.name.toLowerCase().replace(/\s+/g, '-'),
-        description: data?.description,
-        icon: icon,
+        slug: slug,
+        description: data?.description || "",
+        icon: icon || "",
         type: selectType,
         status: data?.status || "active",
-        priority: data?.priority ? parseInt(data.priority) : 0,
+        priority: data?.priority ? parseInt(data.priority) : 1,
         featured: data?.featured || false,
       };
 
@@ -58,6 +75,7 @@ const useCollectionSubmit = () => {
         notifySuccess("Collection added successfully");
         setIsSubmitted(true);
         setIcon("");
+        setSlug("");
         setOpenSidebar(false);
         setSelectType("custom");
         reset();
@@ -73,12 +91,12 @@ const useCollectionSubmit = () => {
     try {
       const collection_data = {
         name: data?.name,
-        slug: data?.slug,
-        description: data?.description,
-        icon: icon,
+        slug: slug || data?.slug,
+        description: data?.description || "",
+        icon: icon || "",
         type: selectType,
         status: data?.status,
-        priority: data?.priority ? parseInt(data.priority) : 0,
+        priority: data?.priority ? parseInt(data.priority) : 1,
         featured: data?.featured || false,
       };
       const res = await editCollection({ id, data: collection_data });
@@ -93,6 +111,7 @@ const useCollectionSubmit = () => {
         notifySuccess("Collection updated successfully");
         router.push('/collections');
         setIsSubmitted(true);
+        setSlug("");
         reset();
       }
     } catch (error) {
@@ -116,6 +135,8 @@ const useCollectionSubmit = () => {
     selectType,
     setSelectType,
     handleSubmitEditCollection,
+    slug,
+    setSlug,
   };
 };
 
