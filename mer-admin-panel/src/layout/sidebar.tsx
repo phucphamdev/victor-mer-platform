@@ -6,7 +6,7 @@ import { DownArrow } from "@/svg";
 import Link from "next/link";
 import { useDispatch } from "react-redux";
 import { userLoggedOut } from "@/redux/auth/authSlice";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 // prop type
 type IProps = {
@@ -18,6 +18,7 @@ export default function Sidebar({sideMenu,setSideMenu}:IProps) {
   const [isDropdown, setIsDropDown] = useState<string>("");
   const dispatch = useDispatch();
   const router = useRouter();
+  const pathname = usePathname();
 
   // handle active menu
   const handleMenuActive = (title: string) => {
@@ -61,18 +62,16 @@ export default function Sidebar({sideMenu,setSideMenu}:IProps) {
                       <Link
                         href={menu.link}
                         onClick={() => handleMenuActive(menu.title)}
-                        className={`group rounded-md relative text-black text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-2 hover:bg-gray sidebar-link-active`}
+                        className={`group rounded-md relative text-lg font-medium inline-flex items-center w-full transition-colors ease-in-out duration-300 px-5 py-[9px] mb-2 hover:bg-gray sidebar-link-active ${
+                          pathname === menu.link 
+                            ? "bg-themeLight text-theme" 
+                            : "text-black"
+                        }`}
                       >
                         <span className="inline-block mr-[10px] text-xl">
                           <menu.icon />
                         </span>
                         {menu.title}
-
-                        {menu.subMenus && (
-                          <span className="absolute right-4 top-[52%] transition-transform duration-300 origin-center w-4 h-4">
-                            <DownArrow />
-                          </span>
-                        )}
                       </Link>
                     )}
                     {menu.subMenus && (
@@ -86,7 +85,7 @@ export default function Sidebar({sideMenu,setSideMenu}:IProps) {
                         {menu.title}
 
                         {menu.subMenus && (
-                          <span className="absolute right-4 top-[52%] transition-transform duration-300 origin-center w-4 h-4">
+                          <span className={`absolute right-4 top-[52%] -translate-y-1/2 transition-transform duration-300 origin-center w-4 h-4 ${isDropdown === menu.title ? "rotate-180" : ""}`}>
                             <DownArrow />
                           </span>
                         )}
@@ -107,13 +106,17 @@ export default function Sidebar({sideMenu,setSideMenu}:IProps) {
 
                     {menu.subMenus && (
                       <ul
-                        className={`pl-[42px] pr-[20px] pb-3 ${isDropdown === menu.title ? "block" : "hidden"}`}
+                        className={`pl-[42px] pr-[20px] pb-2 space-y-1 transition-all duration-300 ${isDropdown === menu.title ? "block" : "hidden"}`}
                       >
                         {menu.subMenus.map((sub, i) => (
                           <li key={i}>
                             <Link
                               href={sub.link}
-                              className="block font-normal w-full text-[#6D6F71] hover:text-theme nav-dot"
+                              className={`block font-normal w-full py-2 px-3 rounded-md transition-colors nav-dot ${
+                                pathname === sub.link 
+                                  ? "text-theme bg-themeLight font-medium" 
+                                  : "text-[#6D6F71] hover:text-theme hover:bg-gray/50"
+                              }`}
                             >
                               {sub.title}
                             </Link>
