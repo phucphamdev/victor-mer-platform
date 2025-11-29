@@ -25,3 +25,24 @@ export interface IAddCollection {
   priority?: number;
   featured?: boolean;
 }
+
+export interface ICollectionCategory {
+  _id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  icon?: string;
+  status: string;
+  priority: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IAddCollectionCategory {
+  name: string;
+  slug?: string;
+  description?: string;
+  icon?: string;
+  status?: string;
+  priority?: number;
+}

@@ -30,6 +30,7 @@ const shipmentRoutes = require("./routes/shipment.routes");
 const productTagRoutes = require("./routes/productTag.routes");
 const productLabelRoutes = require("./routes/productLabel.routes");
 const collectionRoutes = require("./routes/collection.routes");
+const collectionCategoryRoutes = require("./routes/collectionCategory.routes");
 const pageRoutes = require("./routes/page.routes");
 const orderReturnRoutes = require("./routes/orderReturn.routes");
 const { specs, swaggerUi, swaggerUiOptions } = require('./config/swagger');
@@ -71,6 +72,7 @@ app.use("/api/shipment", shipmentRoutes);
 app.use("/api/product-tag", productTagRoutes);
 app.use("/api/product-label", productLabelRoutes);
 app.use("/api/collection", collectionRoutes);
+app.use("/api/collection-category", collectionCategoryRoutes);
 app.use("/api/page", pageRoutes);
 app.use("/api/order-return", orderReturnRoutes);
 

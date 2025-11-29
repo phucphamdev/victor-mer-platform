@@ -74,6 +74,10 @@ const sidebar_menu: Array<ISidebarMenus> = [
     icon: Collection,
     link: "/collections",
     title: "Collections",
+    subMenus: [
+      { title: "Collection List", link: "/collections" },
+      { title: "Collection Category", link: "/collection-category" }
+    ],
   },
   {
     id: 9,

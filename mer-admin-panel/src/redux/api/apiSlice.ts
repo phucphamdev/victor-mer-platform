@@ -141,6 +141,8 @@ export const apiSlice = createApi({
     "AllStaff",
     "Stuff",
     "AllCollections",
-    "Collection"
+    "Collection",
+    "AllCollectionCategories",
+    "CollectionCategory"
   ],
 });
