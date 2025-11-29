@@ -7,6 +7,11 @@ module.exports = (...role) => {
     const normalizedUserRole = userRole?.toLowerCase();
     const normalizedRoles = role.map(r => r.toLowerCase());
     
+    // Super Admin has access to everything
+    if (normalizedUserRole === 'super admin') {
+      return next();
+    }
+    
     if(!normalizedRoles.includes(normalizedUserRole)){
       return res.status(403).json({
         status: "fail",
