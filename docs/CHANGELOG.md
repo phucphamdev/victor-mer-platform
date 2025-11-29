@@ -1,5 +1,54 @@
 # 📝 CHANGELOG - Victor Mer Platform
 
+## [2024-11-29] - Admin Panel UI Enhancement
+
+### ✅ Added Missing Admin Pages
+
+#### New Admin Pages Created (9 pages)
+- ✅ `/affiliates` - Affiliate partners management page
+- ✅ `/order-returns` - Order returns management page
+- ✅ `/product-labels` - Product labels management page
+- ✅ `/invoices` - Invoice management page
+- ✅ `/flash-sales` - Flash sales management page
+- ✅ `/product-tags` - Product tags management page
+- ✅ `/collections` - Collections management page
+- ✅ `/shipments` - Shipments management page
+- ✅ `/inventory` - Inventory management page
+
+#### New Shared Component
+- ✅ `EmptyState` component - Reusable component for displaying "No data available" state
+  - Customizable title and message
+  - Consistent design with icon
+  - Vietnamese language support
+
+#### User Experience Improvements
+- ✅ Fixed 404 errors when clicking sidebar menu items
+- ✅ All pages now show proper breadcrumb navigation
+- ✅ Empty state message instead of blank/error screens
+- ✅ Consistent layout across all admin pages
+- ✅ Professional "Coming Soon" messaging for features in development
+
+#### Files Created
+1. `mer-admin-panel/src/components/shared/empty-state.tsx` - Empty state component
+2. `mer-admin-panel/src/app/affiliates/page.tsx` - Affiliates page
+3. `mer-admin-panel/src/app/order-returns/page.tsx` - Order returns page
+4. `mer-admin-panel/src/app/product-labels/page.tsx` - Product labels page
+5. `mer-admin-panel/src/app/invoices/page.tsx` - Invoices page
+6. `mer-admin-panel/src/app/flash-sales/page.tsx` - Flash sales page
+7. `mer-admin-panel/src/app/product-tags/page.tsx` - Product tags page
+8. `mer-admin-panel/src/app/collections/page.tsx` - Collections page
+9. `mer-admin-panel/src/app/shipments/page.tsx` - Shipments page
+10. `mer-admin-panel/src/app/inventory/page.tsx` - Inventory page
+
+### 🎯 Impact
+
+- **Navigation:** 100% of sidebar menu items now have working pages
+- **User Experience:** No more 404 errors or blank screens
+- **Consistency:** All pages follow the same layout pattern
+- **Development Ready:** Easy to replace empty state with actual functionality
+
+---
+
 ## [2024-11-29] - RESTful API Standardization
 
 ### ✅ Major API Refactoring
