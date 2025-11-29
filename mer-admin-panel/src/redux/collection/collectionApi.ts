@@ -18,12 +18,14 @@ export const collectionApi = apiSlice.injectEndpoints({
     // get all collections
     getAllCollections: builder.query<ICollection[], void>({
       query: () => `/api/collection`,
+      transformResponse: (response: { data: ICollection[] }) => response.data,
       providesTags: ["AllCollections"],
       keepUnusedDataFor: 600,
     }),
     // get single collection
     getCollection: builder.query<ICollection, string>({
       query: (id) => `/api/collection/${id}`,
+      transformResponse: (response: { data: ICollection }) => response.data,
       providesTags: ['Collection']
     }),
     // edit collection
