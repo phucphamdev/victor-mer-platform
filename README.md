@@ -95,6 +95,260 @@ make seed
 - **Frontend**: http://localhost:3500
 - **Admin Panel**: http://localhost:4000
 - **Backend API**: http://localhost:7000
+- **API Documentation (Swagger)**: http://localhost:7000/api-docs
+
+---
+
+## 📚 API Testing Guide
+
+### Truy cập Swagger UI
+Sau khi chạy ứng dụng, mở trình duyệt và truy cập:
+```
+http://localhost:7000/api-docs
+```
+
+### Các API Endpoints có sẵn:
+
+#### 🔐 Authentication
+- **User**: `/api/user/signup`, `/api/user/login`
+- **Admin**: `/api/admin/register`, `/api/admin/login`
+
+#### 📦 Products & Categories
+- **Products**: `/api/product/*` - CRUD operations, search, filter
+- **Categories**: `/api/category/*` - Category management
+- **Brands**: `/api/brand/*` - Brand management
+
+#### 🛒 Orders & Coupons
+- **Orders**: `/api/order/*` - Order management
+- **User Orders**: `/api/user-order/*` - User order history, dashboard
+- **Coupons**: `/api/coupon/*` - Coupon management
+
+#### 📝 Reviews & Media
+- **Reviews**: `/api/review/*` - Product reviews
+- **Upload**: `/api/upload/single` - File upload
+- **Cloudinary**: `/api/cloudinary/*` - Image management
+
+### Test API với Docker Compose
+
+#### Cách 1: Sử dụng Test Script (Khuyến nghị)
+
+```bash
+# 1. Start services
+make dev
+
+# 2. Chạy test script tự động
+chmod +x test-api.sh
+./test-api.sh dev
+
+# Hoặc test production
+./test-api.sh prod
+```
+
+Script sẽ tự động test:
+- ✅ Health check
+- ✅ Get categories, brands, products
+- ✅ User signup & login
+- ✅ Authenticated endpoints
+- ✅ Swagger documentation
+
+#### Cách 2: Test thủ công với curl
+
+```bash
+# 1. Start services
+make dev
+
+# 2. Kiểm tra health
+curl http://localhost:7000/health
+
+# 3. Test các endpoints
+# Get all categories
+curl http://localhost:7000/api/category/all | jq
+
+# Get all products
+curl http://localhost:7000/api/product/all | jq
+
+# Get all brands
+curl http://localhost:7000/api/brand/all | jq
+
+# Get top rated products
+curl http://localhost:7000/api/product/top-rated | jq
+
+# 4. Test authentication
+# Đăng ký user
+curl -X POST http://localhost:7000/api/user/signup \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test User","email":"test@example.com","password":"Test123456"}' | jq
+
+# Login và lấy token
+TOKEN=$(curl -X POST http://localhost:7000/api/user/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"Test123456"}' | jq -r '.token')
+
+echo "Token: $TOKEN"
+
+# Sử dụng token để test protected endpoints
+curl -X GET http://localhost:7000/api/user-order \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" | jq
+```
+
+#### Cách 3: Test với Docker Compose exec
+
+```bash
+# Vào container backend
+docker exec -it victormer-backend-dev sh
+
+# Test từ bên trong container
+apk add curl jq  # Install curl và jq nếu chưa có
+
+# Test health
+curl http://localhost:7000/health
+
+# Test API
+curl http://localhost:7000/api/category/all
+```
+
+### Test với Postman/Thunder Client
+
+1. Import Swagger JSON:
+   - Mở http://localhost:7000/api-docs
+   - Click vào link `/api-docs.json`
+   - Import vào Postman
+
+2. Hoặc test trực tiếp trên Swagger UI:
+   - Click "Try it out" trên bất kỳ endpoint nào
+   - Điền parameters/body
+   - Click "Execute"
+
+### Authentication trong Swagger
+
+Để test các API cần authentication:
+
+1. Login qua `/api/user/login` hoặc `/api/admin/login`
+2. Copy token từ response
+3. Click nút "Authorize" 🔒 ở đầu trang Swagger
+4. Nhập: `Bearer YOUR_TOKEN_HERE`
+5. Click "Authorize"
+6. Bây giờ có thể test các protected endpoints
+
+### Tổng hợp tất cả API Endpoints
+
+#### 🔐 User Authentication (`/api/user`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/signup` | Đăng ký user mới | ❌ |
+| POST | `/login` | Đăng nhập user | ❌ |
+| PATCH | `/forget-password` | Quên mật khẩu | ❌ |
+| PATCH | `/confirm-forget-password` | Xác nhận reset password | ❌ |
+| PATCH | `/change-password` | Đổi mật khẩu | ✅ |
+| GET | `/confirmEmail/:token` | Xác nhận email | ❌ |
+| PUT | `/update-user/:id` | Cập nhật thông tin user | ✅ |
+| POST | `/register/:token` | OAuth login | ❌ |
+
+#### 👨‍💼 Admin Management (`/api/admin`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/register` | Đăng ký admin | ❌ |
+| POST | `/login` | Đăng nhập admin | ❌ |
+| PATCH | `/change-password` | Đổi mật khẩu admin | ✅ |
+| POST | `/add` | Thêm staff | ✅ |
+| GET | `/all` | Lấy danh sách staff | ✅ |
+| GET | `/get/:id` | Lấy thông tin staff | ✅ |
+| PATCH | `/update-stuff/:id` | Cập nhật staff | ✅ |
+| DELETE | `/:id` | Xóa staff | ✅ |
+| PATCH | `/forget-password` | Quên mật khẩu admin | ❌ |
+| PATCH | `/confirm-forget-password` | Xác nhận reset password | ❌ |
+
+#### 📦 Product Management (`/api/product`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/add` | Thêm sản phẩm | ✅ |
+| POST | `/add-all` | Thêm nhiều sản phẩm | ✅ |
+| GET | `/all` | Lấy tất cả sản phẩm | ❌ |
+| GET | `/offer` | Sản phẩm có offer | ❌ |
+| GET | `/top-rated` | Sản phẩm đánh giá cao | ❌ |
+| GET | `/review-product` | Sản phẩm có review | ❌ |
+| GET | `/popular/:type` | Sản phẩm phổ biến theo loại | ❌ |
+| GET | `/related-product/:id` | Sản phẩm liên quan | ❌ |
+| GET | `/single-product/:id` | Chi tiết sản phẩm | ❌ |
+| GET | `/stock-out` | Sản phẩm hết hàng | ❌ |
+| GET | `/:type` | Sản phẩm theo loại | ❌ |
+| PATCH | `/edit-product/:id` | Cập nhật sản phẩm | ✅ |
+| DELETE | `/:id` | Xóa sản phẩm | ✅ |
+
+#### 🏷️ Category Management (`/api/category`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/add` | Thêm category | ✅ |
+| POST | `/add-all` | Thêm nhiều category | ✅ |
+| GET | `/all` | Lấy tất cả category | ❌ |
+| GET | `/show` | Category hiển thị | ❌ |
+| GET | `/show/:type` | Category theo loại | ❌ |
+| GET | `/get/:id` | Chi tiết category | ❌ |
+| PATCH | `/edit/:id` | Cập nhật category | ✅ |
+| DELETE | `/delete/:id` | Xóa category | ✅ |
+
+#### 🏢 Brand Management (`/api/brand`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/add` | Thêm brand | ✅ |
+| POST | `/add-all` | Thêm nhiều brand | ✅ |
+| GET | `/all` | Lấy tất cả brand | ❌ |
+| GET | `/active` | Brand đang active | ❌ |
+| GET | `/get/:id` | Chi tiết brand | ❌ |
+| PATCH | `/edit/:id` | Cập nhật brand | ✅ |
+| DELETE | `/delete/:id` | Xóa brand | ✅ |
+
+#### 🛒 Order Management (`/api/order`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/create-payment-intent` | Tạo payment intent | ❌ |
+| POST | `/saveOrder` | Lưu đơn hàng | ✅ |
+| GET | `/orders` | Lấy tất cả đơn hàng | ✅ |
+| GET | `/:id` | Chi tiết đơn hàng | ✅ |
+| PATCH | `/update-status/:id` | Cập nhật trạng thái | ✅ |
+
+#### 📊 User Order & Dashboard (`/api/user-order`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| GET | `/` | Đơn hàng của user | ✅ |
+| GET | `/:id` | Chi tiết đơn hàng | ✅ |
+| GET | `/dashboard-amount` | Thống kê dashboard | ✅ |
+| GET | `/sales-report` | Báo cáo doanh số | ✅ |
+| GET | `/most-selling-category` | Category bán chạy | ✅ |
+| GET | `/dashboard-recent-order` | Đơn hàng gần đây | ✅ |
+
+#### 🎟️ Coupon Management (`/api/coupon`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/add` | Thêm coupon | ✅ |
+| POST | `/all` | Thêm nhiều coupon | ✅ |
+| GET | `/` | Lấy tất cả coupon | ❌ |
+| GET | `/:id` | Chi tiết coupon | ❌ |
+| PATCH | `/:id` | Cập nhật coupon | ✅ |
+| DELETE | `/:id` | Xóa coupon | ✅ |
+
+#### ⭐ Review Management (`/api/review`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/add` | Thêm review | ✅ |
+| DELETE | `/delete/:id` | Xóa review | ✅ |
+
+#### 📤 File Upload (`/api/upload`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/single` | Upload 1 file | ✅ |
+
+#### ☁️ Cloudinary Management (`/api/cloudinary`)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/add-img` | Upload 1 ảnh | ✅ |
+| POST | `/add-multiple-img` | Upload nhiều ảnh (max 5) | ✅ |
+| DELETE | `/img-delete` | Xóa ảnh | ✅ |
+
+**Tổng cộng: 80+ API endpoints** đã được document đầy đủ với Swagger! 🎉
+
+📖 **Chi tiết đầy đủ**: Xem file [API_ENDPOINTS.md](./API_ENDPOINTS.md) để biết request/response examples và cách sử dụng từng endpoint.
 
 ---
 
@@ -208,13 +462,13 @@ victor-mer-platform/
 ├── Makefile                    # Shortcuts commands
 ├── generate-secrets.sh         # Script tạo credentials
 ├── mongo-init.js              # MongoDB initialization
-├── shofy-backend/
+├── mer-backend/
 │   ├── Dockerfile             # Backend container
 │   └── ...
-├── shofy-front-end/
+├── mer-front-end/
 │   ├── Dockerfile             # Frontend container
 │   └── ...
-├── shofy-admin-panel/
+├── mer-admin-panel/
 │   ├── Dockerfile             # Admin container
 │   └── ...
 └── nginx/
@@ -244,6 +498,12 @@ make seed           # Import seed data (dev)
 make seed-prod      # Import seed data (prod)
 make backup-db      # Backup database
 make clean          # Xóa tất cả containers và volumes
+
+# API Testing commands
+make test-api       # Test tất cả API endpoints (dev)
+make test-api-prod  # Test tất cả API endpoints (prod)
+make health-check   # Kiểm tra health của services
+make swagger        # Mở Swagger UI documentation
 ```
 
 ### Docker Compose Commands
@@ -783,6 +1043,48 @@ Nếu gặp vấn đề:
 ## 📄 License
 
 MIT License
+
+---
+
+---
+
+## 🚀 Quick Test - Chạy ngay sau khi setup
+
+Sau khi chạy `make dev`, test ngay với các lệnh sau:
+
+```bash
+# 1. Kiểm tra tất cả services đang chạy
+make health-check
+
+# 2. Test tất cả API endpoints tự động
+make test-api
+
+# 3. Mở Swagger UI để test thủ công
+make swagger
+
+# 4. Hoặc test nhanh với curl
+curl http://localhost:7000/health
+curl http://localhost:7000/api/product/all | jq
+curl http://localhost:7000/api/category/all | jq
+```
+
+**Kết quả mong đợi:**
+- ✅ Backend health check: OK
+- ✅ Frontend accessible: HTTP 200
+- ✅ Admin panel accessible: HTTP 200
+- ✅ MongoDB ping: OK
+- ✅ Swagger UI: http://localhost:7000/api-docs
+- ✅ 80+ API endpoints hoạt động
+
+---
+
+## 📚 Documentation Files
+
+- **[README.md](./README.md)** - Hướng dẫn deployment và setup
+- **[API_ENDPOINTS.md](./API_ENDPOINTS.md)** - Chi tiết tất cả API endpoints
+- **[OPTIMIZATION_PLAN.md](./OPTIMIZATION_PLAN.md)** - Kế hoạch tối ưu hóa
+- **[CHANGELOG.md](./CHANGELOG.md)** - Lịch sử thay đổi
+- **Swagger UI** - http://localhost:7000/api-docs (interactive)
 
 ---
 
