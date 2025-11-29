@@ -29,7 +29,9 @@ type IPropType = {
 };
 
 const CollectionTable = ({ cls, setOpenSidebar, selectValue, searchValue }: IPropType) => {
-  const { data: collections, isError, isLoading, error } = useGetAllCollectionsQuery();
+  const { data: collections, isError, isLoading, error } = useGetAllCollectionsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+  });
   const paginationData = usePagination(collections || [], 5);
   const { currentItems, handlePageClick, pageCount } = paginationData;
   

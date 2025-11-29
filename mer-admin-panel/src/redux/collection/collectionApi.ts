@@ -20,8 +20,7 @@ export const collectionApi = apiSlice.injectEndpoints({
       query: () => `/api/collection`,
       transformResponse: (response: { data: ICollection[] }) => response.data,
       providesTags: ["AllCollections"],
-      keepUnusedDataFor: 600,
-      refetchOnMountOrArgChange: true,
+      keepUnusedDataFor: 5,
     }),
     // get single collection
     getCollection: builder.query<ICollection, string>({
