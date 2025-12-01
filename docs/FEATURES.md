@@ -217,6 +217,55 @@
 - ✅ Affiliate performance
 - ✅ Inventory reports
 
+## 🎨 Admin Panel
+
+### Current Admin Panel (mer-admin-panel)
+- Next.js 13.4.4
+- Material Tailwind UI
+- Redux Toolkit
+- Full CRUD for all features
+
+### New Admin Panel (mer-admin-panel-new) ✨
+- ✅ **Next.js 16 + React 19** - Latest stack
+- ✅ **Shadcn UI** - Modern, accessible components
+- ✅ **Zustand** - Lightweight state management
+- ✅ **TypeScript** - Full type safety
+- ✅ **API Integration** - Centralized API client
+- ✅ **Feature-based Structure** - Better organization
+- ✅ **Migration Guide** - Complete documentation
+
+**API Integration:**
+- Centralized API client (`src/lib/api/`)
+- Type-safe API calls
+- Authentication handling
+- Error handling
+- Token management
+
+**See:** `mer-admin-panel-new/MIGRATION_GUIDE.md`
+
+## 🛠️ Development Tools
+
+### Unified Dev Manager (`dev.sh`)
+- ✅ **Interactive Menu** - Easy-to-use interface
+- ✅ **Service Management** - Start/stop all or individual services
+- ✅ **Live Logs** - Real-time log viewing
+- ✅ **MongoDB Management** - Start, stop, shell, backup
+- ✅ **Health Checks** - Monitor service health
+- ✅ **Testing** - Run API tests
+- ✅ **Utilities** - Clean install, status monitoring
+
+**Usage:**
+```bash
+./dev.sh
+```
+
+**Features:**
+- Color-coded output
+- Real-time service status
+- One command for everything
+- Auto port management
+- Log aggregation
+
 ## 🔄 Upcoming Features
 
 ### Planned Enhancements

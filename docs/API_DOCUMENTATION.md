@@ -311,3 +311,39 @@ API requests are rate-limited to prevent abuse:
 - Pagination is available on all list endpoints
 - Filtering and search capabilities vary by endpoint
 - Case-insensitive role checking is implemented for authorization
+
+## Frontend Integration
+
+### New Admin Panel (next-shadcn-admin-dashboard)
+
+The new admin panel uses a centralized API client for all backend communication.
+
+**API Client Location:** `mer-admin-panel-new/src/lib/api/`
+
+**Available API Modules:**
+- `auth.ts` - Authentication endpoints
+- `products.ts` - Products management
+- `orders.ts` - Orders management
+- `users.ts` - Users management
+- `client.ts` - Base API client
+
+**Example Usage:**
+```typescript
+import { authApi, productsApi } from '@/lib/api';
+
+// Login
+const result = await authApi.login({ email, password });
+
+// Get products
+const products = await productsApi.getAll({ page: 1, limit: 10 }, token);
+
+// Create product
+const newProduct = await productsApi.create(productData, token);
+```
+
+**Environment Configuration:**
+```env
+NEXT_PUBLIC_API_URL=http://localhost:7000/api
+```
+
+See `mer-admin-panel-new/MIGRATION_GUIDE.md` for complete integration guide.

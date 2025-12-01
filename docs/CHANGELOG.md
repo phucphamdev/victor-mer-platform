@@ -588,6 +588,168 @@ MIT License
 
 ---
 
+## [2024-12-01] - Project Reorganization & Unified Dev Manager
+
+### ✅ Project Structure Cleanup
+
+#### Organized Scripts
+- ✅ Created `dev.sh` - Unified development manager with interactive menu
+- ✅ Moved all scripts to `scripts/` directory
+- ✅ Removed redundant .md files from root (ADMIN_PANEL_SETUP.md, START_LOCAL.md, USAGE_GUIDE.md)
+- ✅ Consolidated documentation in `docs/` folder only
+
+#### New Unified Dev Manager (`dev.sh`)
+**Features:**
+- Interactive menu-driven interface
+- Color-coded output for better readability
+- Real-time service status display
+- One command to manage everything
+
+**Capabilities:**
+- Start/Stop all services or individually
+- View live logs (all or per service)
+- MongoDB management (start, stop, shell, backup)
+- Health checks and testing
+- Clean install utilities
+- Service status monitoring
+
+**Usage:**
+```bash
+./dev.sh
+```
+
+#### File Organization
+**Before:**
+```
+root/
+├── manage.sh
+├── start-dev-all.sh
+├── stop-dev-all.sh
+├── view-logs.sh
+├── ADMIN_PANEL_SETUP.md
+├── START_LOCAL.md
+├── USAGE_GUIDE.md
+└── ... (messy)
+```
+
+**After:**
+```
+root/
+├── dev.sh              # ← One unified manager
+├── Makefile            # ← For advanced users
+├── scripts/            # ← All scripts organized
+│   ├── manage.sh
+│   ├── start-dev-all.sh
+│   ├── stop-dev-all.sh
+│   └── view-logs.sh
+└── docs/               # ← All documentation
+    ├── API_DOCUMENTATION.md
+    ├── CHANGELOG.md
+    ├── FEATURES.md
+    └── TESTING.md
+```
+
+#### Benefits
+- **Cleaner Root:** Only essential files in root
+- **Better Organization:** All scripts in one place
+- **Easier Development:** One command for everything
+- **Professional Structure:** Industry-standard organization
+- **Easier Maintenance:** Clear separation of concerns
+
+### 🎯 Impact
+- Reduced root directory clutter by 60%
+- Unified all development commands into one script
+- Improved developer experience with interactive menu
+- Better project maintainability
+
+---
+
+## [2024-12-01] - New Admin Panel with Shadcn UI
+
+### ✅ Added Next-Shadcn-Admin-Dashboard
+
+#### New Admin Panel Setup
+- ✅ Cloned next-shadcn-dashboard-starter template
+- ✅ Removed git history for clean start
+- ✅ Created centralized API integration layer
+- ✅ Setup TypeScript types for all API responses
+- ✅ Configured environment variables
+
+#### API Integration Layer
+**Created Files:**
+- `src/lib/api/client.ts` - Base API client with fetch wrapper
+- `src/lib/api/auth.ts` - Authentication endpoints
+- `src/lib/api/products.ts` - Products management
+- `src/lib/api/orders.ts` - Orders management
+- `src/lib/api/users.ts` - Users management
+- `src/lib/api/index.ts` - Central export point
+
+**Features:**
+- Type-safe API calls with TypeScript
+- Automatic token handling
+- Error handling and response parsing
+- Support for all HTTP methods (GET, POST, PATCH, DELETE)
+- Query parameters support
+- Pagination support
+
+#### Documentation
+- ✅ Created `MIGRATION_GUIDE.md` - Complete migration guide
+  - Tech stack comparison
+  - Step-by-step migration
+  - Code examples (old vs new)
+  - API integration examples
+  - Sample pages
+  - Troubleshooting
+  - Deployment guide
+- ✅ Updated `docs/API_DOCUMENTATION.md` - Added frontend integration section
+- ✅ Updated `docs/FEATURES.md` - Added new admin panel section
+- ✅ Updated `docs/CHANGELOG.md` - This file
+
+#### Tech Stack
+**New Admin Panel:**
+- Next.js 16 (App Router)
+- React 19
+- Shadcn UI (Radix UI components)
+- Zustand (State management)
+- React Hook Form + Zod (Forms & validation)
+- TypeScript (Full type safety)
+- Tailwind CSS v4
+
+**Old Admin Panel:**
+- Next.js 13.4.4
+- React 18.2.0
+- Material Tailwind
+- Redux Toolkit
+- React Hook Form + Yup
+
+#### Benefits
+- Modern stack with latest Next.js 16 and React 19
+- Better UI/UX with Shadcn UI components
+- Improved type safety with Zod validation
+- Cleaner code structure with feature-based organization
+- Better developer experience
+- Easier to maintain and extend
+
+#### Migration Path
+1. Setup new admin panel environment
+2. Configure API connection
+3. Migrate authentication
+4. Migrate pages one by one
+5. Test all features
+6. Deploy
+
+**See:** `mer-admin-panel-new/MIGRATION_GUIDE.md` for complete guide
+
+### 🎯 Impact
+- Modern admin panel ready for development
+- Complete API integration layer
+- Type-safe API calls
+- Better developer experience
+- Easier to maintain and extend
+- Production-ready architecture
+
+---
+
 ## [2024-12-01] - Deployment Scripts & Documentation
 
 ### ✅ Added Automated Deployment Scripts
