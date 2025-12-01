@@ -245,26 +245,89 @@
 
 ## 🛠️ Development Tools
 
-### Unified Dev Manager (`dev.sh`)
-- ✅ **Interactive Menu** - Easy-to-use interface
-- ✅ **Service Management** - Start/stop all or individual services
-- ✅ **Live Logs** - Real-time log viewing
-- ✅ **MongoDB Management** - Start, stop, shell, backup
-- ✅ **Health Checks** - Monitor service health
-- ✅ **Testing** - Run API tests
-- ✅ **Utilities** - Clean install, status monitoring
+### 1. Native Development (`run-native.sh`) ⚡
+**Fastest performance - No Docker overhead**
 
-**Usage:**
+```bash
+./run-native.sh
+```
+
+**Features:**
+- Runs directly on your laptop
+- Auto-install dependencies
+- Auto-start MongoDB
+- Nodemon + Next.js Fast Refresh
+- Instant hot reload
+- Lowest resource usage
+
+**Best for:**
+- Daily development
+- Quick testing
+- Debugging
+- Laptop with limited resources
+
+### 2. Docker Local (`run-docker-local.sh`) 🐳
+**Lightweight testing with easy cleanup**
+
+```bash
+./run-docker-local.sh
+```
+
+**Features:**
+- Isolated environment
+- Easy cleanup (docker-compose down)
+- Consistent across machines
+- No local dependencies needed
+- Quick start/stop
+
+**Best for:**
+- Testing before deployment
+- Clean environment testing
+- Team collaboration
+- CI/CD testing
+
+### 3. Docker Production (`run-docker-production.sh`) 🌐
+**Full production setup with SSL**
+
+```bash
+sudo ./run-docker-production.sh
+```
+
+**Features:**
+- Nginx reverse proxy
+- Let's Encrypt SSL (auto-renewal)
+- UFW firewall configuration
+- Automatic backups (daily)
+- Production optimizations
+- Health monitoring
+
+**Best for:**
+- VPS deployment
+- Production environment
+- Public-facing websites
+- SSL/HTTPS required
+
+### 4. Unified Dev Manager (`dev.sh`)
+**Interactive menu for all operations**
+
 ```bash
 ./dev.sh
 ```
 
 **Features:**
-- Color-coded output
-- Real-time service status
-- One command for everything
-- Auto port management
-- Log aggregation
+- Interactive menu (19 options)
+- Start/stop services individually
+- Live log viewing
+- MongoDB management
+- Health checks & testing
+- Clean install utilities
+- Service status monitoring
+
+**Best for:**
+- Managing multiple services
+- Debugging specific services
+- Log monitoring
+- Database operations
 
 ## 🔄 Upcoming Features
 
