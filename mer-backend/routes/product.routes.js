@@ -326,6 +326,7 @@ router.get("/stock-out", productController.stockOutProducts);
  */
 router.get('/type/:type', productController.getProductsByType);
 
+// IMPORTANT: Keep /:id routes at the END to avoid catching specific routes
 /**
  * @swagger
  * /api/product/{id}:

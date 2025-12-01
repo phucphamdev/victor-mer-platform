@@ -4,12 +4,51 @@
 
 This document provides comprehensive testing guidelines for the Victor Mer platform.
 
+## Quick Testing
+
+### Automated Testing (Recommended)
+
+```bash
+# Test all APIs automatically
+make test-api
+
+# Or use the script directly
+./scripts/testing/test-api.sh dev
+
+# Test production
+./scripts/testing/test-api.sh prod
+```
+
+The test script automatically checks:
+- ✅ Health check
+- ✅ Get categories, brands, products
+- ✅ User signup & login
+- ✅ Authenticated endpoints
+- ✅ Swagger documentation
+
+### Interactive Testing with Swagger UI
+
+```bash
+# Open Swagger UI
+make swagger
+# Or visit: http://localhost:7000/api-docs
+```
+
+Features:
+- Try all endpoints interactively
+- View request/response schemas
+- Test authentication
+- See example responses
+
 ## Testing Scripts
 
 ### Available Test Scripts
 
-1. **test-api.sh** - General API testing
+1. **test-api.sh** - General API testing (80+ endpoints)
 2. **test-shipment-api.sh** - Shipment-specific API testing
+3. **test-collection-api.sh** - Collection endpoints testing
+4. **restart-and-test.sh** - Restart services and run tests
+5. **health-check.sh** - Check all services health
 
 ## Manual Testing
 
@@ -539,3 +578,303 @@ docker logs mer-backend
 # Or if running locally
 tail -f mer-backend/logs/app.log
 ```
+
+
+## Testing with curl
+
+### Basic API Tests
+
+```bash
+# Health check
+curl http://localhost:7000/health
+
+# Get all products
+curl http://localhost:7000/api/product/all | jq
+
+# Get all categories
+curl http://localhost:7000/api/category/all | jq
+
+# Get all brands
+curl http://localhost:7000/api/brand/all | jq
+
+# Get top rated products
+curl http://localhost:7000/api/product/top-rated | jq
+```
+
+### Authentication Tests
+
+```bash
+# User signup
+curl -X POST http://localhost:7000/api/user/signup \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test User","email":"test@example.com","password":"Test123456"}' | jq
+
+# User login and get token
+TOKEN=$(curl -X POST http://localhost:7000/api/user/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"Test123456"}' | jq -r '.token')
+
+echo "Token: $TOKEN"
+
+# Use token for authenticated requests
+curl -X GET http://localhost:7000/api/user-order \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" | jq
+```
+
+### Admin Authentication
+
+```bash
+# Admin login
+ADMIN_TOKEN=$(curl -X POST http://localhost:7000/api/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"admin123"}' | jq -r '.token')
+
+# Use admin token
+curl -X GET http://localhost:7000/api/order/orders \
+  -H "Authorization: Bearer $ADMIN_TOKEN" | jq
+```
+
+## Testing with Postman/Thunder Client
+
+### Import Swagger JSON
+
+1. Open http://localhost:7000/api-docs
+2. Click on `/api-docs.json` link
+3. Import into Postman/Thunder Client
+
+### Manual Testing
+
+1. Create a new request
+2. Set method (GET, POST, etc.)
+3. Set URL: `http://localhost:7000/api/...`
+4. Add headers if needed:
+   - `Content-Type: application/json`
+   - `Authorization: Bearer YOUR_TOKEN`
+5. Add body for POST/PATCH requests
+6. Send request
+
+## Testing from Docker Container
+
+```bash
+# Enter backend container
+docker exec -it victormer-backend-dev sh
+
+# Install curl and jq if needed
+apk add curl jq
+
+# Test from inside container
+curl http://localhost:7000/health
+curl http://localhost:7000/api/category/all
+```
+
+## Health Check Script
+
+```bash
+# Run health check
+./scripts/maintenance/health-check.sh
+```
+
+Checks:
+- ✅ MongoDB connection
+- ✅ Backend API health
+- ✅ Frontend accessibility
+- ✅ Admin panel accessibility
+- ✅ Nginx status (production)
+- ✅ SSL certificate (production)
+- ✅ System resources
+
+## Automated Testing Scripts
+
+### 1. Test All APIs
+```bash
+./scripts/testing/test-api.sh dev
+```
+
+Tests:
+- Health endpoints
+- Public endpoints (products, categories, brands)
+- User authentication flow
+- Protected endpoints
+- Swagger documentation
+
+### 2. Test Shipment APIs
+```bash
+./scripts/testing/test-shipment-api.sh
+```
+
+### 3. Test Collection APIs
+```bash
+./scripts/testing/test-collection-api.sh
+```
+
+### 4. Restart and Test
+```bash
+./scripts/testing/restart-and-test.sh
+```
+
+Performs:
+1. Stop all services
+2. Clean up
+3. Start services
+4. Wait for ready
+5. Run all tests
+
+## Performance Testing
+
+### Load Testing with Apache Bench
+
+```bash
+# Install Apache Bench
+sudo apt install apache2-utils
+
+# Test endpoint performance
+ab -n 1000 -c 10 http://localhost:7000/api/product/all
+
+# Test with authentication
+ab -n 1000 -c 10 -H "Authorization: Bearer TOKEN" \
+  http://localhost:7000/api/user-order
+```
+
+### Monitoring Response Times
+
+```bash
+# Test response time
+time curl http://localhost:7000/api/product/all
+
+# Multiple requests
+for i in {1..10}; do
+  time curl -s http://localhost:7000/api/product/all > /dev/null
+done
+```
+
+## Integration Testing
+
+### Test Complete User Flow
+
+```bash
+# 1. Signup
+curl -X POST http://localhost:7000/api/user/signup \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test","email":"test@test.com","password":"Test123"}' | jq
+
+# 2. Login
+TOKEN=$(curl -X POST http://localhost:7000/api/user/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@test.com","password":"Test123"}' | jq -r '.token')
+
+# 3. Browse products
+curl http://localhost:7000/api/product/all | jq
+
+# 4. View product details
+PRODUCT_ID=$(curl http://localhost:7000/api/product/all | jq -r '.data[0]._id')
+curl http://localhost:7000/api/product/single-product/$PRODUCT_ID | jq
+
+# 5. Create order
+curl -X POST http://localhost:7000/api/order/saveOrder \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"products":[{"product":"'$PRODUCT_ID'","quantity":1}],"total":100}' | jq
+
+# 6. View orders
+curl http://localhost:7000/api/user-order \
+  -H "Authorization: Bearer $TOKEN" | jq
+```
+
+## Troubleshooting Tests
+
+### API Not Responding
+
+```bash
+# Check if backend is running
+docker ps | grep backend
+
+# Check backend logs
+docker logs victormer-backend-dev
+
+# Restart backend
+docker-compose restart backend
+```
+
+### Authentication Failing
+
+```bash
+# Verify credentials
+curl -X POST http://localhost:7000/api/admin/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@example.com","password":"admin123"}' -v
+
+# Check token format
+echo $TOKEN
+
+# Token should start with "eyJ"
+```
+
+### Database Connection Issues
+
+```bash
+# Check MongoDB
+docker exec -it victormer-mongodb-dev mongosh
+
+# Test connection
+docker exec victormer-backend-dev node -e "
+  const mongoose = require('mongoose');
+  mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('Connected'))
+    .catch(err => console.error('Error:', err));
+"
+```
+
+## Test Coverage Goals
+
+- [ ] All API endpoints tested
+- [ ] Authentication flows verified
+- [ ] Error handling validated
+- [ ] Performance benchmarks met
+- [ ] Security tests passed
+- [ ] Integration tests complete
+
+## Continuous Testing
+
+### Setup Git Hooks
+
+```bash
+# Pre-commit hook
+cat > .git/hooks/pre-commit << 'EOF'
+#!/bin/bash
+echo "Running tests..."
+./scripts/testing/test-api.sh dev
+EOF
+
+chmod +x .git/hooks/pre-commit
+```
+
+### CI/CD Integration
+
+Add to your CI/CD pipeline:
+
+```yaml
+test:
+  script:
+    - docker-compose up -d
+    - sleep 30
+    - ./scripts/testing/test-api.sh dev
+    - docker-compose down
+```
+
+## Best Practices
+
+1. **Always test locally before deploying**
+2. **Use automated scripts for consistency**
+3. **Test both success and error cases**
+4. **Monitor response times**
+5. **Keep test data separate from production**
+6. **Document test results**
+7. **Update tests when APIs change**
+
+## Resources
+
+- Swagger UI: http://localhost:7000/api-docs
+- API Documentation: [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+- Deployment Guide: [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)
+- Scripts Documentation: [DEPLOYMENT_SCRIPTS.md](./DEPLOYMENT_SCRIPTS.md)

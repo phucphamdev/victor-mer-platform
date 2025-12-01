@@ -91,13 +91,18 @@ show_status() {
         echo -e "  Backend API:     ${RED}○ Stopped${NC}"
     fi
     
-    # Admin Panel
-    if check_port 3000; then
-        echo -e "  Admin Panel:     ${GREEN}● Running${NC} (http://localhost:3000)"
-    elif check_port 4000; then
-        echo -e "  Admin Panel:     ${GREEN}● Running${NC} (http://localhost:4000)"
+    # Admin Panel V1
+    if check_port 4000; then
+        echo -e "  Admin Panel V1:  ${GREEN}● Running${NC} (http://localhost:4000)"
     else
-        echo -e "  Admin Panel:     ${RED}○ Stopped${NC}"
+        echo -e "  Admin Panel V1:  ${RED}○ Stopped${NC}"
+    fi
+    
+    # Admin Panel V2
+    if check_port 4100; then
+        echo -e "  Admin Panel V2:  ${GREEN}● Running${NC} (http://localhost:4100)"
+    else
+        echo -e "  Admin Panel V2:  ${RED}○ Stopped${NC}"
     fi
     
     # Frontend
@@ -132,7 +137,8 @@ start_all_native() {
     
     # Clean ports
     kill_port 7000
-    kill_port 3000
+    kill_port 4000
+    kill_port 4100
     kill_port 3500
     
     # Create logs
@@ -145,10 +151,17 @@ start_all_native() {
     cd ..
     sleep 3
     
-    # Start Admin
-    echo "Starting Admin Panel..."
-    cd mer-admin-panel-new
-    npm run dev > ../logs/admin.log 2>&1 &
+    # Start Admin V1
+    echo "Starting Admin Panel V1..."
+    cd mer-admin-panel-v1
+    PORT=4000 npm run dev > ../logs/admin-v1.log 2>&1 &
+    cd ..
+    sleep 3
+    
+    # Start Admin V2
+    echo "Starting Admin Panel V2..."
+    cd mer-admin-panel-v2
+    PORT=4100 npm run dev > ../logs/admin-v2.log 2>&1 &
     cd ..
     sleep 5
     
@@ -168,8 +181,8 @@ start_all_native() {
 stop_all() {
     echo -e "${BLUE}🛑 Stopping all services...${NC}"
     kill_port 7000
-    kill_port 3000
     kill_port 4000
+    kill_port 4100
     kill_port 3500
     pkill -f "nodemon" 2>/dev/null || true
     pkill -f "next dev" 2>/dev/null || true
@@ -196,12 +209,16 @@ health_check() {
         echo -e "  Backend API:     ${RED}✗ Unhealthy${NC}"
     fi
     
-    if curl -s http://localhost:3000 > /dev/null 2>&1; then
-        echo -e "  Admin Panel:     ${GREEN}✓ Healthy${NC}"
-    elif curl -s http://localhost:4000 > /dev/null 2>&1; then
-        echo -e "  Admin Panel:     ${GREEN}✓ Healthy${NC}"
+    if curl -s http://localhost:4000 > /dev/null 2>&1; then
+        echo -e "  Admin Panel V1:  ${GREEN}✓ Healthy${NC}"
     else
-        echo -e "  Admin Panel:     ${RED}✗ Unhealthy${NC}"
+        echo -e "  Admin Panel V1:  ${RED}✗ Unhealthy${NC}"
+    fi
+    
+    if curl -s http://localhost:4100 > /dev/null 2>&1; then
+        echo -e "  Admin Panel V2:  ${GREEN}✓ Healthy${NC}"
+    else
+        echo -e "  Admin Panel V2:  ${RED}✗ Unhealthy${NC}"
     fi
     
     if curl -s http://localhost:3500 > /dev/null 2>&1; then
@@ -223,9 +240,16 @@ clean_install() {
     npm install
     cd ..
     
-    # Admin Panel
-    echo "  Cleaning admin panel..."
-    cd mer-admin-panel-new
+    # Admin Panel V1
+    echo "  Cleaning admin panel v1..."
+    cd mer-admin-panel-v1
+    rm -rf node_modules package-lock.json .next
+    npm install
+    cd ..
+    
+    # Admin Panel V2
+    echo "  Cleaning admin panel v2..."
+    cd mer-admin-panel-v2
     rm -rf node_modules package-lock.json .next
     npm install
     cd ..

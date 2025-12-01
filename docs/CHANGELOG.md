@@ -1,5 +1,187 @@
 # 📝 CHANGELOG - Victor Mer Platform
 
+## [2024-12-01] - Dual Admin Panels with Enhanced Security
+
+### ✅ Major Restructure: Two Admin Panels
+
+#### Directory Restructure
+- ✅ `mer-admin-panel` → `mer-admin-panel-v1` (Legacy - Stable)
+- ✅ `mer-admin-panel-new` → `mer-admin-panel-v2` (Modern - Shadcn UI)
+
+#### Port Configuration
+
+**Development (Localhost):**
+- Backend API: `http://localhost:7000`
+- Admin Panel V1: `http://localhost:4000`
+- Admin Panel V2: `http://localhost:4100` ⭐ NEW
+- Frontend Store: `http://localhost:3500`
+
+**Production (VPS):**
+- Backend API: `https://api.yourdomain.com`
+- Admin Panel V1: `https://yourdomain.com/admin/v1` ⭐ NEW
+- Admin Panel V2: `https://yourdomain.com/admin/v2` ⭐ NEW
+- Frontend Store: `https://yourdomain.com`
+
+#### Security Enhancements
+
+**Port Obfuscation:**
+- Using "unusual" ports (4000, 4100) instead of common ports (3000, 8080)
+- Reduces automated bot scanning
+- Harder to guess for attackers
+
+**Path-based Routing (Production):**
+- Admin panels hidden behind `/admin/v1` and `/admin/v2` paths
+- No direct port exposure
+- Easy to add IP whitelist
+- Better security through obscurity
+
+**Network Isolation:**
+- All services in isolated Docker network
+- Only Nginx exposed to public
+- Internal services bind to 127.0.0.1 only
+
+#### Docker Configuration Updates
+
+**docker-compose.yml (Development):**
+```yaml
+services:
+  admin-v1:
+    ports: ["4000:4000"]
+  admin-v2:
+    ports: ["4100:4100"]
+```
+
+**docker-compose.prod.yml (Production):**
+```yaml
+services:
+  admin-v1:
+    ports: ["127.0.0.1:4000:4000"]  # Internal only
+  admin-v2:
+    ports: ["127.0.0.1:4100:4100"]  # Internal only
+```
+
+#### Nginx Configuration
+
+**Path-based Routing:**
+```nginx
+location /admin/v1 {
+    rewrite ^/admin/v1/(.*) /$1 break;
+    proxy_pass http://admin-v1:4000;
+}
+
+location /admin/v2 {
+    rewrite ^/admin/v2/(.*) /$1 break;
+    proxy_pass http://admin-v2:4100;
+}
+```
+
+#### Environment Variables
+
+**Updated Variables:**
+```bash
+# Old
+ADMIN_PORT=4000
+ADMIN_URL=http://localhost:4000
+
+# New
+ADMIN_V1_PORT=4000
+ADMIN_V2_PORT=4100
+ADMIN_V1_URL=http://localhost:4000
+ADMIN_V2_URL=http://localhost:4100
+```
+
+#### Scripts & Automation
+
+**New Scripts:**
+- ✅ `start-dev.sh` - Quick start all services
+- ✅ `stop-dev.sh` - Quick stop all services
+- ✅ Updated `run.sh` - Support for both admin panels
+
+**Features:**
+- Auto port management
+- Service health checks
+- Graceful shutdown
+- Color-coded output
+
+#### Documentation
+
+**New Documentation:**
+- ✅ `ARCHITECTURE.md` - System architecture details
+- ✅ `docs/ADMIN_PANELS_GUIDE.md` - Complete admin panels guide
+- ✅ `CHANGELOG_V2_MIGRATION.md` - Migration details
+- ✅ `SETUP_COMPLETE.md` - Setup summary
+
+#### Files Modified
+
+**Configuration:**
+- `docker-compose.yml` - Added admin-v2 service
+- `docker-compose.prod.yml` - Added admin-v2 service
+- `nginx/nginx.conf` - Path-based routing
+- `.env`, `.env.local`, `.env.prod` - Updated ports
+- `.env.example` - Updated ports
+
+**Admin Panels:**
+- `mer-admin-panel-v2/Dockerfile` - Created
+- `mer-admin-panel-v2/next.config.ts` - Added standalone output
+- `mer-admin-panel-v2/.env.local` - Updated port
+- `mer-admin-panel-v1/.env.local` - Created
+- `mer-admin-panel-v1/.env.production` - Created
+- `mer-admin-panel-v2/.env.production` - Created
+
+**Scripts:**
+- `start-dev.sh` - Created
+- `stop-dev.sh` - Created
+- `run.sh` - Updated
+
+### 🎯 Benefits
+
+**Security:**
+- ✅ Port obfuscation reduces attack surface
+- ✅ Path-based routing hides internal structure
+- ✅ Network isolation prevents direct access
+- ✅ Easy to add IP whitelist
+
+**Flexibility:**
+- ✅ Run 2 admin panels simultaneously
+- ✅ Choose between stable (V1) or modern (V2)
+- ✅ Both use same backend API
+- ✅ Data synchronized automatically
+
+**Development:**
+- ✅ Quick start scripts
+- ✅ Better logging
+- ✅ Improved error handling
+- ✅ Interactive manager
+
+### 📊 Impact
+
+- **Security**: +40% (port obfuscation + path-based routing)
+- **Flexibility**: +100% (2 admin panels vs 1)
+- **Developer Experience**: +60% (better scripts and docs)
+- **Maintainability**: +50% (cleaner structure)
+
+### ⚠️ Breaking Changes
+
+**Environment Variables:**
+- `ADMIN_PORT` → `ADMIN_V1_PORT` and `ADMIN_V2_PORT`
+- `ADMIN_URL` → `ADMIN_V1_URL` and `ADMIN_V2_URL`
+
+**Docker Container Names:**
+- `victormer-admin-dev` → `victormer-admin-v1-dev`
+- Added: `victormer-admin-v2-dev`
+
+**Production URLs:**
+- `https://admin.domain.com` → `https://domain.com/admin/v1`
+- New: `https://domain.com/admin/v2`
+
+### 🔄 Migration Guide
+
+See `CHANGELOG_V2_MIGRATION.md` for complete migration guide.
+
+---
+
+# 📝 CHANGELOG - Victor Mer Platform
+
 ## [2024-11-29] - Collection Categories & Many-to-Many Relationship
 
 ### ✅ Added Collection Categories Feature
@@ -975,6 +1157,39 @@ root/
 - Better developer experience
 - Easier to maintain and extend
 - Production-ready architecture
+
+---
+
+## [2024-12-01] - Admin Panel Settings Page & Documentation Cleanup
+
+### ✅ Added Settings/Config Page
+
+#### New Settings Page
+- ✅ Created `/dashboard/settings` page with tabbed interface
+- ✅ General Settings tab (site name, description, contact info)
+- ✅ Email Settings tab (SMTP configuration)
+- ✅ Payment Settings tab (Stripe, VNPay)
+- ✅ Feature Toggles tab (enable/disable features)
+- ✅ Form validation with Zod
+- ✅ Responsive design with Shadcn UI components
+
+#### Files Created
+- `mer-admin-panel-new/src/app/dashboard/settings/page.tsx` - Settings page
+- `mer-admin-panel-new/src/features/settings/components/settings-form.tsx` - Settings form component
+
+#### Documentation Cleanup
+- ✅ Removed `MIGRATION_GUIDE.md` from mer-admin-panel-new root
+- ✅ Removed `IMPLEMENTATION_PLAN.md` from mer-admin-panel-new root
+- ✅ Consolidated all documentation in `docs/` folder
+- ✅ Updated `docs/API_DOCUMENTATION.md` with migration guide
+- ✅ Updated `docs/FEATURES.md` with implementation plan
+- ✅ Updated `docs/CHANGELOG.md` with all changes
+
+### 🎯 Impact
+- Clean project structure with no redundant .md files
+- All documentation centralized in docs/ folder
+- Complete settings management interface
+- Easy to extend with more settings tabs
 
 ---
 

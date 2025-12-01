@@ -86,19 +86,39 @@ services:
     networks:
       - victormer-network
 
-  admin:
+  admin-v1:
     build:
-      context: ./mer-admin-panel
+      context: ./mer-admin-panel-v1
       dockerfile: Dockerfile
       target: development
-    container_name: victormer-admin-dev
+    container_name: victormer-admin-v1-dev
     restart: unless-stopped
     ports:
-      - "${ADMIN_PORT:-4000}:4000"
+      - "${ADMIN_V1_PORT:-4000}:4000"
     environment:
       NEXT_PUBLIC_API_BASE_URL: ${BACKEND_URL}
     volumes:
-      - ./mer-admin-panel:/app
+      - ./mer-admin-panel-v1:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - victormer-network
+
+  admin-v2:
+    build:
+      context: ./mer-admin-panel-v2
+      dockerfile: Dockerfile
+      target: development
+    container_name: victormer-admin-v2-dev
+    restart: unless-stopped
+    ports:
+      - "${ADMIN_V2_PORT:-4100}:4100"
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${BACKEND_URL}
+    volumes:
+      - ./mer-admin-panel-v2:/app
       - /app/node_modules
       - /app/.next
     depends_on:

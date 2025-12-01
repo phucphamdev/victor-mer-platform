@@ -117,7 +117,25 @@ module.exports.getTopRatedProducts = async (req,res,next) => {
 // getSingleProduct
 exports.getSingleProduct = async (req,res,next) => {
   try {
-    const product = await productServices.getProductService(req.params.id)
+    const { id } = req.params;
+    
+    // Validate ObjectId format
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid product ID format'
+      });
+    }
+    
+    const product = await productServices.getProductService(id)
+    
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+    
     res.json(product)
   } catch (error) {
     next(error)
