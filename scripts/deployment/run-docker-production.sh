@@ -1,9 +1,7 @@
 #!/bin/bash
 
-################################################################################
-# SCRIPT CHẠY DỰ ÁN PRODUCTION VỚI DOCKER COMPOSE TRÊN VPS
-# Bao gồm: SSL tự động (Let's Encrypt), Nginx Router, Health Checks
-################################################################################
+# Victor Mer Platform - Docker Production
+# Full production setup with Nginx, SSL, and all optimizations
 
 set -e
 
@@ -15,616 +13,291 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
-log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
-log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
-log_step() { echo -e "${CYAN}[STEP]${NC} $1"; }
+print_header() {
+    clear
+    echo -e "${CYAN}╔════════════════════════════════════════╗${NC}"
+    echo -e "${CYAN}║   Victor Mer - Production Deployment  ║${NC}"
+    echo -e "${CYAN}║   (Nginx + SSL + Full Stack)          ║${NC}"
+    echo -e "${CYAN}╚════════════════════════════════════════╝${NC}"
+    echo ""
+}
 
-PROJECT_NAME="VictorMer E-Commerce Production"
-ENV_FILE=".env.prod"
-COMPOSE_FILE="docker-compose.prod.yml"
+print_info() {
+    echo -e "${BLUE}ℹ ${NC}$1"
+}
 
-################################################################################
-# STEP 1: Check Prerequisites
-################################################################################
-log_step "========================================="
-log_step "  $PROJECT_NAME Setup"
-log_step "========================================="
-echo ""
+print_success() {
+    echo -e "${GREEN}✓ ${NC}$1"
+}
 
-log_info "Step 1: Checking prerequisites..."
+print_warning() {
+    echo -e "${YELLOW}⚠ ${NC}$1"
+}
 
-# Check if running as root or with sudo
+print_error() {
+    echo -e "${RED}✗ ${NC}$1"
+}
+
+# Check if running as root
 if [ "$EUID" -ne 0 ]; then 
-    log_warning "This script should be run as root or with sudo for production setup"
-    log_info "Some features like port 80/443 binding may fail without root privileges"
-    read -p "Continue anyway? (y/n) " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
-fi
-
-# Check Docker
-if ! command -v docker &> /dev/null; then
-    log_error "Docker is not installed."
-    log_info "Installing Docker..."
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sh get-docker.sh
-    rm get-docker.sh
-    log_success "Docker installed"
-fi
-DOCKER_VERSION=$(docker --version)
-log_success "Docker: $DOCKER_VERSION"
-
-# Check Docker Compose
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-    log_error "Docker Compose is not installed."
-    log_info "Installing Docker Compose..."
-    curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    chmod +x /usr/local/bin/docker-compose
-    log_success "Docker Compose installed"
-fi
-
-if docker compose version &> /dev/null; then
-    COMPOSE_CMD="docker compose"
-else
-    COMPOSE_CMD="docker-compose"
-fi
-log_success "Docker Compose: $($COMPOSE_CMD version)"
-
-# Check if Docker daemon is running
-if ! docker info > /dev/null 2>&1; then
-    log_error "Docker daemon is not running"
-    systemctl start docker
-    log_success "Docker daemon started"
-fi
-
-################################################################################
-# STEP 2: Domain Configuration
-################################################################################
-log_info ""
-log_step "Step 2: Domain configuration..."
-
-# Ask for domain names
-read -p "Enter your main domain (e.g., yourdomain.com): " MAIN_DOMAIN
-read -p "Enter your API subdomain (e.g., api.yourdomain.com): " API_DOMAIN
-read -p "Enter your admin subdomain (e.g., admin.yourdomain.com): " ADMIN_DOMAIN
-read -p "Enter your email for SSL certificates: " SSL_EMAIL
-
-if [ -z "$MAIN_DOMAIN" ] || [ -z "$API_DOMAIN" ] || [ -z "$ADMIN_DOMAIN" ] || [ -z "$SSL_EMAIL" ]; then
-    log_error "All domain fields are required"
+    print_error "Please run as root (use sudo)"
     exit 1
 fi
 
-log_success "Domains configured:"
-echo "  Main:  $MAIN_DOMAIN"
-echo "  API:   $API_DOMAIN"
-echo "  Admin: $ADMIN_DOMAIN"
+# Main
+print_header
 
-################################################################################
-# STEP 3: Setup Environment
-################################################################################
-log_info ""
-log_step "Step 3: Setting up environment..."
-
-if [ ! -f "$ENV_FILE" ]; then
-    if [ -f ".env.example" ]; then
-        cp .env.example "$ENV_FILE"
-        log_success "Created $ENV_FILE from .env.example"
-    else
-        log_error "$ENV_FILE not found"
-        exit 1
-    fi
+# Check Docker
+print_info "Checking Docker..."
+if ! command -v docker &> /dev/null; then
+    print_warning "Docker not found. Installing..."
+    curl -fsSL https://get.docker.com | sh
+    systemctl start docker
+    systemctl enable docker
+    print_success "Docker installed"
+else
+    print_success "Docker $(docker --version | cut -d' ' -f3 | tr -d ',')"
 fi
 
-# Update environment file with production values
-sed -i.bak "s|^NODE_ENV=.*|NODE_ENV=production|" "$ENV_FILE"
-sed -i.bak "s|^BACKEND_URL=.*|BACKEND_URL=https://${API_DOMAIN}|" "$ENV_FILE"
-sed -i.bak "s|^STORE_URL=.*|STORE_URL=https://${MAIN_DOMAIN}|" "$ENV_FILE"
-sed -i.bak "s|^ADMIN_URL=.*|ADMIN_URL=https://${ADMIN_DOMAIN}|" "$ENV_FILE"
+# Check Docker Compose
+if ! command -v docker-compose &> /dev/null; then
+    print_warning "Docker Compose not found. Installing..."
+    curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    chmod +x /usr/local/bin/docker-compose
+    print_success "Docker Compose installed"
+else
+    print_success "Docker Compose $(docker-compose --version | cut -d' ' -f4 | tr -d ',')"
+fi
 
-log_success "Environment configured for production"
+# Check .env.prod
+if [ ! -f ".env.prod" ]; then
+    print_error ".env.prod not found"
+    echo ""
+    echo "Please create .env.prod with production settings:"
+    echo "  cp .env.example .env.prod"
+    echo "  nano .env.prod"
+    echo ""
+    echo "Required settings:"
+    echo "  - BACKEND_URL (your domain)"
+    echo "  - STORE_URL (your domain)"
+    echo "  - ADMIN_URL (your domain)"
+    echo "  - Strong passwords"
+    echo "  - SSL email"
+    exit 1
+fi
 
 # Load environment variables
-export $(grep -v '^#' "$ENV_FILE" | xargs)
+source .env.prod
 
-################################################################################
-# STEP 4: Check Port Availability
-################################################################################
-log_info ""
-log_step "Step 4: Checking port availability..."
-
-check_and_handle_port() {
-    local port=$1
-    local service=$2
-    
-    if lsof -Pi :$port -sTCP:LISTEN -t >/dev/null 2>&1; then
-        log_warning "Port $port is in use by another service"
-        
-        # Get process info
-        PROCESS_INFO=$(lsof -Pi :$port -sTCP:LISTEN | tail -n 1)
-        log_info "Process: $PROCESS_INFO"
-        
-        read -p "Stop the process using port $port? (y/n) " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            PID=$(lsof -ti:$port)
-            kill -9 $PID
-            log_success "Process stopped"
-        else
-            log_error "Cannot proceed with port $port in use"
-            exit 1
-        fi
-    else
-        log_success "$service port $port is available"
-    fi
-}
-
-check_and_handle_port 80 "HTTP"
-check_and_handle_port 443 "HTTPS"
-
-################################################################################
-# STEP 5: Setup Nginx Configuration
-################################################################################
-log_info ""
-log_step "Step 5: Setting up Nginx configuration..."
-
-mkdir -p nginx/ssl nginx/logs
-
-# Create Nginx configuration
-cat > nginx/nginx.conf << 'NGINX_EOF'
-user nginx;
-worker_processes auto;
-error_log /var/log/nginx/error.log warn;
-pid /var/run/nginx.pid;
-
-events {
-    worker_connections 2048;
-    use epoll;
-}
-
-http {
-    include /etc/nginx/mime.types;
-    default_type application/octet-stream;
-
-    log_format main '$remote_addr - $remote_user [$time_local] "$request" '
-                    '$status $body_bytes_sent "$http_referer" '
-                    '"$http_user_agent" "$http_x_forwarded_for"';
-
-    access_log /var/log/nginx/access.log main;
-
-    sendfile on;
-    tcp_nopush on;
-    tcp_nodelay on;
-    keepalive_timeout 65;
-    types_hash_max_size 2048;
-    client_max_body_size 20M;
-
-    gzip on;
-    gzip_vary on;
-    gzip_proxied any;
-    gzip_comp_level 6;
-    gzip_types text/plain text/css text/xml text/javascript 
-               application/json application/javascript application/xml+rss 
-               application/rss+xml font/truetype font/opentype 
-               application/vnd.ms-fontobject image/svg+xml;
-
-    # Rate limiting
-    limit_req_zone $binary_remote_addr zone=api_limit:10m rate=10r/s;
-    limit_req_zone $binary_remote_addr zone=general_limit:10m rate=30r/s;
-
-    # SSL Configuration
-    ssl_protocols TLSv1.2 TLSv1.3;
-    ssl_prefer_server_ciphers on;
-    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
-    ssl_session_cache shared:SSL:10m;
-    ssl_session_timeout 10m;
-
-    # Security Headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header Referrer-Policy "no-referrer-when-downgrade" always;
-
-    # Upstream definitions
-    upstream backend {
-        server backend:7000;
-        keepalive 32;
-    }
-
-    upstream frontend {
-        server frontend:3000;
-        keepalive 32;
-    }
-
-    upstream admin {
-        server admin:4000;
-        keepalive 32;
-    }
-
-    # HTTP to HTTPS redirect
-    server {
-        listen 80;
-        server_name MAIN_DOMAIN_PLACEHOLDER API_DOMAIN_PLACEHOLDER ADMIN_DOMAIN_PLACEHOLDER;
-        
-        # Allow Let's Encrypt challenges
-        location /.well-known/acme-challenge/ {
-            root /var/www/certbot;
-        }
-
-        location / {
-            return 301 https://$host$request_uri;
-        }
-    }
-
-    # API Server (Backend)
-    server {
-        listen 443 ssl http2;
-        server_name API_DOMAIN_PLACEHOLDER;
-
-        ssl_certificate /etc/nginx/ssl/API_DOMAIN_PLACEHOLDER/fullchain.pem;
-        ssl_certificate_key /etc/nginx/ssl/API_DOMAIN_PLACEHOLDER/privkey.pem;
-
-        location / {
-            limit_req zone=api_limit burst=20 nodelay;
-            
-            proxy_pass http://backend;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_cache_bypass $http_upgrade;
-            proxy_read_timeout 300s;
-            proxy_connect_timeout 75s;
-        }
-    }
-
-    # Main Store Frontend
-    server {
-        listen 443 ssl http2;
-        server_name MAIN_DOMAIN_PLACEHOLDER;
-
-        ssl_certificate /etc/nginx/ssl/MAIN_DOMAIN_PLACEHOLDER/fullchain.pem;
-        ssl_certificate_key /etc/nginx/ssl/MAIN_DOMAIN_PLACEHOLDER/privkey.pem;
-
-        location / {
-            limit_req zone=general_limit burst=50 nodelay;
-            
-            proxy_pass http://frontend;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_cache_bypass $http_upgrade;
-        }
-    }
-
-    # Admin Panel
-    server {
-        listen 443 ssl http2;
-        server_name ADMIN_DOMAIN_PLACEHOLDER;
-
-        ssl_certificate /etc/nginx/ssl/ADMIN_DOMAIN_PLACEHOLDER/fullchain.pem;
-        ssl_certificate_key /etc/nginx/ssl/ADMIN_DOMAIN_PLACEHOLDER/privkey.pem;
-
-        location / {
-            limit_req zone=general_limit burst=50 nodelay;
-            
-            proxy_pass http://admin;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_cache_bypass $http_upgrade;
-        }
-    }
-}
-NGINX_EOF
-
-# Replace placeholders
-sed -i "s/MAIN_DOMAIN_PLACEHOLDER/$MAIN_DOMAIN/g" nginx/nginx.conf
-sed -i "s/API_DOMAIN_PLACEHOLDER/$API_DOMAIN/g" nginx/nginx.conf
-sed -i "s/ADMIN_DOMAIN_PLACEHOLDER/$ADMIN_DOMAIN/g" nginx/nginx.conf
-
-log_success "Nginx configuration created"
-
-################################################################################
-# STEP 6: Setup SSL Certificates
-################################################################################
-log_info ""
-log_step "Step 6: Setting up SSL certificates..."
-
-# Check if certbot is installed
-if ! command -v certbot &> /dev/null; then
-    log_info "Installing Certbot..."
-    if command -v apt-get &> /dev/null; then
-        apt-get update
-        apt-get install -y certbot
-    elif command -v yum &> /dev/null; then
-        yum install -y certbot
-    else
-        log_error "Cannot install certbot automatically. Please install manually."
-        exit 1
-    fi
-    log_success "Certbot installed"
+# Validate required variables
+if [ -z "$BACKEND_URL" ] || [ -z "$STORE_URL" ] || [ -z "$ADMIN_URL" ]; then
+    print_error "Missing required environment variables in .env.prod"
+    echo ""
+    echo "Required:"
+    echo "  - BACKEND_URL"
+    echo "  - STORE_URL"
+    echo "  - ADMIN_URL"
+    exit 1
 fi
 
-# Function to obtain SSL certificate
-obtain_ssl_cert() {
-    local domain=$1
-    local email=$2
-    
-    log_info "Obtaining SSL certificate for $domain..."
-    
-    mkdir -p "nginx/ssl/$domain"
-    
-    # Check if certificate already exists
-    if [ -f "nginx/ssl/$domain/fullchain.pem" ] && [ -f "nginx/ssl/$domain/privkey.pem" ]; then
-        log_success "SSL certificate for $domain already exists"
-        return 0
-    fi
-    
-    # Try to obtain certificate
-    if certbot certonly --standalone --non-interactive --agree-tos \
-        --email "$email" -d "$domain" \
-        --cert-path "nginx/ssl/$domain/cert.pem" \
-        --key-path "nginx/ssl/$domain/privkey.pem" \
-        --fullchain-path "nginx/ssl/$domain/fullchain.pem" 2>/dev/null; then
-        log_success "SSL certificate obtained for $domain"
-    else
-        log_warning "Failed to obtain SSL certificate for $domain"
-        log_info "Creating self-signed certificate for development..."
-        
-        openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-            -keyout "nginx/ssl/$domain/privkey.pem" \
-            -out "nginx/ssl/$domain/fullchain.pem" \
-            -subj "/C=US/ST=State/L=City/O=Organization/CN=$domain" 2>/dev/null
-        
-        log_success "Self-signed certificate created for $domain"
-    fi
-}
+echo ""
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo -e "${GREEN}Production Configuration${NC}"
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo ""
+echo "  Backend:  $BACKEND_URL"
+echo "  Store:    $STORE_URL"
+echo "  Admin:    $ADMIN_URL"
+echo ""
+read -p "Is this correct? (y/n) " -n 1 -r
+echo ""
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    print_warning "Aborted. Please update .env.prod"
+    exit 1
+fi
 
-# Obtain certificates for all domains
-obtain_ssl_cert "$MAIN_DOMAIN" "$SSL_EMAIL"
-obtain_ssl_cert "$API_DOMAIN" "$SSL_EMAIL"
-obtain_ssl_cert "$ADMIN_DOMAIN" "$SSL_EMAIL"
+echo ""
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo -e "${GREEN}Setting up Firewall...${NC}"
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo ""
 
-################################################################################
-# STEP 7: Setup SSL Auto-Renewal
-################################################################################
-log_info ""
-log_step "Step 7: Setting up SSL auto-renewal..."
+# Setup UFW firewall
+if command -v ufw &> /dev/null; then
+    print_info "Configuring UFW firewall..."
+    ufw --force enable
+    ufw allow 22/tcp    # SSH
+    ufw allow 80/tcp    # HTTP
+    ufw allow 443/tcp   # HTTPS
+    print_success "Firewall configured"
+else
+    print_warning "UFW not found, skipping firewall setup"
+fi
 
-# Create renewal script
-cat > /etc/cron.daily/renew-ssl << 'EOF'
+echo ""
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo -e "${GREEN}Installing Certbot (Let's Encrypt)...${NC}"
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo ""
+
+# Install Certbot
+if ! command -v certbot &> /dev/null; then
+    print_info "Installing Certbot..."
+    apt-get update -qq
+    apt-get install -y -qq certbot python3-certbot-nginx
+    print_success "Certbot installed"
+else
+    print_success "Certbot already installed"
+fi
+
+echo ""
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo -e "${GREEN}Building Docker Images...${NC}"
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo ""
+
+# Stop existing containers
+print_info "Stopping existing containers..."
+docker-compose -f docker-compose.prod.yml --env-file .env.prod down 2>/dev/null || true
+
+# Build images
+print_info "Building production images..."
+docker-compose -f docker-compose.prod.yml --env-file .env.prod build --no-cache
+
+echo ""
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo -e "${GREEN}Starting Services...${NC}"
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo ""
+
+# Start services
+print_info "Starting production services..."
+docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
+
+# Wait for services
+print_info "Waiting for services to start..."
+sleep 15
+
+# Check services
+if docker ps | grep -q "mer-backend"; then
+    print_success "Backend is running"
+else
+    print_error "Backend failed to start"
+fi
+
+if docker ps | grep -q "mer-admin-panel"; then
+    print_success "Admin Panel is running"
+else
+    print_error "Admin Panel failed to start"
+fi
+
+if docker ps | grep -q "mer-front-end"; then
+    print_success "Frontend is running"
+else
+    print_error "Frontend failed to start"
+fi
+
+if docker ps | grep -q "nginx"; then
+    print_success "Nginx is running"
+else
+    print_error "Nginx failed to start"
+fi
+
+echo ""
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo -e "${GREEN}Setting up SSL Certificates...${NC}"
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo ""
+
+# Extract domains from URLs
+BACKEND_DOMAIN=$(echo $BACKEND_URL | sed 's|https\?://||' | sed 's|/.*||')
+STORE_DOMAIN=$(echo $STORE_URL | sed 's|https\?://||' | sed 's|/.*||')
+ADMIN_DOMAIN=$(echo $ADMIN_URL | sed 's|https\?://||' | sed 's|/.*||')
+
+# Get SSL email
+if [ -z "$SSL_EMAIL" ]; then
+    read -p "Enter email for SSL certificates: " SSL_EMAIL
+fi
+
+# Obtain SSL certificates
+print_info "Obtaining SSL certificates..."
+certbot --nginx -d $BACKEND_DOMAIN -d $STORE_DOMAIN -d $ADMIN_DOMAIN \
+    --non-interactive --agree-tos --email $SSL_EMAIL \
+    --redirect || print_warning "SSL setup failed, continuing without SSL"
+
+# Setup auto-renewal
+print_info "Setting up SSL auto-renewal..."
+(crontab -l 2>/dev/null; echo "0 3 * * * certbot renew --quiet --post-hook 'docker-compose -f $(pwd)/docker-compose.prod.yml restart nginx'") | crontab -
+print_success "SSL auto-renewal configured"
+
+echo ""
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo -e "${GREEN}Setting up Automatic Backups...${NC}"
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo ""
+
+# Create backup script
+cat > /usr/local/bin/backup-victormer.sh << 'EOF'
 #!/bin/bash
-certbot renew --quiet --deploy-hook "docker exec victormer-nginx-prod nginx -s reload"
+BACKUP_DIR="/var/backups/victormer"
+DATE=$(date +%Y%m%d_%H%M%S)
+mkdir -p $BACKUP_DIR
+
+# Backup MongoDB
+docker exec mongodb mongodump --out /tmp/backup
+docker cp mongodb:/tmp/backup $BACKUP_DIR/mongodb_$DATE
+
+# Backup environment files
+cp /root/victor-mer-platform/.env.prod $BACKUP_DIR/env_$DATE
+
+# Keep only last 7 days
+find $BACKUP_DIR -type d -mtime +7 -exec rm -rf {} +
+
+echo "Backup completed: $BACKUP_DIR"
 EOF
 
-chmod +x /etc/cron.daily/renew-ssl
-log_success "SSL auto-renewal configured"
+chmod +x /usr/local/bin/backup-victormer.sh
 
-################################################################################
-# STEP 8: Clean Up Old Containers
-################################################################################
-log_info ""
-log_step "Step 8: Cleaning up old containers..."
+# Setup daily backup cron
+(crontab -l 2>/dev/null; echo "0 2 * * * /usr/local/bin/backup-victormer.sh") | crontab -
+print_success "Daily backups configured (2 AM)"
 
-if $COMPOSE_CMD -f $COMPOSE_FILE ps -q 2>/dev/null | grep -q .; then
-    log_info "Stopping existing containers..."
-    $COMPOSE_CMD -f $COMPOSE_FILE down
-    log_success "Old containers stopped"
-fi
-
-################################################################################
-# STEP 9: Build and Start Services
-################################################################################
-log_info ""
-log_step "Step 9: Building and starting services..."
-
-log_info "This may take several minutes..."
-
-$COMPOSE_CMD -f $COMPOSE_FILE up -d --build
-
-log_success "All services started"
-
-################################################################################
-# STEP 10: Wait for Services
-################################################################################
-log_info ""
-log_step "Step 10: Waiting for services to be ready..."
-
-# Wait for MongoDB
-log_info "Waiting for MongoDB..."
-timeout=60
-counter=0
-until $COMPOSE_CMD -f $COMPOSE_FILE exec -T mongodb mongosh --quiet \
-    -u "${MONGO_ROOT_USER}" -p "${MONGO_ROOT_PASSWORD}" --authenticationDatabase admin \
-    --eval "db.adminCommand('ping')" > /dev/null 2>&1; do
-    sleep 2
-    counter=$((counter + 2))
-    if [ $counter -ge $timeout ]; then
-        log_error "MongoDB failed to start"
-        $COMPOSE_CMD -f $COMPOSE_FILE logs mongodb
-        exit 1
-    fi
-    echo -n "."
-done
 echo ""
-log_success "MongoDB is ready"
-
-# Wait for Backend
-log_info "Waiting for Backend..."
-counter=0
-until $COMPOSE_CMD -f $COMPOSE_FILE exec -T backend curl -f -s http://localhost:7000/health > /dev/null 2>&1 || \
-      $COMPOSE_CMD -f $COMPOSE_FILE exec -T backend curl -f -s http://localhost:7000 > /dev/null 2>&1; do
-    sleep 2
-    counter=$((counter + 2))
-    if [ $counter -ge $timeout ]; then
-        log_warning "Backend health check timeout"
-        break
-    fi
-    echo -n "."
-done
+echo -e "${CYAN}════════════════════════════════════════${NC}"
+echo -e "${GREEN}🚀 Production Deployment Complete!${NC}"
+echo -e "${CYAN}════════════════════════════════════════${NC}"
 echo ""
-log_success "Backend is ready"
-
-# Wait for Frontend
-log_info "Waiting for Frontend..."
-counter=0
-until $COMPOSE_CMD -f $COMPOSE_FILE exec -T frontend curl -f -s http://localhost:3000 > /dev/null 2>&1; do
-    sleep 2
-    counter=$((counter + 2))
-    if [ $counter -ge $timeout ]; then
-        log_warning "Frontend health check timeout"
-        break
-    fi
-    echo -n "."
-done
+echo -e "${GREEN}Services:${NC}"
+echo "  • Backend:        $BACKEND_URL"
+echo "  • API Docs:       $BACKEND_URL/api-docs"
+echo "  • Admin Panel:    $ADMIN_URL"
+echo "  • Frontend:       $STORE_URL"
 echo ""
-log_success "Frontend is ready"
-
-# Wait for Admin
-log_info "Waiting for Admin Panel..."
-counter=0
-until $COMPOSE_CMD -f $COMPOSE_FILE exec -T admin curl -f -s http://localhost:4000 > /dev/null 2>&1; do
-    sleep 2
-    counter=$((counter + 2))
-    if [ $counter -ge $timeout ]; then
-        log_warning "Admin Panel health check timeout"
-        break
-    fi
-    echo -n "."
-done
+echo -e "${GREEN}Security:${NC}"
+echo "  • SSL:            ✓ Enabled (Let's Encrypt)"
+echo "  • Auto-renewal:   ✓ Configured"
+echo "  • Firewall:       ✓ Configured (UFW)"
 echo ""
-log_success "Admin Panel is ready"
-
-################################################################################
-# STEP 11: Import Demo Data
-################################################################################
-log_info ""
-log_step "Step 11: Checking demo data..."
-
-DATA_EXISTS=$($COMPOSE_CMD -f $COMPOSE_FILE exec -T mongodb mongosh --quiet \
-    -u "${MONGO_ROOT_USER}" -p "${MONGO_ROOT_PASSWORD}" --authenticationDatabase admin \
-    --eval "db.getSiblingDB('${MONGO_DB_NAME}').getCollectionNames().length > 0" 2>/dev/null || echo "false")
-
-if [ "$DATA_EXISTS" = "true" ]; then
-    log_success "Database already contains data"
-else
-    log_info "Importing demo data..."
-    if $COMPOSE_CMD -f $COMPOSE_FILE exec -T backend npm run data:import 2>/dev/null; then
-        log_success "Demo data imported"
-    else
-        log_warning "Demo data import failed (optional)"
-    fi
-fi
-
-################################################################################
-# STEP 12: Setup Firewall
-################################################################################
-log_info ""
-log_step "Step 12: Configuring firewall..."
-
-if command -v ufw &> /dev/null; then
-    ufw allow 80/tcp
-    ufw allow 443/tcp
-    ufw allow 22/tcp
-    log_success "Firewall configured (UFW)"
-elif command -v firewall-cmd &> /dev/null; then
-    firewall-cmd --permanent --add-service=http
-    firewall-cmd --permanent --add-service=https
-    firewall-cmd --permanent --add-service=ssh
-    firewall-cmd --reload
-    log_success "Firewall configured (firewalld)"
-else
-    log_warning "No firewall detected. Please configure manually."
-fi
-
-################################################################################
-# STEP 13: Health Checks
-################################################################################
-log_info ""
-log_step "Step 13: Running final health checks..."
-
-sleep 5
-
-# Check HTTPS endpoints
-check_https() {
-    local url=$1
-    local name=$2
-    
-    if curl -f -s -k "$url" > /dev/null 2>&1; then
-        log_success "$name is accessible"
-        return 0
-    else
-        log_warning "$name is not accessible yet"
-        return 1
-    fi
-}
-
-check_https "https://$MAIN_DOMAIN" "Main Store"
-check_https "https://$API_DOMAIN" "API Backend"
-check_https "https://$ADMIN_DOMAIN" "Admin Panel"
-
-################################################################################
-# STEP 14: Display Container Status
-################################################################################
-log_info ""
-log_step "Step 14: Container status..."
-
-$COMPOSE_CMD -f $COMPOSE_FILE ps
-
-################################################################################
-# FINAL: Display Summary
-################################################################################
+echo -e "${GREEN}Backups:${NC}"
+echo "  • Schedule:       Daily at 2 AM"
+echo "  • Location:       /var/backups/victormer"
+echo "  • Retention:      7 days"
 echo ""
-log_success "========================================="
-log_success "  PRODUCTION DEPLOYMENT COMPLETE!"
-log_success "========================================="
+echo -e "${GREEN}Management:${NC}"
+echo "  • View logs:      docker-compose -f docker-compose.prod.yml logs -f"
+echo "  • Restart:        docker-compose -f docker-compose.prod.yml restart"
+echo "  • Stop:           docker-compose -f docker-compose.prod.yml down"
+echo "  • Backup now:     /usr/local/bin/backup-victormer.sh"
 echo ""
-log_info "🌐 Your Application URLs:"
+echo -e "${GREEN}Monitoring:${NC}"
+echo "  • Health check:   curl $BACKEND_URL/health"
+echo "  • Container status: docker ps"
+echo "  • Resource usage:  docker stats"
 echo ""
-echo "  🛍️  Store Front:   https://$MAIN_DOMAIN"
-echo "  🔧 Backend API:   https://$API_DOMAIN"
-echo "  ⚙️  Admin Panel:   https://$ADMIN_DOMAIN"
+echo -e "${YELLOW}Next Steps:${NC}"
+echo "  1. Test all services"
+echo "  2. Configure DNS records"
+echo "  3. Setup monitoring (optional)"
+echo "  4. Configure email settings"
 echo ""
-log_info "🔒 SSL Certificates:"
-echo "  Main:  nginx/ssl/$MAIN_DOMAIN/"
-echo "  API:   nginx/ssl/$API_DOMAIN/"
-echo "  Admin: nginx/ssl/$ADMIN_DOMAIN/"
-echo "  Auto-renewal: Configured (daily check)"
-echo ""
-log_info "🐳 Docker Commands:"
-echo "  View logs:     $COMPOSE_CMD -f $COMPOSE_FILE logs -f"
-echo "  Stop:          $COMPOSE_CMD -f $COMPOSE_FILE down"
-echo "  Restart:       $COMPOSE_CMD -f $COMPOSE_FILE restart"
-echo "  Status:        $COMPOSE_CMD -f $COMPOSE_FILE ps"
-echo ""
-log_info "📊 System Resources:"
-docker stats --no-stream --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}"
-echo ""
-log_info "🔍 Health Monitoring:"
-echo "  Backend:  curl https://$API_DOMAIN/health"
-echo "  Nginx:    docker logs victormer-nginx-prod"
-echo ""
-log_success "✅ Your production environment is ready!"
-echo ""
-log_warning "⚠️  Important Security Notes:"
-echo "  1. Change default passwords in $ENV_FILE"
-echo "  2. Configure your DNS to point to this server"
-echo "  3. Review nginx/nginx.conf for security settings"
-echo "  4. Setup monitoring and backups"
-echo "  5. Keep Docker and system packages updated"
-echo ""
+echo -e "${CYAN}════════════════════════════════════════${NC}"

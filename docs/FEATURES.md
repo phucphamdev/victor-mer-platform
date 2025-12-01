@@ -245,89 +245,95 @@
 
 ## 🛠️ Development Tools
 
-### 1. Native Development (`run-native.sh`) ⚡
-**Fastest performance - No Docker overhead**
+### Unified Manager (`run.sh`) ⭐
+**One command for everything**
 
 ```bash
-./run-native.sh
+./run.sh
 ```
 
+**Interactive Menu (21 Options):**
+
+**🚀 Deployment Methods:**
+1. Native Development (⚡ Fastest - No Docker)
+2. Docker Local (🐳 Lightweight Testing)
+3. Docker Production (🌐 Full Stack + SSL)
+
+**🛠️ Development Tools:**
+4. Dev Manager (Interactive service management)
+5. Start All Services (Native)
+6. Stop All Services
+
+**📊 Monitoring:**
+7. View Logs (All)
+8. View Backend Logs
+9. View Admin Logs
+10. Service Status
+11. Health Check
+
+**🗄️ Database:**
+12. Start MongoDB
+13. Stop MongoDB
+14. MongoDB Shell
+15. Backup Database
+
+**🧪 Testing:**
+16. Test All APIs
+17. Test Specific API
+
+**🧹 Utilities:**
+18. Clean Install (All Dependencies)
+19. Clean Logs
+20. Clean Docker (Containers + Images)
+21. Update Project (Git Pull)
+
 **Features:**
-- Runs directly on your laptop
-- Auto-install dependencies
-- Auto-start MongoDB
-- Nodemon + Next.js Fast Refresh
-- Instant hot reload
-- Lowest resource usage
+- Color-coded output
+- Real-time status display
+- Auto port management
+- Graceful shutdown (Ctrl+C)
+- Error handling
+- Service health checks
 
 **Best for:**
-- Daily development
-- Quick testing
-- Debugging
-- Laptop with limited resources
+- All development tasks
+- Quick access to any operation
+- No need to remember commands
+- Guided workflow
 
-### 2. Docker Local (`run-docker-local.sh`) 🐳
-**Lightweight testing with easy cleanup**
+### Makefile (Advanced Users)
 
 ```bash
-./run-docker-local.sh
+make help       # Show all commands
+make dev        # Start development
+make prod       # Start production
+make logs       # View logs
+make clean      # Clean Docker
+make backup-db  # Backup database
 ```
 
-**Features:**
-- Isolated environment
-- Easy cleanup (docker-compose down)
-- Consistent across machines
-- No local dependencies needed
-- Quick start/stop
+**Available Commands:**
+- `make dev` - Start development environment
+- `make dev-build` - Build and start development
+- `make dev-logs` - Show development logs
+- `make dev-down` - Stop development
+- `make prod` - Start production environment
+- `make prod-build` - Build and start production
+- `make prod-logs` - Show production logs
+- `make prod-down` - Stop production
+- `make seed` - Import seed data
+- `make backup-db` - Backup MongoDB
+- `make restore-db` - Restore MongoDB
+- `make test-api` - Test API endpoints
+- `make health-check` - Check service health
+- `make swagger` - Open Swagger UI
+- `make clean` - Remove all Docker resources
 
 **Best for:**
-- Testing before deployment
-- Clean environment testing
-- Team collaboration
-- CI/CD testing
-
-### 3. Docker Production (`run-docker-production.sh`) 🌐
-**Full production setup with SSL**
-
-```bash
-sudo ./run-docker-production.sh
-```
-
-**Features:**
-- Nginx reverse proxy
-- Let's Encrypt SSL (auto-renewal)
-- UFW firewall configuration
-- Automatic backups (daily)
-- Production optimizations
-- Health monitoring
-
-**Best for:**
-- VPS deployment
-- Production environment
-- Public-facing websites
-- SSL/HTTPS required
-
-### 4. Unified Dev Manager (`dev.sh`)
-**Interactive menu for all operations**
-
-```bash
-./dev.sh
-```
-
-**Features:**
-- Interactive menu (19 options)
-- Start/stop services individually
-- Live log viewing
-- MongoDB management
-- Health checks & testing
-- Clean install utilities
-- Service status monitoring
-
-**Best for:**
-- Managing multiple services
-- Debugging specific services
-- Log monitoring
-- Database operations
+- CI/CD pipelines
+- Automation scripts
+- Advanced users
+- Quick commands
 
 ## 🔄 Upcoming Features
 
