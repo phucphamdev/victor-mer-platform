@@ -1,0 +1,151 @@
+# Docker Compose Optimized Version
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: victormer-mongodb-dev
+    restart: unless-stopped
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    networks:
+      - victormer-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    # Tối ưu MongoDB
+    command: >
+      mongod 
+      --wiredTigerCacheSizeGB 1
+      --wiredTigerCollectionBlockCompressor snappy
+      --slowms 100
+      --profile 1
+
+  redis:
+    image: redis:7-alpine
+    container_name: victormer-redis-dev
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - victormer-network
+    command: >
+      redis-server 
+      --appendonly yes 
+      --maxmemory 512mb 
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  backend:
+    build:
+      context: ./mer-backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: victormer-backend-dev
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-7000}:7000"
+    environment:
+      PORT: 7000
+      NODE_ENV: ${NODE_ENV:-development}
+      MONGO_URI: mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017/${MONGO_DB_NAME}?authSource=admin
+      REDIS_URL: redis://redis:6379
+      TOKEN_SECRET: ${TOKEN_SECRET}
+      JWT_SECRET_FOR_VERIFY: ${JWT_SECRET_FOR_VERIFY}
+      SERVICE: ${EMAIL_SERVICE}
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASS: ${EMAIL_PASS}
+      HOST: ${EMAIL_HOST}
+      EMAIL_PORT: ${EMAIL_PORT}
+      CLOUDINARY_NAME: ${CLOUDINARY_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+      CLOUDINARY_UPLOAD_PRESET: ${CLOUDINARY_UPLOAD_PRESET}
+      STRIPE_KEY: ${STRIPE_KEY}
+      STORE_URL: ${STORE_URL}
+      ADMIN_URL: ${ADMIN_URL}
+    volumes:
+      - ./mer-backend:/app
+      - /app/node_modules
+    depends_on:
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - victormer-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./mer-front-end
+      dockerfile: Dockerfile
+      target: development
+    container_name: victormer-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3500}:3000"
+    environment:
+      NEXT_PUBLIC_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      NEXT_PUBLIC_STRIPE_KEY: ${STRIPE_PUBLIC_KEY}
+      NEXT_PUBLIC_API_BASE_URL: ${BACKEND_URL}
+      # Tối ưu Next.js
+      NEXT_TELEMETRY_DISABLED: 1
+    volumes:
+      - ./mer-front-end:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - victormer-network
+
+  admin:
+    build:
+      context: ./mer-admin-panel
+      dockerfile: Dockerfile
+      target: development
+    container_name: victormer-admin-dev
+    restart: unless-stopped
+    ports:
+      - "${ADMIN_PORT:-4000}:4000"
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${BACKEND_URL}
+      NEXT_TELEMETRY_DISABLED: 1
+    volumes:
+      - ./mer-admin-panel:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - victormer-network
+
+networks:
+  victormer-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+  mongodb_config:
+  redis_data:

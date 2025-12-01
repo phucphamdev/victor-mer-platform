@@ -1,0 +1,147 @@
+const express = require('express');
+const router = express.Router();
+const {
+  addCoupon,
+  addAllCoupon,
+  getAllCoupons,
+  getCouponById,
+  updateCoupon,
+  deleteCoupon,
+} = require('../controller/coupon.controller');
+const verifyToken = require('../middleware/verifyToken');
+const authorization = require('../middleware/authorization');
+
+/**
+ * @swagger
+ * tags:
+ *   name: Coupon
+ *   description: Coupon management
+ */
+
+/**
+ * @swagger
+ * /api/coupon:
+ *   post:
+ *     summary: Add a new coupon
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - code
+ *               - discount
+ *             properties:
+ *               code:
+ *                 type: string
+ *               discount:
+ *                 type: number
+ *               expiryDate:
+ *                 type: string
+ *                 format: date
+ *     responses:
+ *       201:
+ *         description: Coupon created successfully
+ *   get:
+ *     summary: Get all coupons
+ *     tags: [Coupon]
+ *     responses:
+ *       200:
+ *         description: List of coupons
+ */
+router.post('/', verifyToken, authorization('admin'), addCoupon);
+router.get('/', getAllCoupons);
+
+/**
+ * @swagger
+ * /api/coupon/bulk:
+ *   post:
+ *     summary: Add multiple coupons
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: array
+ *             items:
+ *               type: object
+ *     responses:
+ *       201:
+ *         description: Coupons created successfully
+ */
+router.post('/bulk', verifyToken, authorization('admin'), addAllCoupon);
+
+/**
+ * @swagger
+ * /api/coupon/{id}:
+ *   get:
+ *     summary: Get coupon by ID
+ *     tags: [Coupon]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon details
+ *       404:
+ *         description: Coupon not found
+ */
+router.get('/:id', getCouponById);
+
+/**
+ * @swagger
+ * /api/coupon/{id}:
+ *   patch:
+ *     summary: Update coupon
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *     responses:
+ *       200:
+ *         description: Coupon updated successfully
+ */
+router.patch('/:id', verifyToken, authorization('admin'), updateCoupon);
+
+/**
+ * @swagger
+ * /api/coupon/{id}:
+ *   delete:
+ *     summary: Delete coupon
+ *     tags: [Coupon]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Coupon deleted successfully
+ */
+router.delete('/:id', verifyToken, authorization('admin'), deleteCoupon);
+
+module.exports = router;

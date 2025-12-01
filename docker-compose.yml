@@ -25,7 +25,7 @@ services:
 
   backend:
     build:
-      context: ./shofy-backend
+      context: ./mer-backend
       dockerfile: Dockerfile
       target: development
     container_name: victormer-backend-dev
@@ -51,7 +51,7 @@ services:
       STORE_URL: ${STORE_URL}
       ADMIN_URL: ${ADMIN_URL}
     volumes:
-      - ./shofy-backend:/app
+      - ./mer-backend:/app
       - /app/node_modules
     depends_on:
       mongodb:
@@ -66,7 +66,7 @@ services:
 
   frontend:
     build:
-      context: ./shofy-front-end
+      context: ./mer-front-end
       dockerfile: Dockerfile
       target: development
     container_name: victormer-frontend-dev
@@ -78,7 +78,7 @@ services:
       NEXT_PUBLIC_STRIPE_KEY: ${STRIPE_PUBLIC_KEY}
       NEXT_PUBLIC_API_BASE_URL: ${BACKEND_URL}
     volumes:
-      - ./shofy-front-end:/app
+      - ./mer-front-end:/app
       - /app/node_modules
       - /app/.next
     depends_on:
@@ -86,19 +86,39 @@ services:
     networks:
       - victormer-network
 
-  admin:
+  admin-v1:
     build:
-      context: ./shofy-admin-panel
+      context: ./mer-admin-panel-v1
       dockerfile: Dockerfile
       target: development
-    container_name: victormer-admin-dev
+    container_name: victormer-admin-v1-dev
     restart: unless-stopped
     ports:
-      - "${ADMIN_PORT:-4000}:4000"
+      - "${ADMIN_V1_PORT:-4000}:4000"
     environment:
       NEXT_PUBLIC_API_BASE_URL: ${BACKEND_URL}
     volumes:
-      - ./shofy-admin-panel:/app
+      - ./mer-admin-panel-v1:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    networks:
+      - victormer-network
+
+  admin-v2:
+    build:
+      context: ./mer-admin-panel-v2
+      dockerfile: Dockerfile
+      target: development
+    container_name: victormer-admin-v2-dev
+    restart: unless-stopped
+    ports:
+      - "${ADMIN_V2_PORT:-4100}:4100"
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${BACKEND_URL}
+    volumes:
+      - ./mer-admin-panel-v2:/app
       - /app/node_modules
       - /app/.next
     depends_on:
