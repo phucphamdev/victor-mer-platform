@@ -516,19 +516,26 @@ victor-mer-platform/
 
 ## 🛠️ Các lệnh thường dùng
 
-### 🎯 Deployment Scripts
+### 🎯 Unified Management Console
 
 ```bash
-# Deployment
-./run-local-native.sh          # Native (no Docker)
-./run-docker-local.sh          # Docker local
-sudo ./run-docker-production.sh # Production with SSL
+# Run the interactive management console
+./manage.sh
+```
 
-# Utilities
-./health-check.sh              # Health monitoring
-./backup.sh                    # Database backup
-./restore.sh                   # Database restore
-./setup-cron-backup.sh         # Auto backup setup
+The management console provides:
+- 🚀 Deployment Management (Docker, Native, Production)
+- 🧪 Testing & API Tests
+- 🔧 Maintenance & Backup
+- 📋 Makefile Commands
+- ⚡ Quick Actions
+
+All scripts are organized in `scripts/` directory:
+```
+scripts/
+├── deployment/    # Deployment scripts
+├── testing/       # API testing scripts
+└── maintenance/   # Backup & monitoring scripts
 ```
 
 📖 **Full Guide**: [docs/DEPLOYMENT_SCRIPTS.md](./docs/DEPLOYMENT_SCRIPTS.md)

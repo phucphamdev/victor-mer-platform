@@ -1,12 +1,46 @@
 # Deployment Scripts Documentation
 
+## 🎯 Unified Management System
+
+The platform now uses a **centralized management script** (`manage.sh`) that provides an interactive menu to access all deployment, testing, and maintenance operations. All individual scripts are organized in the `scripts/` directory.
+
+### Quick Start
+
+```bash
+# Run the unified management console
+./manage.sh
+```
+
+## 📁 Script Organization
+
+```
+scripts/
+├── deployment/          # Deployment scripts
+│   ├── run-docker-local.sh
+│   ├── run-docker-production.sh
+│   ├── run-local-native.sh
+│   ├── stop-local-native.sh
+│   ├── start-fresh.sh
+│   └── generate-secrets.sh
+├── testing/            # Testing scripts
+│   ├── test-api.sh
+│   ├── test-shipment-api.sh
+│   ├── test-collection-api.sh
+│   └── restart-and-test.sh
+└── maintenance/        # Maintenance scripts
+    ├── backup.sh
+    ├── restore.sh
+    ├── health-check.sh
+    └── setup-cron-backup.sh
+```
+
 ## 📜 Available Scripts
 
-The platform provides **8 automated scripts** for deployment, monitoring, and maintenance:
+The platform provides automated scripts for deployment, monitoring, and maintenance:
 
 ### 🚀 Deployment Scripts
 
-#### 1. `run-local-native.sh` - Native Deployment (No Docker)
+#### 1. `scripts/deployment/run-local-native.sh` - Native Deployment (No Docker)
 Run directly on laptop without Docker.
 
 **Features**:
@@ -22,17 +56,27 @@ Run directly on laptop without Docker.
 
 **Usage**:
 ```bash
-./run-local-native.sh
+# Via manage.sh (recommended)
+./manage.sh
+# Select: 1 (Deployment) → 3 (Start Native Local)
+
+# Or directly
+./scripts/deployment/run-local-native.sh
 ```
 
 **Stop**:
 ```bash
-./stop-local-native.sh
+# Via manage.sh
+./manage.sh
+# Select: 1 (Deployment) → 4 (Stop Native Local)
+
+# Or directly
+./scripts/deployment/stop-local-native.sh
 ```
 
 ---
 
-#### 2. `run-docker-local.sh` - Docker Compose Local
+#### 2. `scripts/deployment/run-docker-local.sh` - Docker Compose Local
 Run with Docker Compose for easy testing.
 
 **Features**:
@@ -48,12 +92,20 @@ Run with Docker Compose for easy testing.
 
 **Usage**:
 ```bash
-./run-docker-local.sh
+# Via manage.sh (recommended)
+./manage.sh
+# Select: 1 (Deployment) → 1 (Start Docker Local)
+
+# Or directly
+./scripts/deployment/run-docker-local.sh
+
+# Or via Makefile
+make dev
 ```
 
 ---
 
-#### 3. `run-docker-production.sh` - Production VPS Deployment
+#### 3. `scripts/deployment/run-docker-production.sh` - Production VPS Deployment
 Deploy to production VPS with SSL and Nginx.
 
 **Features**:
@@ -74,7 +126,15 @@ Deploy to production VPS with SSL and Nginx.
 
 **Usage**:
 ```bash
-sudo ./run-docker-production.sh
+# Via manage.sh (recommended)
+sudo ./manage.sh
+# Select: 1 (Deployment) → 2 (Start Docker Production)
+
+# Or directly
+sudo ./scripts/deployment/run-docker-production.sh
+
+# Or via Makefile
+make prod
 ```
 
 **Requirements**:
@@ -86,7 +146,7 @@ sudo ./run-docker-production.sh
 
 ### 🛠️ Utility Scripts
 
-#### 4. `health-check.sh` - Health Monitoring
+#### 4. `scripts/maintenance/health-check.sh` - Health Monitoring
 Check status of all services.
 
 **Checks**:
@@ -102,12 +162,20 @@ Check status of all services.
 
 **Usage**:
 ```bash
-./health-check.sh
+# Via manage.sh (recommended)
+./manage.sh
+# Select: 3 (Maintenance) → 3 (Health Check)
+
+# Or directly
+./scripts/maintenance/health-check.sh
+
+# Or via Makefile
+make health-check
 ```
 
 ---
 
-#### 5. `backup.sh` - Database Backup
+#### 5. `scripts/maintenance/backup.sh` - Database Backup
 Backup MongoDB and configuration files.
 
 **Backups**:
@@ -119,14 +187,22 @@ Backup MongoDB and configuration files.
 
 **Usage**:
 ```bash
-./backup.sh
+# Via manage.sh (recommended)
+./manage.sh
+# Select: 3 (Maintenance) → 1 (Backup Database)
+
+# Or directly
+./scripts/maintenance/backup.sh
+
+# Or via Makefile
+make backup-db
 ```
 
 **Output**: `backups/backup-YYYYMMDD_HHMMSS.gz`
 
 ---
 
-#### 6. `restore.sh` - Database Restore
+#### 6. `scripts/maintenance/restore.sh` - Database Restore
 Restore database from backup.
 
 **Features**:
@@ -140,12 +216,20 @@ Restore database from backup.
 
 **Usage**:
 ```bash
-./restore.sh
+# Via manage.sh (recommended)
+./manage.sh
+# Select: 3 (Maintenance) → 2 (Restore Database)
+
+# Or directly
+./scripts/maintenance/restore.sh
+
+# Or via Makefile
+make restore-db BACKUP=backup-20231201-120000
 ```
 
 ---
 
-#### 7. `setup-cron-backup.sh` - Auto Backup Setup
+#### 7. `scripts/maintenance/setup-cron-backup.sh` - Auto Backup Setup
 Setup automatic backup with cron.
 
 **Features**:
@@ -158,7 +242,12 @@ Setup automatic backup with cron.
 
 **Usage**:
 ```bash
-./setup-cron-backup.sh
+# Via manage.sh (recommended)
+./manage.sh
+# Select: 3 (Maintenance) → 4 (Setup Auto Backup)
+
+# Or directly
+./scripts/maintenance/setup-cron-backup.sh
 ```
 
 **Options**:
@@ -170,7 +259,58 @@ Setup automatic backup with cron.
 
 ---
 
-#### 8. `stop-local-native.sh` - Stop Native Services
+### 🧪 Testing Scripts
+
+#### 8. `scripts/testing/test-api.sh` - Test All APIs
+Test all API endpoints with authentication.
+
+**Usage**:
+```bash
+# Via manage.sh (recommended)
+./manage.sh
+# Select: 2 (Testing) → 1 (Test All APIs)
+
+# Or directly
+./scripts/testing/test-api.sh
+```
+
+#### 9. `scripts/testing/test-shipment-api.sh` - Test Shipment API
+Test shipment-specific endpoints.
+
+**Usage**:
+```bash
+./manage.sh
+# Select: 2 (Testing) → 2 (Test Shipment API)
+```
+
+#### 10. `scripts/testing/test-collection-api.sh` - Test Collection API
+Test collection and category endpoints.
+
+**Usage**:
+```bash
+./manage.sh
+# Select: 2 (Testing) → 3 (Test Collection API)
+```
+
+### 🔧 Utility Scripts
+
+#### 11. `scripts/deployment/generate-secrets.sh` - Generate Security Secrets
+Generate secure credentials for production.
+
+**Usage**:
+```bash
+./manage.sh
+# Select: 1 (Deployment) → 6 (Generate Security Secrets)
+```
+
+#### 12. `scripts/deployment/start-fresh.sh` - Clean Start
+Clean all Docker resources and start fresh.
+
+**Usage**:
+```bash
+./manage.sh
+# Select: 1 (Deployment) → 5 (Start Fresh)
+```
 Stop all native services.
 
 **Features**:
@@ -179,10 +319,58 @@ Stop all native services.
 - ✅ Cleanup PID files
 - ✅ Optional MongoDB stop
 
-**Usage**:
-```bash
-./stop-local-native.sh
-```
+---
+
+## 🎮 Unified Management Console (`manage.sh`)
+
+The `manage.sh` script provides an interactive menu system to access all functionality:
+
+### Main Menu Options
+
+1. **Deployment Management**
+   - Start Docker Local (Development)
+   - Start Docker Production (VPS)
+   - Start Native Local (No Docker)
+   - Stop Native Local
+   - Start Fresh (Clean & Rebuild)
+   - Generate Security Secrets
+
+2. **Testing & API Tests**
+   - Test All APIs
+   - Test Shipment API
+   - Test Collection API
+   - Restart & Test
+
+3. **Maintenance & Backup**
+   - Backup Database
+   - Restore Database
+   - Health Check
+   - Setup Auto Backup (Cron)
+   - View Logs
+   - Clean Docker Resources
+
+4. **Makefile Commands**
+   - All make targets accessible via menu
+   - Development commands
+   - Production commands
+   - Database operations
+   - Utilities
+
+5. **Quick Actions**
+   - Start Dev + Test APIs
+   - Backup + Health Check
+   - Stop All Services
+   - Restart All Services
+   - View System Status
+
+### Features
+
+- 🎨 Colorful, intuitive interface
+- 📋 Organized by category
+- ⚡ Quick actions for common workflows
+- 🔄 Integrates with Makefile
+- 📊 Real-time status display
+- ✅ Error handling and validation
 
 ---
 
@@ -207,49 +395,46 @@ Stop all native services.
 
 ### Development Workflow
 ```bash
-# Start
-./run-local-native.sh
+# Start management console
+./manage.sh
 
+# Select: 1 (Deployment) → 3 (Start Native Local)
 # Code changes (auto reload)
-
-# Check health
-./health-check.sh
-
-# Stop
-./stop-local-native.sh
+# Select: 3 (Maintenance) → 3 (Health Check)
+# Select: 1 (Deployment) → 4 (Stop Native Local)
 ```
 
 ### Testing Workflow
 ```bash
-# Start
-./run-docker-local.sh
+# Start management console
+./manage.sh
 
-# Test features
+# Quick action: Start Dev + Test APIs
+# Select: 5 (Quick Actions) → 1 (Start Dev + Test APIs)
 
-# View logs
-docker-compose logs -f
-
-# Stop
-docker-compose down
+# Or step by step:
+# Select: 1 (Deployment) → 1 (Start Docker Local)
+# Select: 2 (Testing) → 1 (Test All APIs)
 ```
 
 ### Production Workflow
 ```bash
 # Initial deploy
-sudo ./run-docker-production.sh
+sudo ./manage.sh
+# Select: 1 (Deployment) → 2 (Start Docker Production)
 
 # Setup auto backup
-./setup-cron-backup.sh
+# Select: 3 (Maintenance) → 4 (Setup Auto Backup)
 
 # Monitor
-./health-check.sh
+# Select: 5 (Quick Actions) → 5 (View System Status)
 
 # Update code
 git pull
-docker-compose -f docker-compose.prod.yml up -d --build
+# Select: 4 (Makefile) → 6 (make prod-build)
 
 # Backup before changes
-./backup.sh
+# Select: 5 (Quick Actions) → 2 (Backup + Health Check)
 ```
 
 ---
