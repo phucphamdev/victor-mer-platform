@@ -15,36 +15,70 @@ dev: ## Start development environment
 	@echo "Backend: http://localhost:7000"
 
 dev-build: ## Build and start development environment
+	@echo "🔨 Building and starting development environment..."
 	docker-compose --env-file .env.local up -d --build
+	@echo "✅ Build complete!"
 
 dev-logs: ## Show development logs
 	docker-compose --env-file .env.local logs -f
 
 dev-down: ## Stop development environment
+	@echo "🛑 Stopping development environment..."
 	docker-compose --env-file .env.local down
+	@echo "✅ Development environment stopped!"
 
-# Production commands
+# ═══════════════════════════════════════════════════════════
+# Cơ Chế 3: Docker Compose Production (VPS)
+# ═══════════════════════════════════════════════════════════
+
 prod: ## Start production environment
+	@echo "🌐 Starting Victor Mer Platform (Production Mode)..."
 	docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
-	@echo "Production environment started!"
+	@echo ""
+	@echo "✅ Production environment started!"
+	@echo ""
+	@echo "🌐 Access URLs:"
+	@echo "  Frontend:  https://yourdomain.com"
+	@echo "  Admin:     https://admin.yourdomain.com"
+	@echo "  Backend:   https://api.yourdomain.com"
+	@echo "  Swagger:   https://api.yourdomain.com/api-docs"
+	@echo ""
+	@echo "📝 Useful commands:"
+	@echo "  make prod-logs    - View logs"
+	@echo "  make prod-down    - Stop services"
+	@echo "  make backup-db    - Backup database"
 
 prod-build: ## Build and start production environment
+	@echo "🔨 Building and starting production environment..."
 	docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+	@echo "✅ Production build complete!"
 
 prod-logs: ## Show production logs
 	docker-compose -f docker-compose.prod.yml --env-file .env.prod logs -f
 
 prod-down: ## Stop production environment
+	@echo "🛑 Stopping production environment..."
 	docker-compose -f docker-compose.prod.yml --env-file .env.prod down
+	@echo "✅ Production environment stopped!"
 
-# Database commands
+# ═══════════════════════════════════════════════════════════
+# Database Commands
+# ═══════════════════════════════════════════════════════════
+
 seed: ## Import seed data to database (development)
+	@echo "📦 Importing seed data to development database..."
 	docker-compose --env-file .env.local exec backend npm run data:import
+	@echo "✅ Seed data imported!"
 
 seed-prod: ## Import seed data to database (production)
+	@echo "📦 Importing seed data to production database..."
 	docker-compose -f docker-compose.prod.yml --env-file .env.prod exec backend npm run data:import
+	@echo "✅ Seed data imported!"
 
-# Utility commands
+# ═══════════════════════════════════════════════════════════
+# Utility Commands
+# ═══════════════════════════════════════════════════════════
+
 logs: ## Show all logs
 	docker-compose logs -f
 
@@ -52,11 +86,21 @@ restart: ## Restart all services
 	docker-compose restart
 
 clean: ## Remove all containers, volumes, and images
-	docker-compose down -v --rmi all
-	docker-compose -f docker-compose.prod.yml down -v --rmi all
+	@echo "🧹 Cleaning all Docker resources..."
+	@echo "⚠️  This will remove all containers, volumes, and images!"
+	@read -p "Are you sure? [y/N] " -n 1 -r; \
+	echo; \
+	if [[ $$REPLY =~ ^[Yy]$$ ]]; then \
+		docker-compose down -v --rmi all; \
+		docker-compose -f docker-compose.prod.yml down -v --rmi all; \
+		echo "✅ Cleanup complete!"; \
+	else \
+		echo "❌ Cleanup cancelled."; \
+	fi
 
 ps: ## Show running containers
-	docker-compose ps
+	@echo "📊 Running containers:"
+	@docker-compose ps
 
 # SSL certificate (Let's Encrypt)
 ssl-cert: ## Generate SSL certificate with certbot

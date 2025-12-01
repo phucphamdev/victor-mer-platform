@@ -20,10 +20,16 @@ export default function Sidebar({sideMenu,setSideMenu}:IProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Check if any submenu is active
+  // Check if any submenu is active or if pathname starts with submenu link
   const isSubmenuActive = (menu: any) => {
     if (!menu.subMenus) return false;
-    return menu.subMenus.some((sub: any) => pathname === sub.link);
+    return menu.subMenus.some((sub: any) => {
+      // Exact match
+      if (pathname === sub.link) return true;
+      // Check if pathname starts with submenu link (for dynamic routes like /collections/[id])
+      if (pathname.startsWith(sub.link + '/')) return true;
+      return false;
+    });
   };
 
   // Auto-open dropdown if submenu is active
@@ -122,20 +128,25 @@ export default function Sidebar({sideMenu,setSideMenu}:IProps) {
                       <ul
                         className={`pl-[42px] pr-[20px] pb-2 space-y-1 transition-all duration-300 ${isDropdown === menu.title || isSubmenuActive(menu) ? "block" : "hidden"}`}
                       >
-                        {menu.subMenus.map((sub, i) => (
-                          <li key={i}>
-                            <Link
-                              href={sub.link}
-                              className={`block font-normal w-full py-2 px-3 rounded-md transition-colors nav-dot ${
-                                pathname === sub.link 
-                                  ? "text-theme bg-themeLight font-medium" 
-                                  : "text-[#6D6F71] hover:text-theme hover:bg-gray/50"
-                              }`}
-                            >
-                              {sub.title}
-                            </Link>
-                          </li>
-                        ))}
+                        {menu.subMenus.map((sub, i) => {
+                          // Check if current submenu is active (exact match or starts with)
+                          const isActive = pathname === sub.link || pathname.startsWith(sub.link + '/');
+                          
+                          return (
+                            <li key={i}>
+                              <Link
+                                href={sub.link}
+                                className={`block font-normal w-full py-2 px-3 rounded-md transition-colors nav-dot ${
+                                  isActive
+                                    ? "text-theme bg-themeLight font-medium" 
+                                    : "text-[#6D6F71] hover:text-theme hover:bg-gray/50"
+                                }`}
+                              >
+                                {sub.title}
+                              </Link>
+                            </li>
+                          );
+                        })}
                       </ul>
                     )}
                   </li>

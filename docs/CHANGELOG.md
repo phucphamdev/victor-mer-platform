@@ -584,3 +584,44 @@ MIT License
 ---
 
 **Ghi chú**: Đây là bản cập nhật đầu tiên. Các tối ưu sẽ được triển khai dần theo roadmap trong OPTIMIZATION_PLAN.md
+
+
+---
+
+## [2024-12-01] - Deployment Scripts & Documentation
+
+### ✅ Added Automated Deployment Scripts
+
+#### Deployment Scripts (8 scripts)
+- ✅ `run-local-native.sh` - Native deployment without Docker
+- ✅ `run-docker-local.sh` - Docker Compose for local testing
+- ✅ `run-docker-production.sh` - Production deployment with SSL
+- ✅ `stop-local-native.sh` - Stop native services
+- ✅ `health-check.sh` - Health monitoring for all services
+- ✅ `backup.sh` - Database and configuration backup
+- ✅ `restore.sh` - Interactive database restore
+- ✅ `setup-cron-backup.sh` - Automatic backup setup
+
+#### Features
+- ✅ Auto-detect and fix port conflicts
+- ✅ Auto-install Docker (if needed)
+- ✅ Auto-setup SSL with Let's Encrypt
+- ✅ Auto-configure Nginx reverse proxy
+- ✅ Auto-configure firewall
+- ✅ Health checks with retry logic
+- ✅ Colored output and progress indicators
+- ✅ Comprehensive error handling
+- ✅ SSL auto-renewal setup
+
+#### Documentation Updates
+- ✅ Created `docs/DEPLOYMENT_SCRIPTS.md` - Complete scripts documentation
+- ✅ Updated `README.md` - Added quick start section
+- ✅ Organized all documentation in `docs/` folder
+- ✅ Removed redundant .md files from root
+
+### 🎯 Impact
+- Complete automated deployment solution
+- 3 deployment methods (Native, Docker Local, Docker Production)
+- Production-ready with SSL and monitoring
+- Comprehensive backup and restore system
+- Professional documentation structure

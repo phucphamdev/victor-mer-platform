@@ -8,6 +8,7 @@ Hướng dẫn triển khai Victor Mer Platform với Docker Compose cho cả m�
 
 ## 📋 Mục lục
 
+- [🚀 Quick Start - 3 Cách Chạy Dự Án](#-quick-start---3-cách-chạy-dự-án)
 - [Yêu cầu hệ thống](#-yêu-cầu-hệ-thống)
 - [Quick Start - Development](#-quick-start---development)
 - [Quick Start - Production](#-quick-start---production)
@@ -18,6 +19,41 @@ Hướng dẫn triển khai Victor Mer Platform với Docker Compose cho cả m�
 - [Bảo mật](#-bảo-mật)
 - [Monitoring & Backup](#-monitoring--backup)
 - [Troubleshooting](#-troubleshooting)
+
+---
+
+## � Quick S tart - 3 Cách Chạy Dự Án
+
+Dự án cung cấp **3 scripts tự động** để chạy dễ dàng:
+
+### 🖥️ Cách 1: Native (Không Docker) - Nhanh nhất
+```bash
+./run-local-native.sh
+```
+✅ Tự động kiểm tra Node.js, MongoDB  
+✅ Tự động xử lý port conflicts  
+✅ Tự động import dữ liệu demo  
+✅ Phù hợp cho: Development, debugging
+
+### 🐳 Cách 2: Docker Local - Test nhẹ nhàng
+```bash
+./run-docker-local.sh
+```
+✅ Tự động cài Docker (nếu chưa có)  
+✅ Tự động build và start services  
+✅ Tự động health check  
+✅ Phù hợp cho: Testing, môi trường giống production
+
+### 🌐 Cách 3: Docker Production - VPS với SSL
+```bash
+sudo ./run-docker-production.sh
+```
+✅ Tự động setup Nginx + SSL (Let's Encrypt)  
+✅ Tự động configure firewall  
+✅ Tự động SSL renewal  
+✅ Phù hợp cho: Production deployment
+
+📖 **Chi tiết đầy đủ**: Xem [QUICK_START.md](./QUICK_START.md) hoặc [DEPLOYMENT_GUIDE_VI.md](./DEPLOYMENT_GUIDE_VI.md)
 
 ---
 
@@ -480,6 +516,23 @@ victor-mer-platform/
 
 ## 🛠️ Các lệnh thường dùng
 
+### 🎯 Deployment Scripts
+
+```bash
+# Deployment
+./run-local-native.sh          # Native (no Docker)
+./run-docker-local.sh          # Docker local
+sudo ./run-docker-production.sh # Production with SSL
+
+# Utilities
+./health-check.sh              # Health monitoring
+./backup.sh                    # Database backup
+./restore.sh                   # Database restore
+./setup-cron-backup.sh         # Auto backup setup
+```
+
+📖 **Full Guide**: [docs/DEPLOYMENT_SCRIPTS.md](./docs/DEPLOYMENT_SCRIPTS.md)
+
 ### Makefile Commands
 
 ```bash
@@ -761,6 +814,14 @@ docker-compose -f docker-compose.prod.yml restart
 
 ## 📊 Monitoring & Backup
 
+### 🏥 Health Check
+
+```bash
+./health-check.sh
+```
+
+Checks: MongoDB, Backend API, Frontend, Admin Panel, Nginx, SSL, System Resources
+
 ### Xem Logs
 
 ```bash
@@ -795,58 +856,15 @@ df -h
 free -h
 ```
 
-### Backup Database
+### 💾 Backup & Restore
 
 ```bash
-# Manual backup
-make backup-db
-
-# Backup sẽ được lưu trong thư mục backups/
+./backup.sh                    # Backup database & config
+./restore.sh                   # Restore from backup
+./setup-cron-backup.sh         # Setup auto backup
 ```
 
-### Auto Backup Script
-
-```bash
-# Tạo script backup
-sudo nano /usr/local/bin/backup-victormer-db.sh
-```
-
-Script:
-```bash
-#!/bin/bash
-BACKUP_DIR="/var/backups/victormer"
-DATE=$(date +%Y%m%d_%H%M%S)
-mkdir -p $BACKUP_DIR
-
-cd /var/www/victor-mer
-docker-compose -f docker-compose.prod.yml exec -T mongodb \
-  mongodump --uri="mongodb://USER:PASS@localhost:27017/DB?authSource=admin" \
-  --archive=/tmp/backup_$DATE.gz --gzip
-
-docker cp victormer-mongodb-prod:/tmp/backup_$DATE.gz $BACKUP_DIR/
-
-# Xóa backup cũ hơn 30 ngày
-find $BACKUP_DIR -name "backup_*.gz" -mtime +30 -delete
-
-echo "Backup completed: backup_$DATE.gz"
-```
-
-```bash
-# Set permissions
-chmod +x /usr/local/bin/backup-victormer-db.sh
-
-# Tạo cron job
-crontab -e
-
-# Backup mỗi ngày lúc 3AM
-0 3 * * * /usr/local/bin/backup-victormer-db.sh
-```
-
-### Restore Database
-
-```bash
-make restore-db BACKUP=backup-20231201-120000
-```
+Features: MongoDB backup, environment files, Nginx config, auto-cleanup (7 days)
 
 ---
 
